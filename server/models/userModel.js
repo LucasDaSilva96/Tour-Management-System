@@ -61,3 +61,59 @@ userSchema.pre('save', async function (next) {
   // Call the next middleware
   next();
 });
+
+// ** Point to the current query (Middleware)
+userSchema.pre(/^find/, function (next) {
+  this.find({ active: true });
+  next();
+});
+
+// ** Make sure that the token is created before time-stamp (Middleware)
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000;
+
+  next();
+});
+
+// ** Check if passwords match (Method)
+userSchema.methods.correctPassword = async function (
+  candidatePassword,
+  userPassword
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+// ** Check if the user has changed password after getting the token (Method)
+userSchema.methods.changedPasswordAfter = function (JWTTimeStamp) {
+  if (this.passwordChangedAt) {
+    const changedTimeStamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+
+    // Check if user changed password after the token was issued
+    return JWTTimeStamp < changedTimeStamp;
+  }
+
+  return false;
+};
+
+// ** Create random token in order to reset password (Method)
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.passwordResetExpires = Date.now() + 600000; // +10 min from now
+
+  return resetToken;
+};
+
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;
