@@ -2,6 +2,7 @@ const User = require('../models/userModel');
 const crypto = require('crypto');
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
+const { sendWelcomeMail, sendResetPasswordMail } = require('../utils/email');
 
 // *? Helper functions
 // This function is in charge of the response-status and message
@@ -117,7 +118,8 @@ exports.signUp = async (req, res, next) => {
     });
 
     createSendToken(newUser, 201, req, res);
-    // TODO Send welcome email to new users
+    // Send welcome email to new users ↓
+    await sendWelcomeMail(newUser);
   } catch (err) {
     responseHelper(400, err.message, res);
   }
@@ -125,10 +127,126 @@ exports.signUp = async (req, res, next) => {
 
 // ** The log out Middleware
 exports.logOut = (req, res) => {
-  req.cookie('jwt', 'loggedOut', {
+  res.cookie('jwt', 'loggedOut', {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
   });
   res.clearCookie('jwt');
   responseHelper(200, 'Logged out', res);
+};
+
+// ** The protect information Middleware
+exports.protect = async (req, res, next) => {
+  try {
+    let token,
+      decoded = undefined;
+    // 1 Get the token and check if it's true
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith('Bearer')
+    ) {
+      token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies.jwt) {
+      token = req.cookies.jwt;
+    }
+
+    if (!token) {
+      responseHelper(401, 'Please log in first.', res);
+      return;
+    }
+
+    // 2 Verify the token
+    jwt.verify(token, process.env.JWT_SECRET, (err, deco) => {
+      if (err) {
+        responseHelper(401, err.message, res);
+        return next();
+      } else {
+        decoded = deco;
+      }
+    });
+
+    // 3 Check if the user still exists
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) {
+      responseHelper(
+        401,
+        'The user belonging to the token does not exist.',
+        res
+      );
+      return;
+    }
+
+    if (currentUser.changedPasswordAfter(decoded.iat)) {
+      responseHelper(
+        401,
+        'User recently changed password. Please log in again.',
+        res
+      );
+      return;
+    }
+
+    // 4 grant access to the protected route
+    req.user = currentUser;
+    next();
+  } catch (err) {
+    responseHelper(401, err.message, res);
+  }
+};
+
+// ** Generate resetToken for password and send email Middleware
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email)
+      throw new Error('No email provided. Please provide a valid email.');
+    // 1 Get the user based on the email
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new Error('No user found with the provided email. Verify email.');
+    }
+    // 2 Generate random token
+    const resetToken = user.createPasswordResetToken();
+    await user.save();
+    // 3) Send it back as email
+    // TODO change reset url ↓
+    const resetURL = `http://localhost:8000/api/v1/users/resetPassword/${resetToken}`;
+    await sendResetPasswordMail(user, resetURL);
+    responseHelper(200, 'Token sent to email', res);
+
+    next();
+  } catch (err) {
+    responseHelper(400, err.message, res);
+  }
+};
+
+// ** Reset password Middleware
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const { password, passwordConfirm } = req.body;
+    // Get the user based on the token
+    const hashToken = crypto
+      .createHash('sha256')
+      .update(req.params.token)
+      .digest('hex');
+
+    const user = await User.findOne({
+      passwordResetToken: hashToken,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+
+    if (!user) throw new Error('Token is invalid or has expired');
+
+    // If token has not expired, and there is a user, set the password
+    user.password = password;
+    user.passwordConfirm = passwordConfirm;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    // Log the user in, Send JTW
+    createSendToken(user, 200, req, res);
+  } catch (err) {
+    responseHelper(400, err.message, res);
+  }
 };
