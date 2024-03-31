@@ -70,6 +70,7 @@ userSchema.pre('save', async function (next) {
 // ** Point to the current query (Middleware)
 userSchema.pre(/^find/, function (next) {
   this.find({ active: true });
+  this.select('-__v');
   next();
 });
 
