@@ -1,4 +1,5 @@
-const { responseHelper } = require('./authController');
+const { responseHelper } = require('../utils/httpResponse');
+
 const User = require('../models/userModel');
 
 // ** The get all users Middleware

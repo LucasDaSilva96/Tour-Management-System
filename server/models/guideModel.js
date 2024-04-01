@@ -1,12 +1,13 @@
 const mongoose = require('mongoose');
 
 const guideSchema = new mongoose.Schema({
-  FullName: {
+  fullName: {
     type: String,
     required: [true, 'A guide must have a name'],
   },
   email: {
     type: String,
+    required: [true, 'A guide must have a email.'],
     lowercase: true,
     unique: [true, 'This email is already in the database'],
   },
@@ -23,7 +24,7 @@ const guideSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    default: '../public/img/default.jpg',
+    default: '/img/default.jpg',
   },
   tour: [
     {
@@ -31,8 +32,17 @@ const guideSchema = new mongoose.Schema({
       ref: 'tours',
     },
   ],
+  updatedAt: Date,
+  updatedBy: String,
+});
+
+// ** Only show guides that are currently working(active) &
+// ** hide the __v + active fields Middleware
+guideSchema.pre(/^find/, function (next) {
+  this.find({ active: true });
+  this.select(['-__v', '-active']);
+  next();
 });
 
 const Guide = mongoose.model('guide', guideSchema);
-
 module.exports = Guide;
