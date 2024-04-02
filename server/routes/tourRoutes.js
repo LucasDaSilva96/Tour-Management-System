@@ -4,11 +4,13 @@ const {
   createTour,
   createYearDocument,
   assignGuideToBooking,
+  changeBookingStatus,
 } = require('../controllers/tourController');
 
 const router = express.Router();
 
 router.post('/', protect, createYearDocument, createTour);
-router.post('/booking', assignGuideToBooking);
+router.post('/booking', protect, assignGuideToBooking);
+router.patch('/booking', protect, changeBookingStatus);
 
 module.exports = router;

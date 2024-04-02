@@ -78,6 +78,7 @@ exports.createYearDocument = async (req, res, next) => {
   }
 };
 
+// ** This Middleware is for assigning a booking to a guide
 exports.assignGuideToBooking = async (req, res, next) => {
   try {
     const { bookingID, guide, year } = req.query;
@@ -112,11 +113,54 @@ exports.assignGuideToBooking = async (req, res, next) => {
 
     await guideDoc.save();
     await doc.save();
-    // 1 Get the selected tour
-    // 2 Get the selected guide
-    // 3 Assign guide to the booking
-    // 4 push the booking to the guide schema
-    responseHelper(200, 'Booking successfully update', res);
+
+    responseHelper(200, 'Guide successfully assigned to guide.', res);
+  } catch (err) {
+    responseHelper(400, err.message, res);
+  }
+};
+
+// ** Update booking status Middleware
+exports.changeBookingStatus = async (req, res, next) => {
+  try {
+    const { bookingID, year, status } = req.query;
+    if (!bookingID || !year || !status)
+      throw new Error('Please provide bookingID, year and status.');
+
+    const tourDoc = await Tour.findOne({ year: Number(year) });
+    if (!tourDoc) throw new Error('No tour document found.');
+
+    const BOOKING = tourDoc.bookings.find((el) => el.id === bookingID);
+    if (!BOOKING) throw new Error('No booking found with the provided id');
+
+    BOOKING.status = status;
+
+    const guides = await Guide.find();
+    let index = 0;
+
+    // Iterate through each guide
+    for (const guide of guides) {
+      // Iterate through each guide booking for the guide
+      for (const guideBooking of guide.guide_bookings) {
+        // Search for the booking with the provided bookingID
+        const booking = guideBooking.bookings.find(
+          (book) => book.id === bookingID
+        );
+
+        if (booking) {
+          booking.status = status;
+          await guide.save();
+          break;
+        }
+        index++;
+        if (index === guides.length) break;
+      }
+      if (index === guides.length) break;
+    }
+
+    await tourDoc.save();
+
+    responseHelper(200, 'Booking status successfully updated', res);
   } catch (err) {
     responseHelper(400, err.message, res);
   }
