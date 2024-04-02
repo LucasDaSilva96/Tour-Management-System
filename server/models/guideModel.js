@@ -1,4 +1,18 @@
 const mongoose = require('mongoose');
+const { bookingSchema } = require('./tourModel');
+
+const guideBookingSchema = new mongoose.Schema({
+  year: {
+    type: Number,
+    required: [
+      true,
+      'Enter a valid year to store the booking to the guide document',
+    ],
+  },
+  bookings: [bookingSchema],
+});
+
+exports.guideBookingSchema = guideBookingSchema;
 
 const guideSchema = new mongoose.Schema({
   fullName: {
@@ -26,15 +40,12 @@ const guideSchema = new mongoose.Schema({
     type: String,
     default: '/img/default.jpg',
   },
-  tour: [
-    {
-      type: mongoose.Schema.ObjectId,
-      ref: 'tours',
-    },
-  ],
   updatedAt: Date,
   updatedBy: String,
+  guide_bookings: [guideBookingSchema],
 });
+
+guideSchema.index({ email: 1 });
 
 // ** Only show guides that are currently working(active) &
 // ** hide the __v + active fields Middleware
@@ -44,5 +55,4 @@ guideSchema.pre(/^find/, function (next) {
   next();
 });
 
-const Guide = mongoose.model('guide', guideSchema);
-module.exports = Guide;
+exports.Guide = mongoose.model('guide', guideSchema);

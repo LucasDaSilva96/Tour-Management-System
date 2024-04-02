@@ -5,6 +5,7 @@ exports.dateCheckFunc = (yyyy_mm_dd) => {
   // EX: 2024-04-24
   const date = new Date();
   const currentYear = date.getFullYear();
+
   const currentMonth = date.getMonth();
   const currentDay = date.getDate();
   const [yyyy, mm, dd] = yyyy_mm_dd.toISOString().split('T')[0].split('-');
