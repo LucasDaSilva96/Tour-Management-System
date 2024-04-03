@@ -50,20 +50,23 @@ exports.createTour = async (req, res, next) => {
 // ** This Middleware is in charge of creating tours document automatic
 exports.createYearDocument = async (req, res, next) => {
   try {
-    const docs = await Tour.find();
-    const docsYearsArray = docs.map((el) => Number(el.year));
+    const tourDocs = await Tour.find();
+    const guideDocs = await Guide.find({ active: true });
+
+    const tourDocsYearArray = tourDocs.map((el) => Number(el.year));
     const targetYear = new Date().getFullYear() + 2;
 
-    const yearFound = () => {
+    const yearFound = (docsYearsArray) => {
       return docsYearsArray.findIndex((el) => el === targetYear) > -1
         ? true
         : false;
     };
 
+    // Tour
     let index = 1;
-    if (yearFound(1) === false) {
-      while (yearFound() === false) {
-        docsYearsArray.push(new Date().getFullYear() + index);
+    if (yearFound(tourDocsYearArray) === false) {
+      while (yearFound(tourDocsYearArray) === false) {
+        tourDocsYearArray.push(new Date().getFullYear() + index);
         await Tour.create({
           year: new Date().getFullYear() + index,
           bookings: [],
@@ -71,6 +74,63 @@ exports.createYearDocument = async (req, res, next) => {
         index++;
       }
     }
+
+    // Guide
+    for (const guide of guideDocs) {
+      if (!guide.guide_bookings.length > 0) {
+        guide.guide_bookings.push(
+          {
+            year: new Date().getFullYear(),
+            bookings: [],
+          },
+          {
+            year: new Date().getFullYear() + 1,
+            bookings: [],
+          }
+        );
+        await guide.save();
+      } else if (
+        +guide.guide_bookings[guide.guide_bookings.length - 1].year <
+        new Date().getFullYear() + 1
+      ) {
+        guide.guide_bookings.push({
+          year: new Date().getFullYear() + 1,
+          bookings: [],
+        });
+        await guide.save();
+      }
+    }
+
+    next();
+  } catch (err) {
+    responseHelper(400, err.message, res);
+  }
+};
+
+// ? Find and send booking-year automatic Middleware
+exports.findYearAndPassOn = async (req, res, next) => {
+  try {
+    const { bookingID } = req.query;
+    if (!bookingID) throw new Error('No bookingID provided.');
+
+    const tourDocs = await Tour.find();
+
+    let bookingFound = false;
+    let year;
+
+    for (const tour of tourDocs) {
+      for (const booking of tour.bookings) {
+        if (booking.id === bookingID) {
+          year = booking.tourDate.getFullYear().toString();
+          bookingFound = true;
+          break;
+        }
+      }
+    }
+    if (!bookingFound)
+      throw new Error('No booking found with the provided id.');
+
+    req.query = { ...req.query, year };
 
     next();
   } catch (err) {
@@ -82,6 +142,7 @@ exports.createYearDocument = async (req, res, next) => {
 exports.assignGuideToBooking = async (req, res, next) => {
   try {
     const { bookingID, guide, year } = req.query;
+
     if (!bookingID || !guide || !year)
       throw new Error('Please selected a tour,guide & year.');
 
@@ -96,6 +157,20 @@ exports.assignGuideToBooking = async (req, res, next) => {
     if (!booking)
       throw new Error('No booking found with the provided bookingID.');
 
+    if (booking.guide) {
+      const oldGuide = await Guide.findById(booking.guide._id);
+
+      const guideBookings = oldGuide.guide_bookings.find(
+        (el) => el.year === Number(year)
+      );
+      if (guideBookings) {
+        guideBookings.bookings = guideBookings.bookings.filter(
+          (el) => el.id !== bookingID
+        );
+        await oldGuide.save();
+      }
+    }
+
     const guideBookingsYearDoc = guideDoc.guide_bookings.find(
       (el) => el.year === Number(year)
     );
@@ -107,9 +182,16 @@ exports.assignGuideToBooking = async (req, res, next) => {
     }
 
     booking.guide = guideDoc._id;
-    guideDoc.guide_bookings
-      .find((el) => el.year === Number(year))
-      .bookings.push(booking);
+
+    const bookingAlReadyInGuideArray = guideBookingsYearDoc.bookings.find(
+      (el) => {
+        if (JSON.stringify(el.id) === JSON.stringify(booking.id)) return el;
+      }
+    );
+
+    if (!bookingAlReadyInGuideArray) {
+      guideBookingsYearDoc.bookings.push(booking);
+    }
 
     await guideDoc.save();
     await doc.save();
@@ -121,8 +203,12 @@ exports.assignGuideToBooking = async (req, res, next) => {
 };
 
 // ** Update booking status Middleware
-exports.changeBookingStatus = async (req, res, next) => {
+exports.updateBooking = async (req, res, next) => {
   try {
+    if (req.body.guide || req.body.id || req.body._id)
+      throw new Error(
+        "You can't update guide here. You are not allowed to change document id."
+      );
     const { bookingID, year, status } = req.query;
     if (!bookingID || !year || !status)
       throw new Error('Please provide bookingID, year and status.');
@@ -130,37 +216,44 @@ exports.changeBookingStatus = async (req, res, next) => {
     const tourDoc = await Tour.findOne({ year: Number(year) });
     if (!tourDoc) throw new Error('No tour document found.');
 
-    const BOOKING = tourDoc.bookings.find((el) => el.id === bookingID);
-    if (!BOOKING) throw new Error('No booking found with the provided id');
+    const bookingIndex = tourDoc.bookings.findIndex(
+      (el) => el.id === bookingID
+    );
+    if (bookingIndex === -1) {
+      throw new Error('No booking found with the provided id');
+    }
 
-    BOOKING.status = status;
+    tourDoc.bookings[bookingIndex] = {
+      ...tourDoc.bookings[bookingIndex].toObject(),
+      ...req.body,
+      status,
+    };
 
     const guides = await Guide.find();
-    let index = 0;
 
     // Iterate through each guide
     for (const guide of guides) {
       // Iterate through each guide booking for the guide
       for (const guideBooking of guide.guide_bookings) {
         // Search for the booking with the provided bookingID
-        const booking = guideBooking.bookings.find(
+        const bookingIndex = guideBooking.bookings.findIndex(
           (book) => book.id === bookingID
         );
-
-        if (booking) {
-          booking.status = status;
+        if (bookingIndex !== -1) {
+          guideBooking.bookings[bookingIndex] = {
+            ...guideBooking.bookings[bookingIndex].toObject(),
+            ...req.body,
+            status,
+          };
           await guide.save();
           break;
         }
-        index++;
-        if (index === guides.length) break;
       }
-      if (index === guides.length) break;
     }
 
     await tourDoc.save();
 
-    responseHelper(200, 'Booking status successfully updated', res);
+    responseHelper(200, 'Booking successfully updated', res);
   } catch (err) {
     responseHelper(400, err.message, res);
   }

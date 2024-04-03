@@ -29,6 +29,9 @@ app.use(cookieParser());
 app.use(cors());
 app.options('*', cors());
 
+// !Middleware to parse URL-encoded data
+app.use(express.urlencoded({ extended: true }));
+
 // ** Routes
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/tours', tourRoutes);

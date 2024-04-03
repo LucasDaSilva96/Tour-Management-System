@@ -4,13 +4,21 @@ const {
   createTour,
   createYearDocument,
   assignGuideToBooking,
-  changeBookingStatus,
+  updateBooking,
+  findYearAndPassOn,
 } = require('../controllers/tourController');
 
 const router = express.Router();
 
-router.post('/', protect, createYearDocument, createTour);
-router.post('/booking', protect, assignGuideToBooking);
-router.patch('/booking', protect, changeBookingStatus);
+router.use(protect);
+
+router.post('/', createYearDocument, createTour);
+router.post(
+  '/booking',
+  createYearDocument,
+  findYearAndPassOn,
+  assignGuideToBooking
+);
+router.patch('/booking', findYearAndPassOn, updateBooking);
 
 module.exports = router;
