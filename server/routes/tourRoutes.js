@@ -6,19 +6,22 @@ const {
   assignGuideToBooking,
   updateBooking,
   findYearAndPassOn,
+  deleteBooking,
+  getAllBookingsByYearAndFilter,
 } = require('../controllers/tourController');
 
 const router = express.Router();
 
 router.use(protect);
 
-router.post('/', createYearDocument, createTour);
+router.post('/createBooking', createYearDocument, createTour);
 router.post(
-  '/booking',
+  '/booking/assignGuide',
   createYearDocument,
   findYearAndPassOn,
   assignGuideToBooking
 );
-router.patch('/booking', findYearAndPassOn, updateBooking);
-
+router.patch('/booking/update', findYearAndPassOn, updateBooking);
+router.delete('/booking/delete', findYearAndPassOn, deleteBooking);
+router.get('/bookings', getAllBookingsByYearAndFilter);
 module.exports = router;

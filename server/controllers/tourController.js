@@ -196,7 +196,7 @@ exports.assignGuideToBooking = async (req, res, next) => {
     await guideDoc.save();
     await doc.save();
 
-    responseHelper(200, 'Guide successfully assigned to guide.', res);
+    responseHelper(200, 'Booking successfully assigned to guide.', res);
   } catch (err) {
     responseHelper(400, err.message, res);
   }
@@ -254,6 +254,93 @@ exports.updateBooking = async (req, res, next) => {
     await tourDoc.save();
 
     responseHelper(200, 'Booking successfully updated', res);
+  } catch (err) {
+    responseHelper(400, err.message, res);
+  }
+};
+
+// ** Delete booking Middleware
+exports.deleteBooking = async (req, res, next) => {
+  try {
+    const { bookingID, year } = req.query;
+    if (!bookingID || !year) throw new Error('No bookingID or year provided.');
+
+    const tourYearDoc = await Tour.findOne({ year });
+    const bookingIndex = tourYearDoc.bookings.findIndex(
+      (el) => el.id === bookingID
+    );
+
+    if (bookingIndex < 0) throw new Error('No booking found');
+
+    if (tourYearDoc.bookings[bookingIndex].guide) {
+      const guideID = tourYearDoc.bookings[bookingIndex].guide;
+      const guideDoc = await Guide.findById(guideID);
+      const guideBookingYearDocIndex = guideDoc.guide_bookings.findIndex(
+        (el) => el.year === +year
+      );
+
+      const bookingIndexGuide = guideDoc.guide_bookings[
+        guideBookingYearDocIndex
+      ].bookings.findIndex((el) => el.id === bookingID);
+
+      guideDoc.guide_bookings[guideBookingYearDocIndex].bookings.splice(
+        bookingIndexGuide,
+        1
+      );
+
+      await guideDoc.save();
+    }
+
+    tourYearDoc.bookings.splice(bookingIndex, 1);
+
+    await tourYearDoc.save();
+
+    responseHelper(200, 'Booking successfully deleted.', res);
+  } catch (err) {
+    responseHelper(400, err.message, res);
+  }
+};
+
+// ** Get all tours by year Middleware
+exports.getAllBookingsByYearAndFilter = async (req, res, next) => {
+  try {
+    const { year, ...filterObj } = req.query;
+    if (!year) throw new Error('No year provided.');
+
+    const tourDoc = await Tour.findOne({ year });
+    if (!tourDoc) throw new Error('No document with the provided year found.');
+    const bookings = tourDoc.bookings;
+    if (!bookings.length > 0)
+      throw new Error('No bookings found with the provided credentials.');
+
+    const filteredBookings = bookings.filter((booking) => {
+      for (const [key, value] of Object.entries(filterObj)) {
+        if (key === 'month') {
+          // Extract month from tourDate and compare with provided month
+          const bookingMonth = new Date(booking.tourDate).getMonth() + 1; // Month is 0-indexed
+          if (parseInt(value) !== bookingMonth) return false;
+        } else if (key === 'guide') {
+          // Guide ID is stored as a string, so compare directly
+          if (value !== booking.guide._id.toString()) return false;
+        } else if (key === 'day') {
+          const bookingDay = new Date(booking.tourDate).getDate();
+          if (parseInt(value) !== bookingDay) return false;
+        } else {
+          // For other filters, compare directly
+          if (value !== booking[key]) return false;
+        }
+      }
+      return true;
+    });
+
+    if (!filteredBookings.length > 0)
+      throw new Error('No booking found that matches your filter options.');
+
+    responseHelper(200, 'Bookings successfully fetched', res, {
+      year: Number(year),
+      count: filteredBookings.length,
+      filteredBookings,
+    });
   } catch (err) {
     responseHelper(400, err.message, res);
   }
