@@ -1,6 +1,6 @@
 const multer = require('multer');
 const { responseHelper } = require('./httpResponse');
-const Guide = require('../models/guideModel');
+const { Guide } = require('../models/guideModel');
 const path = require('path');
 
 const storage = multer.diskStorage({
@@ -35,6 +35,7 @@ exports.upload = upload;
 
 exports.uploadImageToDB = async (req, res, next) => {
   try {
+    if (!req.file) throw new Error('No file provided.');
     if (req.err) throw new Error(req.err);
     const { guideID } = req.params;
     if (!guideID) throw new Error('No guide id defined');
