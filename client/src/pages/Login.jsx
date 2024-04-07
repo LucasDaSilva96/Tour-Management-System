@@ -12,16 +12,61 @@ import Grid from "@mui/material/Grid";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-const defaultTheme = createTheme();
+import { useDispatch } from "react-redux";
+import { isLoading, notLoading } from "../redux/loadingSlice";
+import { resetError, setError } from "../redux/errorSlice";
+import axios from "axios";
+import { login } from "../redux/userSlice";
+import { saveMe } from "../utils/rememberMe";
+
+export const defaultTheme = createTheme({
+  palette: {
+    primary: {
+      light: "#4dabf5",
+      main: "#2196f3",
+      dark: "#002884",
+      contrastText: "#fff",
+    },
+    secondary: {
+      light: "#ff7961",
+      main: "#f44336",
+      dark: "#ba000d",
+      contrastText: "#000",
+    },
+  },
+});
 
 export default function Login() {
-  const handleSubmit = (event) => {
+  const dispatch = useDispatch();
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
+
+    dispatch(isLoading());
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+    const email = data.get("email");
+    const password = data.get("password");
+    const remember = data.get("remember");
+
+    await axios
+      .post("http://localhost:8000/api/v1/users/login", {
+        email,
+        password,
+      })
+      .then((res) => {
+        dispatch(login({ ...res.data.data.user, token: res.data.token }));
+        dispatch(resetError());
+        if (remember)
+          saveMe({
+            ...res.data.data.user,
+            token: res.data.token,
+            isLoggedIn: true,
+          });
+      })
+      .catch((err) =>
+        dispatch(setError({ message: err.response.data.message }))
+      )
+      .finally(dispatch(notLoading()));
   };
 
   return (
@@ -88,7 +133,9 @@ export default function Login() {
                 autoComplete="current-password"
               />
               <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
+                control={
+                  <Checkbox value="remember" name="remember" color="primary" />
+                }
                 label="Remember me"
               />
               <Button
