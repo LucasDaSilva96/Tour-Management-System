@@ -12,16 +12,19 @@ const {
   updateOneUser,
   deleteUser,
 } = require('../controllers/userController');
+const { upload, uploadImageToDB } = require('../utils/upload');
 
 const router = express.Router();
 
-router.get('/', protect, getAllUsers);
 router.post('/signUp', signUp);
 router.post('/logIn', login);
+router.get('/', getAllUsers);
+router.use(protect);
 router.post('/logOut', logOut);
 router.post('/resetPassword', forgotPassword);
+router.post('/uploadUserImage/:id', upload.single('image'), uploadImageToDB);
 router.patch('/resetPassword/:token', resetPassword);
-router.patch('/updateMe', protect, updateOneUser);
-router.delete('/deleteUser/:email', protect, deleteUser);
+router.patch('/updateMe', updateOneUser);
+router.delete('/deleteUser/:email', deleteUser);
 
 module.exports = router;
