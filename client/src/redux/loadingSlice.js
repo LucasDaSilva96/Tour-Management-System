@@ -8,7 +8,7 @@ const isLoadingSlice = createSlice({
   name: "isLoadingState",
   initialState,
   reducers: {
-    isLoading(state, action) {
+    setIsLoading(state, action) {
       state.isLoading = true;
     },
     notLoading(state, action) {
@@ -17,7 +17,7 @@ const isLoadingSlice = createSlice({
   },
 });
 
-export const { isLoading, notLoading } = isLoadingSlice.actions;
+export const { setIsLoading, notLoading } = isLoadingSlice.actions;
 
 export const getLoadingState = (state) => state.loadingState.isLoading;
 

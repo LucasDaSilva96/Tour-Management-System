@@ -13,7 +13,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useDispatch } from "react-redux";
-import { isLoading, notLoading } from "../redux/loadingSlice";
+import { setIsLoading, notLoading } from "../redux/loadingSlice";
 import { resetError, setError } from "../redux/errorSlice";
 import axios from "axios";
 import { login } from "../redux/userSlice";
@@ -42,7 +42,7 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    dispatch(isLoading());
+    dispatch(setIsLoading());
     const data = new FormData(event.currentTarget);
     const email = data.get("email");
     const password = data.get("password");

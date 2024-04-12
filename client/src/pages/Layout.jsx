@@ -6,7 +6,7 @@ import { defaultTheme } from "./Login";
 function Layout() {
   const year = new Date().getFullYear();
   return (
-    <main className=" w-[100dvw] h-[100dvh] flex flex-col">
+    <main className=" w-[100dvw] h-[100dvh] flex flex-col relative">
       <ThemeProvider theme={defaultTheme}>
         <Header />
         <Outlet />
