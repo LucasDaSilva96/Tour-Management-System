@@ -16,20 +16,20 @@ const isValidYear = (date) => {
 // ** The create booking Middleware
 exports.createTour = async (req, res, next) => {
   try {
-    let { tourDate } = req.body;
+    let { start } = req.body;
 
-    if (!tourDate) throw new Error('A tour must have a date.');
-    if (isValidYear(tourDate) === false)
+    if (!start) throw new Error('A tour must have a date.');
+    if (isValidYear(start) === false)
       throw new Error('A booking must take place in the present or future.');
     const period = await Tour.findOne({
-      year: Number(tourDate.toString().split('-')[0]),
+      year: Number(start.toString().split('-')[0]),
     });
 
     if (!period)
       throw new Error('The document for the provided year is not yet created');
-    tourDate = new Date(req.body.tourDate);
+    start = new Date(req.body.start);
     const timeIsTaken = period.bookings.find((el) => {
-      return el.tourDate.toISOString() === tourDate.toISOString();
+      return el.start.toISOString() === start.toISOString();
     });
 
     if (timeIsTaken)
@@ -223,10 +223,18 @@ exports.updateBooking = async (req, res, next) => {
       throw new Error('No booking found with the provided id');
     }
 
+    const color =
+      status === 'confirmed'
+        ? 'green'
+        : status === 'cancelled'
+        ? 'red'
+        : 'yellow';
+
     tourDoc.bookings[bookingIndex] = {
       ...tourDoc.bookings[bookingIndex].toObject(),
       ...req.body,
       status,
+      color,
     };
 
     const guides = await Guide.find();
@@ -244,6 +252,7 @@ exports.updateBooking = async (req, res, next) => {
             ...guideBooking.bookings[bookingIndex].toObject(),
             ...req.body,
             status,
+            color,
           };
           await guide.save();
           break;
@@ -339,7 +348,7 @@ exports.getAllBookingsByYearAndFilter = async (req, res, next) => {
     responseHelper(200, 'Bookings successfully fetched', res, {
       year: Number(year),
       count: filteredBookings.length,
-      filteredBookings,
+      result: filteredBookings,
     });
   } catch (err) {
     responseHelper(400, err.message, res);

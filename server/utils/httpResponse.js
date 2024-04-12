@@ -15,9 +15,7 @@ exports.responseHelper = (statusCode, message, res, data) => {
     res.status(statusCode).json({
       status,
       message: message,
-      data: {
-        data,
-      },
+      ...data,
     });
   }
 };

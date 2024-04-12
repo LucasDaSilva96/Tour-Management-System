@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 const { dateCheckFunc } = require('../utils/dateValidation');
 
 const bookingSchema = new mongoose.Schema({
-  groupName: {
+  title: {
     type: String,
     required: [true, 'A booking must have a name.'],
   },
-  tourDate: {
+  start: {
     type: Date,
     required: [true, 'A booking must have a date.'],
     validate: {
@@ -15,6 +15,10 @@ const bookingSchema = new mongoose.Schema({
       },
       message: 'A booking must take place in the present or future.',
     },
+  },
+  end: {
+    type: Date,
+    required: [true, 'A tour must have a end date.'],
   },
   guide: {
     type: mongoose.Schema.ObjectId,
@@ -25,7 +29,16 @@ const bookingSchema = new mongoose.Schema({
     enum: ['preliminary', 'confirmed', 'cancelled'],
     default: 'preliminary',
   },
-  notes: String,
+  color: {
+    type: String,
+    default: 'yellow',
+    enum: ['yellow', 'green', 'red'],
+  },
+  textColor: {
+    type: String,
+    default: 'black',
+  },
+  description: String,
   contactPerson: {
     type: String,
     required: [true, 'A booking must have a contact person'],
