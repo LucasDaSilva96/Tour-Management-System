@@ -13,12 +13,18 @@ const bookingSlice = createSlice({
     toggleReservationModal(state) {
       state.openReservationModal = !state.openReservationModal;
     },
-    // TODO Loop through the action.payload and change the start and end date to ISO 8601 format
+
     setCurrentSelectedBooking(state, action) {
       state.currentSelectedBooking = { ...action.payload };
     },
     setAllBookings(state, action) {
-      state.allBookings = action.payload;
+      const obj = action.payload.map((el) => {
+        el.start = new Date(el.start).toISOString();
+        el.end = new Date(el.end).toISOString();
+        return el;
+      });
+
+      state.allBookings = obj;
     },
   },
 });

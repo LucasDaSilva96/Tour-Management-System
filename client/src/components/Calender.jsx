@@ -56,23 +56,14 @@ export default function Calendar() {
 
   const handleEventClick = (clickInfo) => {
     dispatch(toggleReservationModal());
-    // dispatch(
-    //   setCurrentSelectedBooking({
-    //     ...clickInfo.event,
-    //     start: new Date(clickInfo.event.start).toISOString(),
-    //     end: new Date(clickInfo.event.end).toISOString(),
-    //   })
-    // );
-
-    // console.log("Event:", clickInfo.event);
-    // console.log("Event Title:", clickInfo.event.title);
-    // console.log("Event Start:", clickInfo.event.start);
-    // console.log("Event End:", clickInfo.event.end);
-    // console.log(
-    //   "Event Description:",
-    //   clickInfo.event.extendedProps.description
-    // );
-    // You can access other event properties similarly
+    dispatch(
+      setCurrentSelectedBooking({
+        ...clickInfo.event._def.extendedProps,
+        title: clickInfo.event._def.title,
+        start: new Date(clickInfo.event._instance.range.start).toISOString(),
+        end: new Date(clickInfo.event._instance.range.end).toISOString(),
+      })
+    );
   };
 
   if (isPending) return <Loading />;
@@ -108,6 +99,13 @@ export default function Calendar() {
         }}
         eventClick={handleEventClick}
         eventClassNames="point"
+        timeZone="UTC"
+        eventDisplay="block"
+        eventTimeFormat={{
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }}
       />
       <ReservationModal />
     </div>
