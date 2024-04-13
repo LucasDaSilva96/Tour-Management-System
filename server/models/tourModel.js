@@ -32,7 +32,6 @@ const bookingSchema = new mongoose.Schema({
   color: {
     type: String,
     default: 'yellow',
-    enum: ['yellow', 'green', 'red'],
   },
   textColor: {
     type: String,

@@ -37,11 +37,22 @@ exports.createTour = async (req, res, next) => {
         'You already have a booking on the provided day and time.'
       );
 
-    period.bookings.push({ ...req.body });
+    if (req.body.status) {
+      const color =
+        req.body.status === 'confirmed'
+          ? '#2dc653'
+          : req.body.status === 'cancelled'
+          ? '#f21b3f'
+          : 'yellow';
+
+      period.bookings.push({ ...req.body, color });
+    } else {
+      period.bookings.push({ ...req.body });
+    }
 
     await period.save();
 
-    responseHelper(201, 'Tour successfully created', res, period.bookings);
+    responseHelper(201, 'Tour successfully created', res);
   } catch (err) {
     responseHelper(400, err.message, res);
   }
@@ -225,9 +236,9 @@ exports.updateBooking = async (req, res, next) => {
 
     const color =
       status === 'confirmed'
-        ? 'green'
+        ? '#2dc653'
         : status === 'cancelled'
-        ? 'red'
+        ? '#f21b3f'
         : 'yellow';
 
     tourDoc.bookings[bookingIndex] = {
