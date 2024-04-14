@@ -7,6 +7,16 @@
   margin: 0;
   box-sizing: border-box;
 }
+/* Hide scrollbar for Chrome, Safari and Opera */
+*::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+* {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
 
 body {
   min-height: 100dvh;
@@ -14,4 +24,11 @@ body {
 
 .point {
   cursor: pointer;
+}
+
+/* This is for the FullCalendar day-cell */
+.fc-daygrid-day-events {
+  height: 80px;
+  max-height: 80px;
+  overflow-y: auto;
 }

@@ -17,12 +17,14 @@ import axios from "axios";
 import { getCurrentUser } from "../redux/userSlice";
 import Loading from "../pages/Loading";
 import AlertComponent from "./AlertNotis";
+import { useNavigate } from "react-router-dom";
 const today = dayjs();
 
 export default function Calendar() {
   const bookings = useSelector(getAllBookings);
   const user = useSelector(getCurrentUser);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { isPending, error, data } = useQuery({
     queryKey: [`${today.get("year")}-bookings`],
@@ -66,15 +68,25 @@ export default function Calendar() {
     );
   };
 
+  const handleAddNewEventClick = (clickInfo) => {
+    return navigate(`newReservation/${clickInfo.dateStr}`);
+  };
+
+  const handleView = (view) => {
+    localStorage.setItem("view", view.view.type);
+  };
+
   if (isPending) return <Loading />;
   if (error)
     return <AlertComponent type="error">{error.message}</AlertComponent>;
   return (
     <div>
       <FullCalendar
+        themeSystem="bootstrap5"
+        dateClick={handleAddNewEventClick}
         ref={calendarRef}
         plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]}
-        initialView="dayGridMonth"
+        initialView={localStorage.getItem("view")}
         slotLabelFormat={{
           hour: "2-digit",
           minute: "2-digit",
@@ -82,6 +94,7 @@ export default function Calendar() {
         }}
         height={"80dvh"}
         events={bookings}
+        eventDisplay="block"
         headerToolbar={{
           start: "dayGridMonth,timeGridWeek,timeGridDay",
           center: "title",
@@ -100,13 +113,13 @@ export default function Calendar() {
         eventClick={handleEventClick}
         eventClassNames="point"
         timeZone="UTC"
-        eventDisplay="block"
         eventTimeFormat={{
           hour: "2-digit",
           minute: "2-digit",
           hour12: false,
         }}
-      />
+        viewDidMount={handleView}
+      ></FullCalendar>
       <ReservationModal />
     </div>
   );

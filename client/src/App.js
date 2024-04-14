@@ -5,6 +5,9 @@ import { isLoggedIn } from "./redux/userSlice";
 import Layout from "./pages/Layout";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/CalenderHomePage";
+import NewReservation from "./pages/NewReservation";
+import Overview from "./pages/Overview";
+import Guides from "./pages/Guides";
 
 const router = createBrowserRouter([
   {
@@ -14,6 +17,18 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
+      },
+      {
+        path: "newReservation/:dateStr",
+        element: <NewReservation />,
+      },
+      {
+        path: "Overview",
+        element: <Overview />,
+      },
+      {
+        path: "Guides",
+        element: <Guides />,
       },
     ],
   },
