@@ -8,6 +8,7 @@ import Avatar from "@mui/material/Avatar";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentSelectedBooking,
+  getCurrentSelectedBookingModified,
   getReservationModalStatus,
   toggleReservationModal,
 } from "../redux/bookingSlice";
@@ -17,12 +18,18 @@ import AccessTimeFilledOutlinedIcon from "@mui/icons-material/AccessTimeFilledOu
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import EventBusyOutlinedIcon from "@mui/icons-material/EventBusyOutlined";
 import dayjs from "dayjs";
-import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import DescriptionTextBox from "./DescriptionTextBox";
+import Button from "@mui/material/Button";
+import ChangeReservationStatusSelect from "./ChangeReservationStatusSelect";
 
 export default function ReservationModal() {
   const modalOpen = useSelector(getReservationModalStatus);
   const dispatch = useDispatch();
   const selectedBooking = useSelector(getCurrentSelectedBooking);
+  const selectedBookingWasModified = useSelector(
+    getCurrentSelectedBookingModified
+  );
 
   if (!selectedBooking.start || !selectedBooking.end) return null;
 
@@ -167,7 +174,7 @@ export default function ReservationModal() {
   );
 
   return (
-    <aside>
+    <aside className="px-2">
       <Drawer
         sx={{ display: "flex", flexDirection: "column" }}
         anchor="right"
@@ -180,11 +187,29 @@ export default function ReservationModal() {
         {DrawerList}
         <Divider />
         {selectedBooking.description ? (
-          <article className="py-2 px-2 bg-slate-500 mt-3 h-52 relative overflow-y-scroll">
-            <p>
-              "dslkfgnsdfglfdgdflkgnfdglkngdsafsddfflkdfnglkgdfnndflkgndflkfdngfdlgnkfdlkgnlgdfknldsfklnsdflkfnkl"
-            </p>
-          </article>
+          <DescriptionTextBox description={selectedBooking.description} />
+        ) : null}
+        <Stack
+          spacing={2}
+          direction="row"
+          sx={{ alignSelf: "center", marginTop: "10px" }}
+        >
+          <Button variant="contained">Edit Reservation</Button>
+          <ChangeReservationStatusSelect />
+        </Stack>
+        {selectedBookingWasModified ? (
+          <Button
+            variant="contained"
+            color="success"
+            sx={{
+              width: "300px",
+              alignSelf: "center",
+              marginTop: "auto",
+              marginBottom: "10px",
+            }}
+          >
+            Save
+          </Button>
         ) : null}
       </Drawer>
     </aside>

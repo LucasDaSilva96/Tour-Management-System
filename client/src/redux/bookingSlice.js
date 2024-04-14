@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   openReservationModal: false,
   currentSelectedBooking: {},
+  currentSelectedBookingModified: false,
   allBookings: [],
 };
 
@@ -12,6 +13,9 @@ const bookingSlice = createSlice({
   reducers: {
     toggleReservationModal(state) {
       state.openReservationModal = !state.openReservationModal;
+      if (state.openReservationModal === false) {
+        state.currentSelectedBookingModified = false;
+      }
     },
 
     setCurrentSelectedBooking(state, action) {
@@ -26,6 +30,9 @@ const bookingSlice = createSlice({
 
       state.allBookings = obj;
     },
+    setCurrentSelectedBookingModified(state, action) {
+      state.currentSelectedBookingModified = action.payload;
+    },
   },
 });
 
@@ -33,6 +40,7 @@ export const {
   toggleReservationModal,
   setCurrentSelectedBooking,
   setAllBookings,
+  setCurrentSelectedBookingModified,
 } = bookingSlice.actions;
 
 export const getReservationModalStatus = (state) =>
@@ -42,5 +50,7 @@ export const getCurrentSelectedBooking = (state) =>
   state.bookingState.currentSelectedBooking;
 
 export const getAllBookings = (state) => state.bookingState.allBookings;
+export const getCurrentSelectedBookingModified = (state) =>
+  state.bookingState.currentSelectedBookingModified;
 
 export default bookingSlice.reducer;
