@@ -22,7 +22,7 @@ const bookingSchema = new mongoose.Schema({
   },
   guide: {
     type: mongoose.Schema.ObjectId,
-    ref: 'guides',
+    ref: 'guide',
   },
   status: {
     type: String,
@@ -53,19 +53,27 @@ const bookingSchema = new mongoose.Schema({
   },
 });
 
-bookingSchema.index({ groupName: 1, tourDate: 1 });
+bookingSchema.index({ title: 1, start: 1 });
 
 bookingSchema.pre('save', function (next) {
   if (!this.contactEmail && !this.contactPhone) {
     throw new Error(
-      'A booking must have either a phone number or email to the person in charge of the reservation.'
+      'A booking must have either a phone number or a email to the person in charge of the reservation.'
     );
   } else {
     next();
   }
 });
 
-exports.bookingSchema = bookingSchema;
+// Middleware to automatically populate the guide field
+bookingSchema.pre(/^find/, function (next) {
+  // 'this' points to the current query
+  this.populate({
+    path: 'guide',
+    select: 'fullName email phone photo', // Specify the fields you want to populate
+  });
+  next();
+});
 
 const tourSchema = new mongoose.Schema({
   year: {
@@ -75,5 +83,8 @@ const tourSchema = new mongoose.Schema({
   },
   bookings: [bookingSchema], // Add array of bookings
 });
+
+exports.bookingSchema = bookingSchema;
+exports.Bookings = mongoose.model('bookings', bookingSchema);
 
 exports.Tour = mongoose.model('tour', tourSchema);

@@ -1,5 +1,5 @@
 const { Guide } = require('../models/guideModel');
-const { Tour } = require('../models/tourModel');
+const { Tour, Bookings } = require('../models/tourModel');
 const { responseHelper } = require('../utils/httpResponse');
 
 // ? Helper function to check if the booking has a valid year
@@ -46,8 +46,10 @@ exports.createTour = async (req, res, next) => {
           : 'yellow';
 
       period.bookings.push({ ...req.body, color });
+      await Bookings.create({ ...req.body, color });
     } else {
       period.bookings.push({ ...req.body });
+      await Bookings.create({ ...req.body });
     }
 
     await period.save();
@@ -132,7 +134,7 @@ exports.findYearAndPassOn = async (req, res, next) => {
     for (const tour of tourDocs) {
       for (const booking of tour.bookings) {
         if (booking.id === bookingID) {
-          year = booking.tourDate.getFullYear().toString();
+          year = booking.start.getFullYear().toString();
           bookingFound = true;
           break;
         }
@@ -155,7 +157,7 @@ exports.assignGuideToBooking = async (req, res, next) => {
     const { bookingID, guide, year } = req.query;
 
     if (!bookingID || !guide || !year)
-      throw new Error('Please selected a tour,guide & year.');
+      throw new Error('Please selected a booking,guide & year.');
 
     const doc = await Tour.findOne({ year: Number(year) });
     if (!doc) throw new Error('No collection found with the provided year.');
@@ -193,19 +195,39 @@ exports.assignGuideToBooking = async (req, res, next) => {
     }
 
     booking.guide = guideDoc._id;
+    await Bookings.findByIdAndUpdate(bookingID, {
+      guide: guideDoc._id,
+    });
 
-    const bookingAlReadyInGuideArray = guideBookingsYearDoc.bookings.find(
+    const BOOKINGS_BOOKING = await Bookings.findOneAndUpdate(
+      {
+        title: booking.title,
+        start: booking.start,
+        end: booking.end,
+        status: booking.status,
+        color: booking.color,
+        description: booking.description,
+        contactPerson: booking.contactPerson,
+        participants: booking.participants,
+      },
+      {
+        guide: guideDoc._id,
+      }
+    );
+
+    const bookingAllReadyInGuideArray = guideBookingsYearDoc.bookings.find(
       (el) => {
         if (JSON.stringify(el.id) === JSON.stringify(booking.id)) return el;
       }
     );
 
-    if (!bookingAlReadyInGuideArray) {
+    if (!bookingAllReadyInGuideArray) {
       guideBookingsYearDoc.bookings.push(booking);
     }
 
     await guideDoc.save();
     await doc.save();
+    await BOOKINGS_BOOKING.save();
 
     responseHelper(200, 'Booking successfully assigned to guide.', res);
   } catch (err) {
@@ -241,12 +263,34 @@ exports.updateBooking = async (req, res, next) => {
         ? '#f21b3f'
         : 'yellow';
 
+    const BOOKINGS_BOOKING = await Bookings.findOneAndUpdate(
+      {
+        title: tourDoc.bookings[bookingIndex].title,
+        start: tourDoc.bookings[bookingIndex].start,
+        end: tourDoc.bookings[bookingIndex].end,
+        status: tourDoc.bookings[bookingIndex].status,
+        color: tourDoc.bookings[bookingIndex].color,
+        description: tourDoc.bookings[bookingIndex].description,
+        contactPerson: tourDoc.bookings[bookingIndex].contactPerson,
+        participants: tourDoc.bookings[bookingIndex].participants,
+      },
+      {
+        ...req.body,
+        status,
+        color,
+      }
+    );
+
+    await BOOKINGS_BOOKING.save();
+
     tourDoc.bookings[bookingIndex] = {
       ...tourDoc.bookings[bookingIndex].toObject(),
       ...req.body,
       status,
       color,
     };
+
+    await Bookings.findByIdAndUpdate(bookingID, { ...req.body, status, color });
 
     const guides = await Guide.find();
 
@@ -314,6 +358,7 @@ exports.deleteBooking = async (req, res, next) => {
     tourYearDoc.bookings.splice(bookingIndex, 1);
 
     await tourYearDoc.save();
+    await Bookings.findByIdAndDelete(bookingID);
 
     responseHelper(200, 'Booking successfully deleted.', res);
   } catch (err) {
@@ -337,13 +382,13 @@ exports.getAllBookingsByYearAndFilter = async (req, res, next) => {
       for (const [key, value] of Object.entries(filterObj)) {
         if (key === 'month') {
           // Extract month from tourDate and compare with provided month
-          const bookingMonth = new Date(booking.tourDate).getMonth() + 1; // Month is 0-indexed
+          const bookingMonth = new Date(booking.start).getMonth() + 1; // Month is 0-indexed
           if (parseInt(value) !== bookingMonth) return false;
         } else if (key === 'guide') {
           // Guide ID is stored as a string, so compare directly
           if (value !== booking.guide._id.toString()) return false;
         } else if (key === 'day') {
-          const bookingDay = new Date(booking.tourDate).getDate();
+          const bookingDay = new Date(booking.start).getDate();
           if (parseInt(value) !== bookingDay) return false;
         } else {
           // For other filters, compare directly
@@ -356,10 +401,66 @@ exports.getAllBookingsByYearAndFilter = async (req, res, next) => {
     if (!filteredBookings.length > 0)
       throw new Error('No booking found that matches your filter options.');
 
+    for (let i = 0; i < filteredBookings.length; i++) {
+      const el = filteredBookings[i];
+      const found = await Bookings.findOne({
+        title: el.title,
+        start: el.start,
+        end: el.end,
+        status: el.status,
+        color: el.color,
+        description: el.description,
+        contactPerson: el.contactPerson,
+        participants: el.participants,
+      });
+      if (found) {
+        filteredBookings[i] = found;
+      }
+    }
+
     responseHelper(200, 'Bookings successfully fetched', res, {
       year: Number(year),
       count: filteredBookings.length,
       result: filteredBookings,
+    });
+  } catch (err) {
+    responseHelper(400, err.message, res);
+  }
+};
+
+// ** Get a specific booking by filter-options Middleware
+exports.getOneBookingByYearAndId = async (req, res, next) => {
+  try {
+    const { year, bookingID } = req.query;
+    if (!year) throw new Error('No year provided.');
+
+    const tourDoc = await Tour.findOne({ year });
+    if (!tourDoc) throw new Error('No document with the provided year found.');
+    const bookings = tourDoc.bookings;
+    if (!bookings.length > 0)
+      throw new Error('No bookings found with the provided credentials.');
+
+    const booking = bookings.find((el) => el.id === bookingID);
+
+    if (!booking)
+      throw new Error('No booking found with the provided bookingID');
+
+    const foundBooking = await Bookings.findOne({
+      title: booking.title,
+      start: booking.start,
+      end: booking.end,
+      status: booking.status,
+      color: booking.color,
+      description: booking.description,
+      contactPerson: booking.contactPerson,
+      participants: booking.participants,
+    });
+
+    if (!foundBooking)
+      throw new Error('No booking found with the provided bookingID');
+
+    responseHelper(200, 'Bookings successfully fetched', res, {
+      booking: foundBooking,
     });
   } catch (err) {
     responseHelper(400, err.message, res);
