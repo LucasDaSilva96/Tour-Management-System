@@ -34,7 +34,15 @@ function Header() {
   const handleCloseNavMenu = (page) => {
     setAnchorElNav(null);
     if (page) {
-      navigate(page === "Calendar" ? "/" : `/${page}`);
+      switch (page) {
+        case "Calendar":
+          navigate("/");
+          break;
+
+        default:
+          navigate(`/${page}`);
+          break;
+      }
     }
   };
 
@@ -118,9 +126,8 @@ function Header() {
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button
-                href={page === "Calendar" ? "/" : `/${page}`}
                 key={page}
-                onClick={handleCloseNavMenu}
+                onClick={() => handleCloseNavMenu(page)}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
                 {page}
