@@ -3,6 +3,7 @@ import IsLoadingReducer from "./loadingSlice";
 import ErrorReducer from "./errorSlice";
 import UserReducer from "./userSlice";
 import BookingReducer from "./bookingSlice";
+import GuideReducer from "./guideSlice";
 
 const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ const store = configureStore({
     errorState: ErrorReducer,
     currentUser: UserReducer,
     bookingState: BookingReducer,
+    guideState: GuideReducer,
   },
 });
 

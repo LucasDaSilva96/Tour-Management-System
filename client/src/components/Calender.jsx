@@ -2,50 +2,22 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid"; // a plugin!
 import interactionPlugin from "@fullcalendar/interaction"; // needed for dayClick
 import timeGridPlugin from "@fullcalendar/timegrid";
-import dayjs from "dayjs";
 import { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setCurrentSelectedBooking,
-  setAllBookings,
   toggleReservationModal,
   getAllBookings,
 } from "../redux/bookingSlice";
 import ReservationModal from "./ReservationModal";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { getCurrentUser } from "../redux/userSlice";
-import Loading from "../pages/Loading";
-import AlertComponent from "./AlertNotis";
 import { useNavigate } from "react-router-dom";
-const today = dayjs();
+import PersonIcon from "@mui/icons-material/Person";
+import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 
 export default function Calendar() {
   const bookings = useSelector(getAllBookings);
-  const user = useSelector(getCurrentUser);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const { isPending, error, data } = useQuery({
-    queryKey: [`${today.get("year")}-bookings`],
-    queryFn: () =>
-      axios
-        .get(
-          `http://localhost:8000/api/v1/tours/bookings?year=${today.get(
-            "year"
-          )}`,
-          {
-            headers: {
-              Authorization: `Bearer ${user.token}`,
-            },
-          }
-        )
-        .then((res) => {
-          dispatch(setAllBookings(res.data.result));
-          return res.data;
-        }),
-  });
-
   const calendarRef = useRef(null);
 
   const goToPrevYear = () => {
@@ -76,9 +48,22 @@ export default function Calendar() {
     localStorage.setItem("view", view.view.type);
   };
 
-  if (isPending) return <Loading />;
-  if (error)
-    return <AlertComponent type="error">{error.message}</AlertComponent>;
+  // Function to render custom event content
+  const renderEventContent = (eventInfo) => {
+    return (
+      <article className="flex items-center justify-around flex-wrap">
+        {eventInfo.timeText && <span>{eventInfo.timeText}</span>}
+        <span>{eventInfo.event.title}</span>
+        {eventInfo.event._def.extendedProps.guide && (
+          <PersonIcon fontSize="small" />
+        )}
+        {eventInfo.event._def.extendedProps.snacks && (
+          <RestaurantMenuIcon fontSize="small" />
+        )}
+      </article>
+    );
+  };
+
   return (
     <div>
       <FullCalendar
@@ -119,6 +104,7 @@ export default function Calendar() {
           hour12: false,
         }}
         viewDidMount={handleView}
+        eventContent={renderEventContent}
       ></FullCalendar>
       <ReservationModal />
     </div>

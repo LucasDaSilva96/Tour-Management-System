@@ -27,13 +27,15 @@ const bookingSlice = createSlice({
       state.currentSelectedBooking = { ...action.payload };
     },
     setAllBookings(state, action) {
-      const obj = action.payload.map((el) => {
-        el.start = new Date(el.start).toISOString();
-        el.end = new Date(el.end).toISOString();
-        return el;
+      action.payload.forEach((booking) => {
+        booking = {
+          ...booking,
+          start: new Date(booking.start).toISOString(),
+          end: new Date(booking.end).toISOString(),
+        };
       });
 
-      state.allBookings = obj;
+      state.allBookings = action.payload;
     },
     setCurrentSelectedBookingModified(state, action) {
       state.currentSelectedBookingModified = action.payload;

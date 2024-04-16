@@ -22,7 +22,11 @@ import Stack from "@mui/material/Stack";
 import DescriptionTextBox from "./DescriptionTextBox";
 import Button from "@mui/material/Button";
 import ChangeReservationStatusSelect from "./ChangeReservationStatusSelect";
-
+import LocalActivityIcon from "@mui/icons-material/LocalActivity";
+import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
+import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
+import EmailIcon from "@mui/icons-material/Email";
+import GroupsIcon from "@mui/icons-material/Groups";
 export default function ReservationModal() {
   const modalOpen = useSelector(getReservationModalStatus);
   const dispatch = useDispatch();
@@ -32,13 +36,6 @@ export default function ReservationModal() {
   );
 
   if (!selectedBooking.start || !selectedBooking.end) return null;
-
-  const color =
-    selectedBooking.status === "confirmed"
-      ? "#2dc653"
-      : selectedBooking.status === "cancelled"
-      ? "#f21b3f"
-      : "yellow";
 
   const toggleDrawer = (newOpen) => () => {
     dispatch(toggleReservationModal());
@@ -56,10 +53,10 @@ export default function ReservationModal() {
   const DrawerList = (
     <List
       sx={{
-        minWidth: 500,
+        width: "100%",
         bgcolor: "background.paper",
         display: "grid",
-        gridTemplateColumns: "1fr 1fr",
+        gridTemplateColumns: "repeat( auto-fit, minmax(250px, 1fr) )",
       }}
     >
       <ListItem>
@@ -113,7 +110,7 @@ export default function ReservationModal() {
       <ListItem>
         <ListItemAvatar>
           <Avatar>
-            <AccessTimeOutlinedIcon />
+            <LocalActivityIcon />
           </Avatar>
         </ListItemAvatar>
         <ListItemText primary="Status" secondary={selectedBooking.status} />
@@ -122,7 +119,7 @@ export default function ReservationModal() {
       <ListItem>
         <ListItemAvatar>
           <Avatar>
-            <AccessTimeOutlinedIcon />
+            <AccessibilityNewIcon />
           </Avatar>
         </ListItemAvatar>
         <ListItemText
@@ -135,7 +132,7 @@ export default function ReservationModal() {
         <ListItem>
           <ListItemAvatar>
             <Avatar>
-              <AccessTimeOutlinedIcon />
+              <LocalPhoneIcon />
             </Avatar>
           </ListItemAvatar>
           <ListItemText
@@ -149,7 +146,7 @@ export default function ReservationModal() {
         <ListItem>
           <ListItemAvatar>
             <Avatar>
-              <AccessTimeOutlinedIcon />
+              <EmailIcon />
             </Avatar>
           </ListItemAvatar>
           <ListItemText
@@ -162,7 +159,7 @@ export default function ReservationModal() {
       <ListItem>
         <ListItemAvatar>
           <Avatar>
-            <AccessTimeOutlinedIcon />
+            <GroupsIcon />
           </Avatar>
         </ListItemAvatar>
         <ListItemText
@@ -170,13 +167,46 @@ export default function ReservationModal() {
           secondary={selectedBooking.participants}
         />
       </ListItem>
+
+      {selectedBooking.guide ? (
+        <ListItem>
+          <ListItemAvatar>
+            <Avatar
+              alt={selectedBooking.guide.fullName}
+              src={selectedBooking.guide.photo}
+            />
+          </ListItemAvatar>
+          <ListItemText
+            primary="Guide"
+            secondary={selectedBooking.guide.fullName}
+          />
+        </ListItem>
+      ) : null}
+
+      <ListItem>
+        <ListItemAvatar>
+          <Avatar>
+            <GroupsIcon />
+          </Avatar>
+        </ListItemAvatar>
+        <ListItemText
+          primary="Coffee/Mingle"
+          secondary={selectedBooking.snacks === true ? "Yes" : "No"}
+        />
+      </ListItem>
     </List>
   );
 
   return (
-    <aside className="px-2">
+    <aside>
       <Drawer
-        sx={{ display: "flex", flexDirection: "column" }}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "auto",
+        }}
         anchor="right"
         open={modalOpen}
         onClose={toggleDrawer()}

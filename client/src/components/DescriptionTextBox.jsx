@@ -7,6 +7,8 @@ function DescriptionTextBox({ description }) {
       width={500}
       p={1}
       sx={{
+        marginTop: "10px",
+        borderRadius: "8px",
         border: "1px solid grey",
         maxWidth: "500px",
         alignSelf: "center",

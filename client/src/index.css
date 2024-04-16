@@ -32,3 +32,8 @@ body {
   max-height: 80px;
   overflow-y: auto;
 }
+
+.css-1160xiw-MuiPaper-root-MuiDrawer-paper {
+  width: 70dvw !important;
+  overflow-y: auto !important;
+}

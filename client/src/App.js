@@ -8,6 +8,10 @@ import Home from "./pages/CalenderHomePage";
 import NewReservation from "./pages/NewReservation";
 import Overview from "./pages/Overview";
 import Guides from "./pages/Guides";
+import store from "./redux/store";
+import { fetchAllBookingsByYear, fetchAllGuides } from "./utils/fetchData";
+import { setAllBookings } from "./redux/bookingSlice";
+import { setAllGuides } from "./redux/guideSlice";
 
 const changeTabText = (text) => {
   return (window.document.title = `Sandgrund || ${text}`);
@@ -21,7 +25,16 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
-        loader: () => changeTabText("Calendar"),
+        loader: async () => {
+          const user = await store.getState().currentUser;
+          const bookings = await fetchAllBookingsByYear(user.token);
+          const guides = await fetchAllGuides(user.token);
+
+          store.dispatch(setAllBookings(bookings));
+          store.dispatch(setAllGuides(guides));
+
+          return changeTabText("Calendar");
+        },
       },
       {
         path: "newReservation/:dateStr",
