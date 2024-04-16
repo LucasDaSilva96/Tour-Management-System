@@ -27,15 +27,30 @@ import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import EmailIcon from "@mui/icons-material/Email";
 import GroupsIcon from "@mui/icons-material/Groups";
+import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
+import AssignGuideOrChangeGuideSelect from "./AssignGuideOrChangeGuideSelect";
+import { getCurrentUser } from "../redux/userSlice";
+import { updateOneBooking } from "../utils/postData.js";
+
+import { getAllGuides } from "../redux/guideSlice.js";
+
 export default function ReservationModal() {
   const modalOpen = useSelector(getReservationModalStatus);
   const dispatch = useDispatch();
   const selectedBooking = useSelector(getCurrentSelectedBooking);
+  const guide =
+    useSelector(getAllGuides).find((el) => el.guide === selectedBooking._id) ||
+    null;
+  const user = useSelector(getCurrentUser);
   const selectedBookingWasModified = useSelector(
     getCurrentSelectedBookingModified
   );
 
   if (!selectedBooking.start || !selectedBooking.end) return null;
+
+  const handleUpdateBookingClick = async () => {
+    await updateOneBooking(user.token, selectedBooking, selectedBooking._id);
+  };
 
   const toggleDrawer = (newOpen) => () => {
     dispatch(toggleReservationModal());
@@ -113,7 +128,11 @@ export default function ReservationModal() {
             <LocalActivityIcon />
           </Avatar>
         </ListItemAvatar>
-        <ListItemText primary="Status" secondary={selectedBooking.status} />
+        <ListItemText
+          className={"status-text-" + selectedBooking.status}
+          primary="Status"
+          secondary={selectedBooking.status}
+        />
       </ListItem>
 
       <ListItem>
@@ -171,22 +190,16 @@ export default function ReservationModal() {
       {selectedBooking.guide ? (
         <ListItem>
           <ListItemAvatar>
-            <Avatar
-              alt={selectedBooking.guide.fullName}
-              src={selectedBooking.guide.photo}
-            />
+            <Avatar alt={guide?.fullName} src={guide?.photo} />
           </ListItemAvatar>
-          <ListItemText
-            primary="Guide"
-            secondary={selectedBooking.guide.fullName}
-          />
+          <ListItemText primary="Guide" secondary={guide?.fullName} />
         </ListItem>
       ) : null}
 
       <ListItem>
         <ListItemAvatar>
           <Avatar>
-            <GroupsIcon />
+            <RestaurantMenuIcon />
           </Avatar>
         </ListItemAvatar>
         <ListItemText
@@ -226,9 +239,11 @@ export default function ReservationModal() {
         >
           <Button variant="contained">Edit Reservation</Button>
           <ChangeReservationStatusSelect />
+          <AssignGuideOrChangeGuideSelect />
         </Stack>
         {selectedBookingWasModified ? (
           <Button
+            onClick={async () => await handleUpdateBookingClick()}
             variant="contained"
             color="success"
             sx={{

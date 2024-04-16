@@ -37,3 +37,18 @@ body {
   width: 70dvw !important;
   overflow-y: auto !important;
 }
+
+.status-text-confirmed p {
+  color: #2dc653;
+  text-transform: capitalize;
+}
+
+.status-text-cancelled p {
+  color: #f21b3f;
+  text-transform: capitalize;
+}
+
+.status-text-preliminary p {
+  color: #ffc300;
+  text-transform: capitalize;
+}

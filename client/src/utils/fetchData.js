@@ -14,6 +14,7 @@ export const fetchAllBookingsByYear = async (
     }
   );
 
+  if (!res.data) throw new Error("No data found");
   return res.data.result;
 };
 
@@ -24,6 +25,7 @@ export const fetchAllGuides = async (token) => {
       Authorization: `Bearer ${token}`,
     },
   });
+  if (!res.data) throw new Error("No data found");
 
   return res.data.guides;
 };

@@ -10,6 +10,7 @@ import {
   setCurrentSelectedBooking,
   setCurrentSelectedBookingModified,
 } from "../redux/bookingSlice";
+import { getAllGuides } from "../redux/guideSlice";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -22,19 +23,23 @@ const MenuProps = {
   },
 };
 
-const STATUS = ["preliminary", "confirmed", "cancelled"];
-
-function ChangeReservationStatusSelect() {
+function AssignGuideOrChangeGuideSelect() {
+  const allGuides = useSelector(getAllGuides);
+  const GUIDES = allGuides.map((el) => el);
   const selectedBooking = useSelector(getCurrentSelectedBooking);
-  const [status, setStatus] = React.useState(selectedBooking.status);
+  const [guide, setGuide] = React.useState(
+    selectedBooking.guide
+      ? allGuides.find((el) => el._id === selectedBooking.guide)
+      : null
+  );
   const dispatch = useDispatch();
 
   const handleChange = (event) => {
-    setStatus(event.target.value);
+    setGuide(allGuides.find((el) => el.fullName === event.target.value));
     dispatch(
       setCurrentSelectedBooking({
         ...selectedBooking,
-        status: event.target.value,
+        guide: GUIDES.find((el) => el.fullName === event.target.value)._id,
       })
     );
     dispatch(setCurrentSelectedBookingModified(true));
@@ -46,29 +51,21 @@ function ChangeReservationStatusSelect() {
         <InputLabel
           variant="filled"
           sx={{ fontSize: "18px", marginLeft: "2px" }}
-          id="status"
+          id="guide"
         >
-          Status
+          Guide
         </InputLabel>
         <Select
-          sx={{
-            backgroundColor:
-              status === "confirmed"
-                ? "#2dc653"
-                : status === "cancelled"
-                ? "#f21b3f"
-                : "#ffc300",
-          }}
-          labelId="status"
-          id="select-status"
-          value={status}
+          labelId="Guide"
+          id="select-guide"
+          value={guide}
           onChange={handleChange}
-          input={<OutlinedInput label="Status" />}
+          input={<OutlinedInput label="Guide" />}
           MenuProps={MenuProps}
         >
-          {STATUS.map((stat) => (
-            <MenuItem key={stat} value={stat}>
-              {stat}
+          {GUIDES.map((guide) => (
+            <MenuItem key={guide._id} value={guide.fullName}>
+              {guide.fullName}
             </MenuItem>
           ))}
         </Select>
@@ -77,4 +74,4 @@ function ChangeReservationStatusSelect() {
   );
 }
 
-export default ChangeReservationStatusSelect;
+export default AssignGuideOrChangeGuideSelect;

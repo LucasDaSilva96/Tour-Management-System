@@ -52,7 +52,7 @@ export default function Calendar() {
   const renderEventContent = (eventInfo) => {
     return (
       <article className="flex items-center justify-around flex-wrap">
-        {eventInfo.timeText && <span>{eventInfo.timeText}</span>}
+        <span>{eventInfo.timeText}</span>
         <span>{eventInfo.event.title}</span>
         {eventInfo.event._def.extendedProps.guide && (
           <PersonIcon fontSize="small" />
