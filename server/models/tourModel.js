@@ -51,6 +51,10 @@ const bookingSchema = new mongoose.Schema({
     required: [true, 'Please enter the number of participants.'],
     min: [1, 'The number of participants must be at least 1.'],
   },
+  snacks: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 bookingSchema.index({ title: 1, start: 1 });

@@ -242,9 +242,9 @@ exports.updateBooking = async (req, res, next) => {
       throw new Error(
         "You can't update guide here. You are not allowed to change document id."
       );
-    const { bookingID, year, status } = req.query;
-    if (!bookingID || !year || !status)
-      throw new Error('Please provide bookingID, year and status.');
+    const { bookingID, year } = req.query;
+    if (!bookingID || !year)
+      throw new Error('Please provide bookingID and year.');
 
     const tourDoc = await Tour.findOne({ year: Number(year) });
     if (!tourDoc) throw new Error('No tour document found.');
@@ -255,6 +255,7 @@ exports.updateBooking = async (req, res, next) => {
     if (bookingIndex === -1) {
       throw new Error('No booking found with the provided id');
     }
+    const { status } = req.body || tourDoc.bookings[bookingIndex].status;
 
     const color =
       status === 'confirmed'
@@ -354,6 +355,17 @@ exports.deleteBooking = async (req, res, next) => {
 
       await guideDoc.save();
     }
+
+    await Bookings.findOneAndDelete({
+      title: tourYearDoc.bookings[bookingIndex].title,
+      start: tourYearDoc.bookings[bookingIndex].start,
+      end: tourYearDoc.bookings[bookingIndex].end,
+      status: tourYearDoc.bookings[bookingIndex].status,
+      color: tourYearDoc.bookings[bookingIndex].color,
+      description: tourYearDoc.bookings[bookingIndex].description,
+      contactPerson: tourYearDoc.bookings[bookingIndex].contactPerson,
+      participants: tourYearDoc.bookings[bookingIndex].participants,
+    });
 
     tourYearDoc.bookings.splice(bookingIndex, 1);
 

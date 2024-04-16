@@ -38,7 +38,8 @@ const guideSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    default: '/img/default.jpg',
+    // TODO Update the url
+    default: 'http://localhost:8000/public/img/default.jpg',
   },
   updatedAt: Date,
   updatedBy: String,
