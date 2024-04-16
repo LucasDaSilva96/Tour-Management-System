@@ -18,6 +18,7 @@ const guideSchema = new mongoose.Schema({
   fullName: {
     type: String,
     required: [true, 'A guide must have a name'],
+    unique: [true, 'This name is already in the database..'],
   },
   email: {
     type: String,

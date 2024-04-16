@@ -43,7 +43,7 @@ exports.createTour = async (req, res, next) => {
           ? '#2dc653'
           : req.body.status === 'cancelled'
           ? '#f21b3f'
-          : 'yellow';
+          : '#ffc300';
 
       period.bookings.push({ ...req.body, color });
       await Bookings.create({ ...req.body, color });
@@ -262,7 +262,7 @@ exports.updateBooking = async (req, res, next) => {
         ? '#2dc653'
         : status === 'cancelled'
         ? '#f21b3f'
-        : 'yellow';
+        : '#ffc300';
 
     const BOOKINGS_BOOKING = await Bookings.findOneAndUpdate(
       {
@@ -413,22 +413,22 @@ exports.getAllBookingsByYearAndFilter = async (req, res, next) => {
     if (!filteredBookings.length > 0)
       throw new Error('No booking found that matches your filter options.');
 
-    for (let i = 0; i < filteredBookings.length; i++) {
-      const el = filteredBookings[i];
-      const found = await Bookings.findOne({
-        title: el.title,
-        start: el.start,
-        end: el.end,
-        status: el.status,
-        color: el.color,
-        description: el.description,
-        contactPerson: el.contactPerson,
-        participants: el.participants,
-      });
-      if (found) {
-        filteredBookings[i] = found;
-      }
-    }
+    // for (let i = 0; i < filteredBookings.length; i++) {
+    //   const el = filteredBookings[i];
+    //   const found = await Bookings.findOne({
+    //     title: el.title,
+    //     start: el.start,
+    //     end: el.end,
+    //     status: el.status,
+    //     color: el.color,
+    //     description: el.description,
+    //     contactPerson: el.contactPerson,
+    //     participants: el.participants,
+    //   });
+    //   if (found) {
+    //     filteredBookings[i] = found;
+    //   }
+    // }
 
     responseHelper(200, 'Bookings successfully fetched', res, {
       year: Number(year),

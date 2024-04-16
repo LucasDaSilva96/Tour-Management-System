@@ -31,7 +31,7 @@ const bookingSchema = new mongoose.Schema({
   },
   color: {
     type: String,
-    default: 'yellow',
+    default: '#ffc300',
   },
   textColor: {
     type: String,
@@ -67,6 +67,14 @@ bookingSchema.pre('save', function (next) {
   } else {
     next();
   }
+});
+
+// Middleware to validate end date
+bookingSchema.pre('save', function (next) {
+  if (this.isModified('end') && this.start >= this.end) {
+    return next(new Error('End date must be after start date.'));
+  }
+  next();
 });
 
 // Middleware to automatically populate the guide field
