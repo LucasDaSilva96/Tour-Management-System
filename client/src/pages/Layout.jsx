@@ -8,7 +8,7 @@ function Layout() {
   const year = new Date().getFullYear();
   const { state } = useNavigation();
   return (
-    <main className=" w-[100dvw] h-[100dvh] flex flex-col relative">
+    <main className=" w-[100dvw] h-[100dvh] flex flex-col relative gap-2">
       <ThemeProvider theme={defaultTheme}>
         <Header />
         {state === "loading" && <Loading />}

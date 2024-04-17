@@ -35,6 +35,7 @@ import { getCurrentUser } from "../redux/userSlice";
 import { updateOneBooking } from "../utils/postData.js";
 
 import { getAllGuides } from "../redux/guideSlice.js";
+import { useNavigate } from "react-router-dom";
 
 export default function ReservationModal() {
   const allBookings = useSelector(getAllBookings);
@@ -48,6 +49,7 @@ export default function ReservationModal() {
   const selectedBookingWasModified = useSelector(
     getCurrentSelectedBookingModified
   );
+  const navigate = useNavigate();
 
   if (!selectedBooking.start || !selectedBooking.end) return null;
 
@@ -264,7 +266,12 @@ export default function ReservationModal() {
           direction="row"
           sx={{ alignSelf: "center", marginTop: "10px" }}
         >
-          <Button variant="contained">Edit Reservation</Button>
+          <Button
+            variant="contained"
+            onClick={() => navigate(`booking/${selectedBooking._id}`)}
+          >
+            Edit Reservation
+          </Button>
           <ChangeReservationStatusSelect />
           <AssignGuideOrChangeGuideSelect />
         </Stack>

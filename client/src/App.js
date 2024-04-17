@@ -12,7 +12,8 @@ import store from "./redux/store";
 import { fetchAllBookingsByYear, fetchAllGuides } from "./utils/fetchData";
 import { setAllBookings } from "./redux/bookingSlice";
 import { setAllGuides } from "./redux/guideSlice";
-import toast from "react-hot-toast";
+import EditOrCreateBooking from "./pages/EditOrCreateBooking";
+
 const changeTabText = (text) => {
   return (window.document.title = `Sandgrund || ${text}`);
 };
@@ -50,6 +51,10 @@ const router = createBrowserRouter([
         path: "Guides",
         element: <Guides />,
         loader: () => changeTabText("Guides"),
+      },
+      {
+        path: "booking/:bookingID",
+        element: <EditOrCreateBooking />,
       },
     ],
   },

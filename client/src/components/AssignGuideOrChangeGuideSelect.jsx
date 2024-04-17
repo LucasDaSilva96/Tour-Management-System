@@ -53,7 +53,7 @@ function AssignGuideOrChangeGuideSelect() {
   };
 
   return (
-    <div>
+    <>
       <FormControl sx={{ width: 200 }}>
         <InputLabel
           variant="filled"
@@ -77,7 +77,7 @@ function AssignGuideOrChangeGuideSelect() {
           ))}
         </Select>
       </FormControl>
-    </div>
+    </>
   );
 }
 
