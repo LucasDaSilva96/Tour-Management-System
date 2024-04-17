@@ -7,9 +7,11 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  getAllBookings,
   getCurrentSelectedBooking,
   getCurrentSelectedBookingModified,
   getReservationModalStatus,
+  setAllBookings,
   toggleReservationModal,
 } from "../redux/bookingSlice";
 import { Divider, Typography } from "@mui/material";
@@ -35,11 +37,12 @@ import { updateOneBooking } from "../utils/postData.js";
 import { getAllGuides } from "../redux/guideSlice.js";
 
 export default function ReservationModal() {
+  const allBookings = useSelector(getAllBookings);
   const modalOpen = useSelector(getReservationModalStatus);
   const dispatch = useDispatch();
   const selectedBooking = useSelector(getCurrentSelectedBooking);
   const guide =
-    useSelector(getAllGuides).find((el) => el.guide === selectedBooking._id) ||
+    useSelector(getAllGuides).find((el) => el._id === selectedBooking.guide) ||
     null;
   const user = useSelector(getCurrentUser);
   const selectedBookingWasModified = useSelector(
@@ -49,7 +52,31 @@ export default function ReservationModal() {
   if (!selectedBooking.start || !selectedBooking.end) return null;
 
   const handleUpdateBookingClick = async () => {
-    await updateOneBooking(user.token, selectedBooking, selectedBooking._id);
+    const color =
+      selectedBooking.status === "confirmed"
+        ? "#2dc653"
+        : selectedBooking.status === "cancelled"
+        ? "#f21b3f"
+        : "#ffc300";
+    if (selectedBooking.guide) {
+      await updateOneBooking(
+        user.token,
+        selectedBooking,
+        selectedBooking._id,
+        guide.email
+      );
+    } else {
+      await updateOneBooking(user.token, selectedBooking, selectedBooking._id);
+    }
+
+    let newBookingsArray = allBookings.map((booking) => {
+      if (booking._id === selectedBooking._id) {
+        return (booking = { ...booking, ...selectedBooking, color });
+      }
+      return booking;
+    });
+
+    dispatch(setAllBookings(newBookingsArray));
   };
 
   const toggleDrawer = (newOpen) => () => {
@@ -190,9 +217,9 @@ export default function ReservationModal() {
       {selectedBooking.guide ? (
         <ListItem>
           <ListItemAvatar>
-            <Avatar alt={guide?.fullName} src={guide?.photo} />
+            <Avatar alt={guide.fullName} src={guide.photo} />
           </ListItemAvatar>
-          <ListItemText primary="Guide" secondary={guide?.fullName} />
+          <ListItemText primary="Guide" secondary={guide.fullName} />
         </ListItem>
       ) : null}
 

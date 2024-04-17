@@ -25,21 +25,28 @@ const MenuProps = {
 
 function AssignGuideOrChangeGuideSelect() {
   const allGuides = useSelector(getAllGuides);
-  const GUIDES = allGuides.map((el) => el);
   const selectedBooking = useSelector(getCurrentSelectedBooking);
   const [guide, setGuide] = React.useState(
     selectedBooking.guide
-      ? allGuides.find((el) => el._id === selectedBooking.guide)
-      : null
+      ? allGuides.find((e) => e._id === selectedBooking.guide).fullName
+      : ""
   );
   const dispatch = useDispatch();
 
   const handleChange = (event) => {
-    setGuide(allGuides.find((el) => el.fullName === event.target.value));
+    const selectedFullName = event.target.value; // Get the selected fullName
+    setGuide(selectedFullName); // Store the selected fullName in state
+
+    // Find the corresponding guide object and extract its ID
+    const selectedGuide = allGuides.find(
+      (el) => el.fullName === selectedFullName
+    )._id;
+
+    // Dispatch actions with the selected guide ID
     dispatch(
       setCurrentSelectedBooking({
         ...selectedBooking,
-        guide: GUIDES.find((el) => el.fullName === event.target.value)._id,
+        guide: selectedGuide,
       })
     );
     dispatch(setCurrentSelectedBookingModified(true));
@@ -63,7 +70,7 @@ function AssignGuideOrChangeGuideSelect() {
           input={<OutlinedInput label="Guide" />}
           MenuProps={MenuProps}
         >
-          {GUIDES.map((guide) => (
+          {allGuides.map((guide) => (
             <MenuItem key={guide._id} value={guide.fullName}>
               {guide.fullName}
             </MenuItem>

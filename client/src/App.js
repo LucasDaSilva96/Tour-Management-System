@@ -12,7 +12,7 @@ import store from "./redux/store";
 import { fetchAllBookingsByYear, fetchAllGuides } from "./utils/fetchData";
 import { setAllBookings } from "./redux/bookingSlice";
 import { setAllGuides } from "./redux/guideSlice";
-
+import toast from "react-hot-toast";
 const changeTabText = (text) => {
   return (window.document.title = `Sandgrund || ${text}`);
 };

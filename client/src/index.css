@@ -52,3 +52,7 @@ body {
   color: #ffc300;
   text-transform: capitalize;
 }
+
+.toast {
+  z-index: 100000;
+}

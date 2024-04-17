@@ -1,20 +1,31 @@
 import axios from "axios";
-
-// TODO update all urls
-export const updateOneBooking = async (token, data, bookingID) => {
-  console.log(token, bookingID);
+import toast from "react-hot-toast";
+export const updateOneBooking = async (token, data, bookingID, guideEmail) => {
+  // * This is for removing the doc-id, because we don't want to change the doc-id
+  const { _id, guide, ...DATA } = data;
+  const toastId = toast.loading("Loading...");
   try {
+    if (guide) {
+      await axios.post(
+        `http://localhost:8000/api/v1/tours/booking/assignGuide?guide=${guideEmail}&bookingID=${bookingID}`,
+        {}, // Empty request body
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+    }
+
     await axios.patch(
       `http://localhost:8000/api/v1/tours/booking/update?bookingID=${bookingID}`,
-      {
-        ...data,
-      },
-
+      DATA,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
+    toast.dismiss(toastId);
+    toast.success("Booking successfully updated");
   } catch (e) {
-    throw new Error(e.message);
+    toast.error("ERROR: " + e.message);
+    return null;
   }
 };

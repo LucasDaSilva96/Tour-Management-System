@@ -29,15 +29,11 @@ export default function Calendar() {
   };
 
   const handleEventClick = (clickInfo) => {
-    dispatch(toggleReservationModal());
-    dispatch(
-      setCurrentSelectedBooking({
-        ...clickInfo.event._def.extendedProps,
-        title: clickInfo.event._def.title,
-        start: new Date(clickInfo.event._instance.range.start).toISOString(),
-        end: new Date(clickInfo.event._instance.range.end).toISOString(),
-      })
+    const selectedBooking = bookings.find(
+      (el) => el._id === clickInfo.event.extendedProps._id
     );
+    dispatch(toggleReservationModal());
+    dispatch(setCurrentSelectedBooking(selectedBooking));
   };
 
   const handleAddNewEventClick = (clickInfo) => {
