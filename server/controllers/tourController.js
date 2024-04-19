@@ -235,6 +235,72 @@ exports.assignGuideToBooking = async (req, res, next) => {
   }
 };
 
+// ** This Middleware is for removing a guide from an existing booking
+exports.removeGuideFromBooking = async (req, res, next) => {
+  try {
+    const { bookingID, year } = req.query;
+
+    if (!bookingID || !year)
+      throw new Error('Please selected a booking and year.');
+
+    const doc = await Tour.findOne({ year: Number(year) });
+    if (!doc) throw new Error('No collection found with the provided year.');
+
+    const booking = doc.bookings.find((el) => el.id === bookingID);
+    if (!booking)
+      throw new Error('No booking found with the provided bookingID.');
+
+    if (!booking.guide) {
+      throw new Error("The selected booking don't have a guide yet.");
+    }
+
+    const guideDoc = await Guide.findById(booking.guide);
+
+    const guideBookingsIndex = guideDoc.guide_bookings.findIndex(
+      (el) => el.year === +year
+    );
+    if (guideBookingsIndex < 0)
+      throw new Error(
+        `Year [${year}] was not found in ${guideDoc.fullName} bookings document`
+      );
+
+    guideDoc.guide_bookings[guideBookingsIndex].bookings =
+      guideDoc.guide_bookings[guideBookingsIndex].bookings.filter(
+        (el) => el.id !== bookingID
+      );
+
+    await guideDoc.save();
+
+    booking.guide = null;
+    await Bookings.findByIdAndUpdate(bookingID, {
+      guide: null,
+    });
+
+    const BOOKINGS_BOOKING = await Bookings.findOneAndUpdate(
+      {
+        title: booking.title,
+        start: booking.start,
+        end: booking.end,
+        status: booking.status,
+        color: booking.color,
+        description: booking.description,
+        contactPerson: booking.contactPerson,
+        participants: booking.participants,
+      },
+      {
+        guide: null,
+      }
+    );
+
+    await doc.save();
+    await BOOKINGS_BOOKING.save();
+
+    responseHelper(200, 'Guide successfully removed from booking.', res);
+  } catch (err) {
+    responseHelper(400, err.message, res);
+  }
+};
+
 // ** Update booking status Middleware
 exports.updateBooking = async (req, res, next) => {
   try {
