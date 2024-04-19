@@ -55,9 +55,13 @@ const bookingSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  uuid: {
+    type: String,
+    unique: [true, 'Please provide a unique uuid-string.'],
+  },
 });
 
-bookingSchema.index({ title: 1, start: 1 });
+bookingSchema.index({ title: 1, start: 1, uuid: 1 });
 
 bookingSchema.pre('save', function (next) {
   if (!this.contactEmail && !this.contactPhone) {

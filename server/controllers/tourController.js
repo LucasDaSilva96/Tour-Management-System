@@ -116,6 +116,7 @@ exports.createYearDocument = async (req, res, next) => {
 
     next();
   } catch (err) {
+    console.log('HERE 1');
     responseHelper(400, err.message, res);
   }
 };
@@ -147,6 +148,7 @@ exports.findYearAndPassOn = async (req, res, next) => {
 
     next();
   } catch (err) {
+    console.log('HERE 2');
     responseHelper(400, err.message, res);
   }
 };
@@ -180,6 +182,7 @@ exports.assignGuideToBooking = async (req, res, next) => {
         guideBookings.bookings = guideBookings.bookings.filter(
           (el) => el.id !== bookingID
         );
+
         await oldGuide.save();
       }
     }
@@ -201,19 +204,15 @@ exports.assignGuideToBooking = async (req, res, next) => {
 
     const BOOKINGS_BOOKING = await Bookings.findOneAndUpdate(
       {
-        title: booking.title,
-        start: booking.start,
-        end: booking.end,
-        status: booking.status,
-        color: booking.color,
-        description: booking.description,
-        contactPerson: booking.contactPerson,
-        participants: booking.participants,
+        uuid: booking.uuid,
       },
       {
         guide: guideDoc._id,
       }
     );
+
+    if (!BOOKINGS_BOOKING)
+      throw new Error('No booking found in all bookings doc');
 
     const bookingAllReadyInGuideArray = guideBookingsYearDoc.bookings.find(
       (el) => {
@@ -332,14 +331,7 @@ exports.updateBooking = async (req, res, next) => {
 
     const BOOKINGS_BOOKING = await Bookings.findOneAndUpdate(
       {
-        title: tourDoc.bookings[bookingIndex].title,
-        start: tourDoc.bookings[bookingIndex].start,
-        end: tourDoc.bookings[bookingIndex].end,
-        status: tourDoc.bookings[bookingIndex].status,
-        color: tourDoc.bookings[bookingIndex].color,
-        description: tourDoc.bookings[bookingIndex].description,
-        contactPerson: tourDoc.bookings[bookingIndex].contactPerson,
-        participants: tourDoc.bookings[bookingIndex].participants,
+        uuid: tourDoc.bookings[bookingIndex].uuid,
       },
       {
         ...req.body,
@@ -357,7 +349,11 @@ exports.updateBooking = async (req, res, next) => {
       color,
     };
 
-    await Bookings.findByIdAndUpdate(bookingID, { ...req.body, status, color });
+    await Bookings.findByIdAndUpdate(bookingID, {
+      ...req.body,
+      status,
+      color,
+    });
 
     const guides = await Guide.find();
 
