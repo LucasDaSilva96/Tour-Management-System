@@ -4,6 +4,7 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import Button from "@mui/material/Button";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentSelectedBooking,
@@ -11,6 +12,8 @@ import {
   setCurrentSelectedBookingModified,
 } from "../redux/bookingSlice";
 import { getAllGuides } from "../redux/guideSlice";
+import { removeGuideFromBooking } from "../utils/postData";
+import { getCurrentUser } from "../redux/userSlice";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -24,6 +27,7 @@ const MenuProps = {
 };
 
 function AssignGuideOrChangeGuideSelect() {
+  const user = useSelector(getCurrentUser);
   const allGuides = useSelector(getAllGuides);
   const selectedBooking = useSelector(getCurrentSelectedBooking);
   const [guide, setGuide] = React.useState(
@@ -52,8 +56,21 @@ function AssignGuideOrChangeGuideSelect() {
     dispatch(setCurrentSelectedBookingModified(true));
   };
 
+  const handleRemoveGuide = async () => {
+    if (await removeGuideFromBooking(user.token, selectedBooking._id)) {
+      dispatch(
+        setCurrentSelectedBooking({
+          ...selectedBooking,
+          guide: null,
+        })
+      );
+      dispatch(setCurrentSelectedBookingModified(true));
+      setGuide("");
+    }
+  };
+
   return (
-    <>
+    <div className="flex items-center gap-2">
       <FormControl sx={{ width: 200 }}>
         <InputLabel
           variant="filled"
@@ -77,7 +94,17 @@ function AssignGuideOrChangeGuideSelect() {
           ))}
         </Select>
       </FormControl>
-    </>
+      {selectedBooking.guide && (
+        <Button
+          variant="outlined"
+          color="error"
+          sx={{ padding: "15px 10px" }}
+          onClick={async () => await handleRemoveGuide()}
+        >
+          Remove Guide
+        </Button>
+      )}
+    </div>
   );
 }
 

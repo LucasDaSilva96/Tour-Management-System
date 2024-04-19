@@ -1,4 +1,5 @@
 import axios from "axios";
+import toast from "react-hot-toast";
 
 // TODO Update all URL's after deployment
 
@@ -6,26 +7,42 @@ export const fetchAllBookingsByYear = async (
   token,
   year = new Date().getFullYear()
 ) => {
-  if (!token) throw new Error("No token provided");
-  const res = await axios.get(
-    `http://localhost:8000/api/v1/tours/bookings?year=${year}`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
+  if (!token) {
+    toast.error("No user-token provided.");
+    return null;
+  }
+  try {
+    const res = await axios.get(
+      `http://localhost:8000/api/v1/tours/bookings?year=${year}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
 
-  if (!res.data) throw new Error("No data found");
-  return res.data.result;
+    return res.data.result;
+  } catch (e) {
+    toast.error("ERROR: ", +e.response.data.message);
+  }
 };
 
 export const fetchAllGuides = async (token) => {
-  if (!token) throw new Error("No token provided");
-  const res = await axios.get(`http://localhost:8000/api/v1/guides/getGuides`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  if (!res.data) throw new Error("No data found");
+  if (!token) {
+    toast.error("No user-token provided.");
+    return null;
+  }
 
-  return res.data.guides;
+  try {
+    const res = await axios.get(
+      `http://localhost:8000/api/v1/guides/getGuides`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return res.data.guides;
+  } catch (e) {
+    toast.error("ERROR: ", +e.response.data.message);
+  }
 };

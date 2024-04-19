@@ -1,7 +1,7 @@
 import React from "react";
 import Login from "./pages/Login";
-import { useSelector } from "react-redux";
-import { isLoggedIn } from "./redux/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentUser, isLoggedIn } from "./redux/userSlice";
 import Layout from "./pages/Layout";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/CalenderHomePage";
@@ -13,6 +13,13 @@ import { fetchAllBookingsByYear, fetchAllGuides } from "./utils/fetchData";
 import { setAllBookings } from "./redux/bookingSlice";
 import { setAllGuides } from "./redux/guideSlice";
 import EditOrCreateBooking from "./pages/EditOrCreateBooking";
+
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  QueryClient,
+} from "@tanstack/react-query";
 
 const changeTabText = (text) => {
   return (window.document.title = `Sandgrund || ${text}`);
@@ -67,6 +74,19 @@ function App() {
   } else {
     changeTabText("Calendar");
   }
+
+  const user = useSelector(getCurrentUser);
+  const dispatch = useDispatch();
+
+  const {
+    data: bookings,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: [`${new Date().getFullYear()}-bookings`],
+    queryFn: () => fetchAllBookingsByYear(user.token),
+  });
+
   return (
     <div className="App">
       {userLoggedIn ? <RouterProvider router={router} /> : <Login />}
