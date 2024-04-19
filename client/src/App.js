@@ -8,18 +8,14 @@ import Home from "./pages/CalenderHomePage";
 import NewReservation from "./pages/NewReservation";
 import Overview from "./pages/Overview";
 import Guides from "./pages/Guides";
-import store from "./redux/store";
 import { fetchAllBookingsByYear, fetchAllGuides } from "./utils/fetchData";
 import { setAllBookings } from "./redux/bookingSlice";
 import { setAllGuides } from "./redux/guideSlice";
 import EditOrCreateBooking from "./pages/EditOrCreateBooking";
 
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  QueryClient,
-} from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "./pages/Loading";
+import toast from "react-hot-toast";
 
 const changeTabText = (text) => {
   return (window.document.title = `Sandgrund || ${text}`);
@@ -33,14 +29,7 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
-        loader: async () => {
-          const user = await store.getState().currentUser;
-          const bookings = await fetchAllBookingsByYear(user.token);
-          const guides = await fetchAllGuides(user.token);
-
-          store.dispatch(setAllBookings(bookings));
-          store.dispatch(setAllGuides(guides));
-
+        loader: () => {
           return changeTabText("Calendar");
         },
       },
@@ -83,9 +72,33 @@ function App() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: [`${new Date().getFullYear()}-bookings`],
+    queryKey: [`AllBookings`],
     queryFn: () => fetchAllBookingsByYear(user.token),
   });
+
+  const {
+    data: guides,
+    isLoading: guideLoading,
+    error: guideError,
+  } = useQuery({
+    queryKey: ["AllGuides"],
+    queryFn: () => fetchAllGuides(user.token),
+  });
+
+  if (isLoading || guideLoading) {
+    return <Loading />;
+  }
+
+  if (error) {
+    return toast.error(error.message);
+  }
+
+  if (guideError) {
+    return toast.error(guideError.message);
+  }
+
+  dispatch(setAllBookings(bookings));
+  dispatch(setAllGuides(guides));
 
   return (
     <div className="App">

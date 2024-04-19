@@ -1,13 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getAllBookings,
   getCurrentSelectedBooking,
+  setCurrentSelectedBooking,
 } from "../redux/bookingSlice";
-import { getAllGuides } from "../redux/guideSlice";
 import * as React from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-import { Container, Typography } from "@mui/material";
+import { Button, Container, Typography } from "@mui/material";
 import { DemoItem } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -20,10 +19,31 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import { useQueryClient } from "@tanstack/react-query";
+import Stack from "@mui/material/Stack";
+import { updateOneBooking } from "../utils/postData";
+import { getCurrentUser } from "../redux/userSlice";
+import { useNavigate } from "react-router-dom";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("UTC");
+
+const initialState = {
+  title: "",
+  start: "",
+  end: "",
+  guide: null,
+  status: "",
+  color: "",
+  textColor: "black",
+  description: "",
+  contactPerson: "",
+  contactPhone: "",
+  contactEmail: "",
+  participants: 50,
+  snacks: "",
+};
 
 function Label({ componentName }) {
   const content = <strong className="ml-[20%]">{componentName}</strong>;
@@ -32,12 +52,37 @@ function Label({ componentName }) {
 }
 
 function EditOrCreateBooking() {
-  const allBookings = useSelector(getAllBookings);
-  const selectedBooking = useSelector(getCurrentSelectedBooking);
-  const allGuides = useSelector(getAllGuides);
   const dispatch = useDispatch();
-  const [BOOKING, SETBOOKING] = React.useState({ ...selectedBooking });
+  const queryClient = useQueryClient();
+  const user = useSelector(getCurrentUser);
+  const selectedBooking = useSelector(getCurrentSelectedBooking);
+  const allGuides = queryClient.getQueryData(["AllGuides"]);
+  const [BOOKING, SETBOOKING] = React.useState(
+    selectedBooking ? { ...selectedBooking } : { ...initialState }
+  );
+  const navigate = useNavigate();
+
   const [selectedDate, setSelectedDate] = React.useState(dayjs());
+
+  const guideEmail = BOOKING.guide
+    ? allGuides.find((el) => el._id === BOOKING.guide).email
+    : null;
+
+  const handleUpdateReservation = async () => {
+    console.log(user.token, BOOKING, selectedBooking._id, guideEmail);
+    if (
+      await updateOneBooking(
+        user.token,
+        BOOKING,
+        selectedBooking._id,
+        guideEmail
+      )
+    ) {
+      if (selectedBooking) dispatch(setCurrentSelectedBooking(BOOKING));
+      queryClient.invalidateQueries();
+      navigate("/");
+    }
+  };
 
   return (
     <Container maxWidth="lg">
@@ -109,7 +154,20 @@ function EditOrCreateBooking() {
               }
             />
           </div>
-          <div>
+
+          <TextField
+            label="Group Size"
+            placeholder={BOOKING.participants ? null : "Group Size"}
+            color="primary"
+            sx={{ alignSelf: "end" }}
+            type="number"
+            value={BOOKING.participants}
+            onChange={(e) =>
+              SETBOOKING({ ...BOOKING, participants: Number(e.target.value) })
+            }
+          />
+
+          <div className="flex items-center flex-wrap gap-2">
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <Box
                 components={["DateTimePicker"]}
@@ -159,42 +217,63 @@ function EditOrCreateBooking() {
                 </DemoItem>
               </Box>
             </LocalizationProvider>
-            <div className="flex items-center flex-wrap mt-[2%] gap-3 pb-2">
-              <div className=" ml-2">
-                <AssignGuideOrChangeGuideSelect />
-              </div>
-              <Box>
-                <FormControl sx={{ minWidth: "150px" }}>
-                  <InputLabel id="demo-simple-select-label">Snacks</InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={BOOKING.snacks}
-                    label="Age"
-                    onChange={(e) =>
-                      SETBOOKING({ ...BOOKING, snacks: e.target.value })
-                    }
-                  >
-                    <MenuItem value={true}>Yes</MenuItem>
-                    <MenuItem value={false}>No</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
-            </div>
-            <TextField
-              sx={{ minWidth: "375px" }}
-              id="outlined-textarea"
-              label="Description"
-              placeholder={BOOKING.description ? null : "Description"}
-              multiline
-              rows={5}
-              value={BOOKING.description}
-              onChange={(e) =>
-                SETBOOKING({ ...BOOKING, description: e.target.value })
-              }
-            />
+
+            <Box sx={{ marginTop: "18px" }}>
+              <AssignGuideOrChangeGuideSelect
+                BOOKING={BOOKING}
+                setGuideSelected={SETBOOKING}
+              />
+            </Box>
+
+            <Box sx={{ marginTop: "18px" }}>
+              <FormControl sx={{ minWidth: "150px" }}>
+                <InputLabel id="demo-simple-select-label">
+                  Snacks or Mingel
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={BOOKING.snacks}
+                  label="Snacks"
+                  onChange={(e) =>
+                    SETBOOKING({ ...BOOKING, snacks: e.target.value })
+                  }
+                >
+                  <MenuItem value={true}>Yes</MenuItem>
+                  <MenuItem value={false}>No</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
           </div>
+          <TextField
+            sx={{ minWidth: "375px" }}
+            id="outlined-textarea"
+            label="Description"
+            placeholder={BOOKING.description ? null : "Description"}
+            multiline
+            rows={6}
+            value={BOOKING.description}
+            onChange={(e) =>
+              SETBOOKING({ ...BOOKING, description: e.target.value })
+            }
+          />
         </div>
+        <Stack direction={"row"} spacing={2} sx={{ marginLeft: ".7%" }}>
+          <Button
+            variant="outlined"
+            sx={{ padding: "10px 35px" }}
+            onClick={async () => await handleUpdateReservation()}
+          >
+            Save
+          </Button>
+          <Button
+            variant="outlined"
+            color="error"
+            sx={{ padding: "10px 35px" }}
+          >
+            Cancel
+          </Button>
+        </Stack>
       </Box>
     </Container>
   );

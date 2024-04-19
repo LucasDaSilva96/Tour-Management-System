@@ -7,11 +7,9 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getAllBookings,
   getCurrentSelectedBooking,
   getCurrentSelectedBookingModified,
   getReservationModalStatus,
-  setAllBookings,
   toggleReservationModal,
 } from "../redux/bookingSlice";
 import { Divider, Typography } from "@mui/material";
@@ -36,9 +34,10 @@ import { updateOneBooking } from "../utils/postData.js";
 
 import { getAllGuides } from "../redux/guideSlice.js";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function ReservationModal() {
-  const allBookings = useSelector(getAllBookings);
+  const queryClient = useQueryClient();
   const modalOpen = useSelector(getReservationModalStatus);
   const dispatch = useDispatch();
   const selectedBooking = useSelector(getCurrentSelectedBooking);
@@ -54,31 +53,19 @@ export default function ReservationModal() {
   if (!selectedBooking.start || !selectedBooking.end) return null;
 
   const handleUpdateBookingClick = async () => {
-    const color =
-      selectedBooking.status === "confirmed"
-        ? "#2dc653"
-        : selectedBooking.status === "cancelled"
-        ? "#f21b3f"
-        : "#ffc300";
-    if (selectedBooking.guide) {
+    if (selectedBooking.guide !== null) {
       await updateOneBooking(
         user.token,
         selectedBooking,
         selectedBooking._id,
         guide.email
       );
+      queryClient.invalidateQueries({ queryKey: ["AllBookings", "AllGuides"] });
     } else {
       await updateOneBooking(user.token, selectedBooking, selectedBooking._id);
     }
 
-    let newBookingsArray = allBookings.map((booking) => {
-      if (booking._id === selectedBooking._id) {
-        return (booking = { ...booking, ...selectedBooking, color });
-      }
-      return booking;
-    });
-
-    dispatch(setAllBookings(newBookingsArray));
+    queryClient.invalidateQueries({ queryKey: ["AllBookings"] });
   };
 
   const toggleDrawer = (newOpen) => () => {

@@ -11,9 +11,9 @@ import {
   setCurrentSelectedBooking,
   setCurrentSelectedBookingModified,
 } from "../redux/bookingSlice";
-import { getAllGuides } from "../redux/guideSlice";
 import { removeGuideFromBooking } from "../utils/postData";
 import { getCurrentUser } from "../redux/userSlice";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -26,9 +26,10 @@ const MenuProps = {
   },
 };
 
-function AssignGuideOrChangeGuideSelect() {
+function AssignGuideOrChangeGuideSelect({ BOOKING, setGuideSelected }) {
+  const queryClient = useQueryClient();
   const user = useSelector(getCurrentUser);
-  const allGuides = useSelector(getAllGuides);
+  const allGuides = useQueryClient().getQueryData(["AllGuides"]);
   const selectedBooking = useSelector(getCurrentSelectedBooking);
   const [guide, setGuide] = React.useState(
     selectedBooking.guide
@@ -46,7 +47,10 @@ function AssignGuideOrChangeGuideSelect() {
       (el) => el.fullName === selectedFullName
     )._id;
 
-    // Dispatch actions with the selected guide ID
+    if (setGuideSelected && BOOKING) {
+      setGuideSelected({ ...BOOKING, guide: selectedGuide });
+    }
+
     dispatch(
       setCurrentSelectedBooking({
         ...selectedBooking,
@@ -57,15 +61,17 @@ function AssignGuideOrChangeGuideSelect() {
   };
 
   const handleRemoveGuide = async () => {
+    dispatch(
+      setCurrentSelectedBooking({
+        ...selectedBooking,
+        guide: null,
+      })
+    );
+    setGuide("");
+
     if (await removeGuideFromBooking(user.token, selectedBooking._id)) {
-      dispatch(
-        setCurrentSelectedBooking({
-          ...selectedBooking,
-          guide: null,
-        })
-      );
+      queryClient.invalidateQueries(["AllBookings", "AllGuides"]);
       dispatch(setCurrentSelectedBookingModified(true));
-      setGuide("");
     }
   };
 
@@ -94,7 +100,7 @@ function AssignGuideOrChangeGuideSelect() {
           ))}
         </Select>
       </FormControl>
-      {selectedBooking.guide && (
+      {selectedBooking.guide !== null && (
         <Button
           variant="outlined"
           color="error"

@@ -7,15 +7,15 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   setCurrentSelectedBooking,
   toggleReservationModal,
-  getAllBookings,
 } from "../redux/bookingSlice";
 import ReservationModal from "./ReservationModal";
 import { useNavigate } from "react-router-dom";
 import PersonIcon from "@mui/icons-material/Person";
 import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Calendar() {
-  const bookings = useSelector(getAllBookings);
+  const bookings = useQueryClient().getQueryData(["AllBookings"]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const calendarRef = useRef(null);
