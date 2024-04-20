@@ -12,10 +12,10 @@ import { fetchAllBookingsByYear, fetchAllGuides } from "./utils/fetchData";
 import { setAllBookings } from "./redux/bookingSlice";
 import { setAllGuides } from "./redux/guideSlice";
 import EditOrCreateBooking from "./pages/EditOrCreateBooking";
-
 import { useQuery } from "@tanstack/react-query";
 import Loading from "./pages/Loading";
-import toast from "react-hot-toast";
+import ErrorPage from "./pages/ErrorPage";
+import SearchBooking from "./pages/SearchBooking";
 
 const changeTabText = (text) => {
   return (window.document.title = `Sandgrund || ${text}`);
@@ -52,7 +52,12 @@ const router = createBrowserRouter([
         path: "booking/:bookingID",
         element: <EditOrCreateBooking />,
       },
+      {
+        path: "Search-Bookings",
+        element: <SearchBooking />,
+      },
     ],
+    errorElement: <ErrorPage />,
   },
 ]);
 
@@ -73,7 +78,10 @@ function App() {
     error,
   } = useQuery({
     queryKey: [`AllBookings`],
-    queryFn: async () => fetchAllBookingsByYear(user.token),
+    queryFn: async () => {
+      const data = await fetchAllBookingsByYear(user.token);
+      return data || [];
+    },
   });
 
   const {
@@ -82,19 +90,18 @@ function App() {
     error: guideError,
   } = useQuery({
     queryKey: ["AllGuides"],
-    queryFn: async () => fetchAllGuides(user.token),
+    queryFn: async () => {
+      const data = await fetchAllGuides(user.token);
+      return data || [];
+    },
   });
 
   if (isLoading || guideLoading) {
     return <Loading />;
   }
 
-  if (error) {
-    return toast.error(error.message);
-  }
-
-  if (guideError) {
-    return toast.error(guideError.message);
+  if (error || guideError) {
+    return <ErrorPage message={error.message || guideError.message} />;
   }
 
   dispatch(setAllBookings(bookings));

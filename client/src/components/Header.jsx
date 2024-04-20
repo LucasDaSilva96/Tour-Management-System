@@ -15,7 +15,7 @@ import { useSelector } from "react-redux";
 import { getCurrentUser } from "../redux/userSlice";
 import { useNavigate } from "react-router-dom";
 
-const pages = ["Calendar", "Overview", "Guides"];
+const pages = ["Calendar", "Overview", "Guides", "Search-Bookings"];
 const settings = ["Account", "Logout"];
 
 function Header() {

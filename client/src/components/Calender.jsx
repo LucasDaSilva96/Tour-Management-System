@@ -3,7 +3,7 @@ import dayGridPlugin from "@fullcalendar/daygrid"; // a plugin!
 import interactionPlugin from "@fullcalendar/interaction"; // needed for dayClick
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   setCurrentSelectedBooking,
   toggleReservationModal,
@@ -13,6 +13,8 @@ import { useNavigate } from "react-router-dom";
 import PersonIcon from "@mui/icons-material/Person";
 import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import { useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import dayjs from "dayjs";
 
 export default function Calendar() {
   const bookings = useQueryClient().getQueryData(["AllBookings"]);
@@ -37,7 +39,16 @@ export default function Calendar() {
   };
 
   const handleAddNewEventClick = (clickInfo) => {
-    return navigate(`newReservation/${clickInfo.dateStr}`);
+    const dateClicked = new Date(clickInfo.dateStr).setHours(0, 0, 0, 0);
+    const today = new Date().setHours(0, 0, 0, 0);
+
+    const isBefore = dayjs(dateClicked).isBefore(dayjs(today));
+
+    if (!isBefore || dateClicked.toLocaleString() === today.toLocaleString()) {
+      return navigate(`newReservation/${clickInfo.dateStr}`);
+    } else {
+      return toast.error("A new booking can't take place in the past.");
+    }
   };
 
   const handleView = (view) => {

@@ -31,6 +31,7 @@ body {
   height: 80px;
   max-height: 80px;
   overflow-y: auto;
+  cursor: pointer;
 }
 
 .css-1160xiw-MuiPaper-root-MuiDrawer-paper {
