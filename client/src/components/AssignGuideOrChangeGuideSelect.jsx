@@ -47,10 +47,6 @@ function AssignGuideOrChangeGuideSelect({ BOOKING, setGuideSelected }) {
       (el) => el.fullName === selectedFullName
     )._id;
 
-    if (setGuideSelected && BOOKING) {
-      setGuideSelected({ ...BOOKING, guide: selectedGuide });
-    }
-
     dispatch(
       setCurrentSelectedBooking({
         ...selectedBooking,
@@ -100,7 +96,8 @@ function AssignGuideOrChangeGuideSelect({ BOOKING, setGuideSelected }) {
           ))}
         </Select>
       </FormControl>
-      {selectedBooking.guide !== null && (
+
+      {selectedBooking.guide ? (
         <Button
           variant="outlined"
           color="error"
@@ -109,7 +106,7 @@ function AssignGuideOrChangeGuideSelect({ BOOKING, setGuideSelected }) {
         >
           Remove Guide
         </Button>
-      )}
+      ) : null}
     </div>
   );
 }

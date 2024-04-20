@@ -76,3 +76,20 @@ export const removeGuideFromBooking = async (token, bookingID) => {
     return false;
   }
 };
+
+export const createNewBooking = async (token) => {
+  const toastId = toast.loading("Loading...");
+  if (!token) {
+    toast.dismiss(toastId);
+    toast.error("No user-token provided");
+    return false;
+  }
+
+  try {
+  } catch (e) {
+    toast.error("ERROR: " + e.response.data.message);
+    return false;
+  } finally {
+    toast.dismiss(toastId);
+  }
+};

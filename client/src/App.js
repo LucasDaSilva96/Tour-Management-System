@@ -73,7 +73,7 @@ function App() {
     error,
   } = useQuery({
     queryKey: [`AllBookings`],
-    queryFn: () => fetchAllBookingsByYear(user.token),
+    queryFn: async () => fetchAllBookingsByYear(user.token),
   });
 
   const {
@@ -82,7 +82,7 @@ function App() {
     error: guideError,
   } = useQuery({
     queryKey: ["AllGuides"],
-    queryFn: () => fetchAllGuides(user.token),
+    queryFn: async () => fetchAllGuides(user.token),
   });
 
   if (isLoading || guideLoading) {

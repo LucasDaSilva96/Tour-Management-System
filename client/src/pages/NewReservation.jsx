@@ -1,5 +1,7 @@
+import EditOrCreateBooking from "./EditOrCreateBooking";
+
 function NewReservation() {
-  return <div>New reservation here</div>;
+  return <EditOrCreateBooking />;
 }
 
 export default NewReservation;
