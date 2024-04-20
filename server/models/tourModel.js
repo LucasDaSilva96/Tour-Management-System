@@ -100,6 +100,8 @@ const tourSchema = new mongoose.Schema({
   bookings: [bookingSchema], // Add array of bookings
 });
 
+tourSchema.index({ year: 1 });
+
 exports.bookingSchema = bookingSchema;
 exports.Bookings = mongoose.model('bookings', bookingSchema);
 

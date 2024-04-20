@@ -37,6 +37,7 @@ exports.createTour = async (req, res, next) => {
         'You already have a booking on the provided day and time.'
       );
 
+    let newBooking = undefined;
     if (req.body.status) {
       const color =
         req.body.status === 'confirmed'
@@ -46,15 +47,20 @@ exports.createTour = async (req, res, next) => {
           : '#ffc300';
 
       period.bookings.push({ ...req.body, color });
-      await Bookings.create({ ...req.body, color });
+      newBooking = await Bookings.create({ ...req.body, color });
     } else {
       period.bookings.push({ ...req.body });
-      await Bookings.create({ ...req.body });
+      newBooking = await Bookings.create({ ...req.body });
     }
 
     await period.save();
 
-    responseHelper(201, 'Tour successfully created', res);
+    responseHelper(
+      201,
+      'Tour successfully created',
+      res,
+      period.bookings[period.bookings.length - 1]._doc
+    );
   } catch (err) {
     responseHelper(400, err.message, res);
   }
@@ -148,7 +154,6 @@ exports.findYearAndPassOn = async (req, res, next) => {
 
     next();
   } catch (err) {
-    console.log('HERE 2');
     responseHelper(400, err.message, res);
   }
 };
@@ -389,12 +394,12 @@ exports.updateBooking = async (req, res, next) => {
 // ** Delete booking Middleware
 exports.deleteBooking = async (req, res, next) => {
   try {
-    const { bookingID, year } = req.query;
-    if (!bookingID || !year) throw new Error('No bookingID or year provided.');
+    const { uuid, year } = req.query;
+    if (!uuid || !year) throw new Error('No uuid or year provided.');
 
     const tourYearDoc = await Tour.findOne({ year });
     const bookingIndex = tourYearDoc.bookings.findIndex(
-      (el) => el.id === bookingID
+      (el) => el.uuid === uuid
     );
 
     if (bookingIndex < 0) throw new Error('No booking found');
@@ -408,7 +413,7 @@ exports.deleteBooking = async (req, res, next) => {
 
       const bookingIndexGuide = guideDoc.guide_bookings[
         guideBookingYearDocIndex
-      ].bookings.findIndex((el) => el.id === bookingID);
+      ].bookings.findIndex((el) => el.uuid === uuid);
 
       guideDoc.guide_bookings[guideBookingYearDocIndex].bookings.splice(
         bookingIndexGuide,
@@ -419,20 +424,13 @@ exports.deleteBooking = async (req, res, next) => {
     }
 
     await Bookings.findOneAndDelete({
-      title: tourYearDoc.bookings[bookingIndex].title,
-      start: tourYearDoc.bookings[bookingIndex].start,
-      end: tourYearDoc.bookings[bookingIndex].end,
-      status: tourYearDoc.bookings[bookingIndex].status,
-      color: tourYearDoc.bookings[bookingIndex].color,
-      description: tourYearDoc.bookings[bookingIndex].description,
-      contactPerson: tourYearDoc.bookings[bookingIndex].contactPerson,
-      participants: tourYearDoc.bookings[bookingIndex].participants,
+      uuid,
     });
 
     tourYearDoc.bookings.splice(bookingIndex, 1);
 
     await tourYearDoc.save();
-    await Bookings.findByIdAndDelete(bookingID);
+    await Bookings.findOneAndDelete({ uuid });
 
     responseHelper(200, 'Booking successfully deleted.', res);
   } catch (err) {
@@ -449,8 +447,13 @@ exports.getAllBookingsByYearAndFilter = async (req, res, next) => {
     const tourDoc = await Tour.findOne({ year });
     if (!tourDoc) throw new Error('No document with the provided year found.');
     const bookings = tourDoc.bookings;
-    if (!bookings.length > 0)
-      throw new Error('No bookings found with the provided credentials.');
+    if (!bookings.length > 0) {
+      return responseHelper(200, 'Bookings successfully fetched', res, {
+        year: Number(year),
+        count: 0,
+        result: [],
+      });
+    }
 
     const filteredBookings = bookings.filter((booking) => {
       for (const [key, value] of Object.entries(filterObj)) {
@@ -474,23 +477,6 @@ exports.getAllBookingsByYearAndFilter = async (req, res, next) => {
 
     if (!filteredBookings.length > 0)
       throw new Error('No booking found that matches your filter options.');
-
-    // for (let i = 0; i < filteredBookings.length; i++) {
-    //   const el = filteredBookings[i];
-    //   const found = await Bookings.findOne({
-    //     title: el.title,
-    //     start: el.start,
-    //     end: el.end,
-    //     status: el.status,
-    //     color: el.color,
-    //     description: el.description,
-    //     contactPerson: el.contactPerson,
-    //     participants: el.participants,
-    //   });
-    //   if (found) {
-    //     filteredBookings[i] = found;
-    //   }
-    // }
 
     responseHelper(200, 'Bookings successfully fetched', res, {
       year: Number(year),
