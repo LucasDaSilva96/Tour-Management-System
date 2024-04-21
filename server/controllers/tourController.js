@@ -506,14 +506,7 @@ exports.getOneBookingByYearAndId = async (req, res, next) => {
       throw new Error('No booking found with the provided bookingID');
 
     const foundBooking = await Bookings.findOne({
-      title: booking.title,
-      start: booking.start,
-      end: booking.end,
-      status: booking.status,
-      color: booking.color,
-      description: booking.description,
-      contactPerson: booking.contactPerson,
-      participants: booking.participants,
+      uuid: booking.uuid,
     });
 
     if (!foundBooking)
@@ -521,6 +514,21 @@ exports.getOneBookingByYearAndId = async (req, res, next) => {
 
     responseHelper(200, 'Bookings successfully fetched', res, {
       booking: foundBooking,
+    });
+  } catch (err) {
+    responseHelper(400, err.message, res);
+  }
+};
+
+// ** Get all tour docs Middleware
+exports.getAllYearsBookingDocs = async (req, res, next) => {
+  try {
+    const tourDocs = await Tour.find().select('-__v');
+
+    res.json({
+      status: 200,
+      message: 'Tour-docs successfully fetched.',
+      data: tourDocs,
     });
   } catch (err) {
     responseHelper(400, err.message, res);

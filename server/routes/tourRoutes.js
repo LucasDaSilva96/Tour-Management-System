@@ -10,6 +10,7 @@ const {
   getAllBookingsByYearAndFilter,
   getOneBookingByYearAndId,
   removeGuideFromBooking,
+  getAllYearsBookingDocs,
 } = require('../controllers/tourController');
 
 const router = express.Router();
@@ -19,6 +20,7 @@ router.post('/createBooking', createYearDocument, createTour);
 router.get('/bookings', getAllBookingsByYearAndFilter);
 
 router.delete('/booking/delete', deleteBooking);
+router.get('/tourDocs', getAllYearsBookingDocs);
 
 router.use(findYearAndPassOn);
 router.post('/booking/assignGuide', createYearDocument, assignGuideToBooking);
