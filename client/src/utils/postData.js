@@ -5,7 +5,6 @@ import { v4 as uuidv4 } from "uuid";
 export const updateOneBooking = async (token, data, bookingID, guideEmail) => {
   // * This is for removing the doc-id, because we don't want to change the doc-id & the guide
   let { _id, guide, ...DATA } = data;
-  DATA = { ...DATA, uuid: uuidv4() };
 
   const toastId = toast.loading("Loading...");
   if (!token || !bookingID) {
@@ -13,6 +12,9 @@ export const updateOneBooking = async (token, data, bookingID, guideEmail) => {
     toast.error("No user-token or bookingID provided");
     return false;
   }
+
+  console.log(DATA);
+
   try {
     if (guide) {
       await axios.post(

@@ -14,6 +14,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "../redux/userSlice";
 import { useNavigate } from "react-router-dom";
+import { changeTabText } from "../App";
 
 const pages = [
   "Calendar",
@@ -40,6 +41,7 @@ function Header() {
   const handleCloseNavMenu = (page) => {
     setAnchorElNav(null);
     if (page) {
+      changeTabText(`${page}`);
       switch (page) {
         case "Calendar":
           navigate("/");

@@ -35,6 +35,7 @@ import { updateOneBooking } from "../utils/postData.js";
 import { getAllGuides } from "../redux/guideSlice.js";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { changeTabText } from "../App.js";
 
 export default function ReservationModal() {
   const queryClient = useQueryClient();
@@ -53,19 +54,19 @@ export default function ReservationModal() {
   if (!selectedBooking.start || !selectedBooking.end) return null;
 
   const handleUpdateBookingClick = async () => {
-    if (selectedBooking.guide !== null) {
+    if (selectedBooking.guide) {
       await updateOneBooking(
         user.token,
         selectedBooking,
         selectedBooking._id,
         guide.email
       );
-      queryClient.invalidateQueries({ queryKey: ["AllBookings", "AllGuides"] });
+      queryClient.invalidateQueries();
     } else {
       await updateOneBooking(user.token, selectedBooking, selectedBooking._id);
     }
 
-    queryClient.invalidateQueries({ queryKey: ["AllBookings"] });
+    queryClient.invalidateQueries();
   };
 
   const toggleDrawer = (newOpen) => () => {
@@ -255,7 +256,10 @@ export default function ReservationModal() {
         >
           <Button
             variant="contained"
-            onClick={() => navigate(`booking/${selectedBooking._id}`)}
+            onClick={() => {
+              changeTabText("Edit Reservation");
+              return navigate(`booking/${selectedBooking._id}`);
+            }}
           >
             Edit Reservation
           </Button>

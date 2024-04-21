@@ -14,7 +14,6 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import AssignGuideOrChangeGuideSelect from "../components/AssignGuideOrChangeGuideSelect";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -33,6 +32,19 @@ import ModalWindow from "../components/Modal";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("UTC");
+
+const STATUS = ["preliminary", "confirmed", "cancelled"];
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
 
 const initialState = {
   title: "",
@@ -95,20 +107,13 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
   const [selectedDate, setSelectedDate] = React.useState(dayjs());
   const [open, setOpen] = React.useState(false);
   const dispatch = useDispatch();
+  const [guide, setGuide] = React.useState(
+    BOOKING.guide ? allGuides.find((el) => el._id === BOOKING.guide) : ""
+  );
 
-  const guideEmail = BOOKING.guide
-    ? allGuides.find((el) => el._id === BOOKING.guide).email
-    : null;
-
+  console.log(guide);
   const handleUpdateReservation = async () => {
-    if (
-      await updateOneBooking(
-        user.token,
-        BOOKING,
-        selectedBooking._id,
-        guideEmail
-      )
-    ) {
+    if (await updateOneBooking(user.token, BOOKING, BOOKING._id, guide.email)) {
       if (selectedBooking) dispatch(setCurrentSelectedBooking(BOOKING));
       queryClient.invalidateQueries();
       navigate("/");
@@ -121,6 +126,20 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
       dispatch(setCurrentSelectedBooking({}));
       setOpen(false);
     }
+  };
+
+  const handleChangeStatus = (e) => {
+    SETBOOKING({ ...BOOKING, status: e.target.value });
+  };
+
+  const handleChangeGuide = (e) => {
+    setGuide(allGuides.find((el) => el._id === e.target.value));
+    SETBOOKING({
+      ...BOOKING,
+      guide: guide._id,
+    });
+
+    console.log(BOOKING);
   };
 
   return (
@@ -264,10 +283,29 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
               </LocalizationProvider>
 
               <Box sx={{ marginTop: "18px" }}>
-                <AssignGuideOrChangeGuideSelect
-                  BOOKING={BOOKING}
-                  setGuideSelected={SETBOOKING}
-                />
+                <FormControl sx={{ width: 200 }}>
+                  <InputLabel
+                    variant="filled"
+                    sx={{ fontSize: "18px", marginLeft: "2px" }}
+                    id="guide"
+                  >
+                    Guide
+                  </InputLabel>
+                  <Select
+                    labelId="Guide"
+                    id="select-guide"
+                    value={BOOKING.guide}
+                    onChange={handleChangeGuide}
+                    input={<OutlinedInput label="Guide" />}
+                    MenuProps={MenuProps}
+                  >
+                    {allGuides.map((guide) => (
+                      <MenuItem key={guide._id} value={BOOKING.guide}>
+                        {guide.fullName}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Box>
 
               <Box sx={{ marginTop: "18px" }}>
@@ -290,6 +328,41 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
                 </FormControl>
               </Box>
             </div>
+
+            <div className="min-w-[100%] pl-2 py-2">
+              <FormControl sx={{ width: 200 }}>
+                <InputLabel
+                  variant="filled"
+                  sx={{ fontSize: "18px", marginLeft: "2px" }}
+                  id="status"
+                >
+                  Status
+                </InputLabel>
+                <Select
+                  sx={{
+                    backgroundColor:
+                      BOOKING.status === "confirmed"
+                        ? "#2dc653"
+                        : BOOKING.status === "cancelled"
+                        ? "#f21b3f"
+                        : "#ffc300",
+                  }}
+                  labelId="status"
+                  id="select-status"
+                  value={BOOKING.status}
+                  onChange={handleChangeStatus}
+                  input={<OutlinedInput label="Status" />}
+                  MenuProps={MenuProps}
+                >
+                  {STATUS.map((stat) => (
+                    <MenuItem key={stat} value={stat}>
+                      {stat}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+
             <TextField
               sx={{ minWidth: "375px" }}
               id="outlined-textarea"

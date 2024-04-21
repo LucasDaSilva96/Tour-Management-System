@@ -26,7 +26,7 @@ const MenuProps = {
   },
 };
 
-function AssignGuideOrChangeGuideSelect({ BOOKING, setGuideSelected }) {
+function AssignGuideOrChangeGuideSelect() {
   const queryClient = useQueryClient();
   const user = useSelector(getCurrentUser);
   const allGuides = useQueryClient().getQueryData(["AllGuides"]);

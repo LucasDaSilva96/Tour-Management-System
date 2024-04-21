@@ -21,7 +21,7 @@ import Loading from "./pages/Loading";
 import ErrorPage from "./pages/ErrorPage";
 import SearchBooking from "./pages/SearchBooking";
 
-const changeTabText = (text) => {
+export const changeTabText = (text) => {
   return (window.document.title = `Sandgrund || ${text}`);
 };
 
