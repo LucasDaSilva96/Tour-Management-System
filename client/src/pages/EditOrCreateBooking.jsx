@@ -147,7 +147,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
         >
           <div className="flex flex-wrap items-center">
             <div className="flex flex-col items-center">
-              <Typography variant="h6">Title</Typography>
+              <Typography variant="subtitle2">Title</Typography>
               <TextField
                 id="outlined-multiline-flexible"
                 multiline
@@ -160,7 +160,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
               />
             </div>
             <div className="flex flex-col items-center">
-              <Typography variant="h6">Group Leader</Typography>
+              <Typography variant="subtitle2">Group Leader</Typography>
               <TextField
                 id="outlined-multiline-flexible"
                 multiline
@@ -173,7 +173,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
               />
             </div>
             <div className="flex flex-col items-center">
-              <Typography variant="h6">Email</Typography>
+              <Typography variant="subtitle2">Email</Typography>
               <TextField
                 id="outlined-multiline-flexible"
                 multiline
@@ -187,7 +187,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
             </div>
 
             <div className="flex flex-col items-center">
-              <Typography variant="h6">Phone</Typography>
+              <Typography variant="subtitle2">Phone</Typography>
               <TextField
                 id="outlined-multiline-flexible"
                 multiline
@@ -401,7 +401,7 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
       >
         <div className="flex flex-wrap items-center">
           <div className="flex flex-col items-center">
-            <Typography variant="h6">Title</Typography>
+            <Typography variant="subtitle2">Title</Typography>
             <TextField
               required
               label="Required"
@@ -416,7 +416,7 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
             />
           </div>
           <div className="flex flex-col items-center">
-            <Typography variant="h6">Group Leader</Typography>
+            <Typography variant="subtitle2">Group Leader</Typography>
             <TextField
               id="outlined-multiline-flexible"
               required
@@ -431,7 +431,7 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
             />
           </div>
           <div className="flex flex-col items-center">
-            <Typography variant="h6">Email</Typography>
+            <Typography variant="subtitle2">Email</Typography>
             <TextField
               required
               label="Phone or email required"
@@ -447,7 +447,7 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
           </div>
 
           <div className="flex flex-col items-center">
-            <Typography variant="h6">Phone</Typography>
+            <Typography variant="subtitle2">Phone</Typography>
             <TextField
               required
               label="Phone or email required"
@@ -493,6 +493,7 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
                     timezone="UTC"
                     defaultValue={dayjs(BOOKING.start) || selectedDate}
                     format="DD/MM/YYYY HH:mm"
+                    disablePast={true}
                     onChange={(date) =>
                       SETBOOKING({
                         ...BOOKING,
@@ -514,6 +515,7 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
                     defaultValue={dayjs(BOOKING.end) || null}
                     ampm={false}
                     format="DD/MM/YYYY HH:mm"
+                    disablePast={true}
                     onChange={(date) =>
                       SETBOOKING({
                         ...BOOKING,

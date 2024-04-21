@@ -15,7 +15,13 @@ import { useSelector } from "react-redux";
 import { getCurrentUser } from "../redux/userSlice";
 import { useNavigate } from "react-router-dom";
 
-const pages = ["Calendar", "Overview", "Guides", "Search-Bookings"];
+const pages = [
+  "Calendar",
+  "Overview",
+  "Guides",
+  "Search-Bookings",
+  "New-Booking",
+];
 const settings = ["Account", "Logout"];
 
 function Header() {
@@ -38,7 +44,10 @@ function Header() {
         case "Calendar":
           navigate("/");
           break;
-
+        case "New-Booking":
+          const dateStr = new Date().toISOString().split("T")[0];
+          navigate(`newReservation/${dateStr}`);
+          break;
         default:
           navigate(`/${page}`);
           break;

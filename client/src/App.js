@@ -8,7 +8,11 @@ import Home from "./pages/CalenderHomePage";
 import NewReservation from "./pages/NewReservation";
 import Overview from "./pages/Overview";
 import Guides from "./pages/Guides";
-import { fetchAllBookingsByYear, fetchAllGuides } from "./utils/fetchData";
+import {
+  fetchAllBookingsByYear,
+  fetchAllGuides,
+  fetchAllYearsDoc,
+} from "./utils/fetchData";
 import { setAllBookings } from "./redux/bookingSlice";
 import { setAllGuides } from "./redux/guideSlice";
 import EditOrCreateBooking from "./pages/EditOrCreateBooking";
@@ -56,6 +60,10 @@ const router = createBrowserRouter([
         path: "Search-Bookings",
         element: <SearchBooking />,
       },
+      {
+        path: "New-Booking",
+        element: <EditOrCreateBooking />,
+      },
     ],
     errorElement: <ErrorPage />,
   },
@@ -96,12 +104,30 @@ function App() {
     },
   });
 
-  if (isLoading || guideLoading) {
+  const {
+    data: allYearsDoc,
+    isLoading: allYearsDocLoading,
+    error: allYearsDocError,
+  } = useQuery({
+    queryKey: ["AllYearsDoc"],
+    queryFn: async () => {
+      const data = await fetchAllYearsDoc(user.token);
+      return data || [];
+    },
+  });
+
+  if (isLoading || guideLoading || allYearsDocLoading) {
     return <Loading />;
   }
 
-  if (error || guideError) {
-    return <ErrorPage message={error.message || guideError.message} />;
+  if (error || guideError || allYearsDocError) {
+    return (
+      <ErrorPage
+        message={
+          error.message || guideError.message || allYearsDocError.message
+        }
+      />
+    );
   }
 
   dispatch(setAllBookings(bookings));
