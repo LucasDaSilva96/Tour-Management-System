@@ -23,7 +23,10 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCurrentSelectedBooking } from "../redux/bookingSlice";
 import { changeTabText } from "../App";
-
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import GroupsIcon from "@mui/icons-material/Groups";
+import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("UTC");
@@ -316,31 +319,38 @@ function BookingBox({ booking }) {
     <Box
       component="article"
       sx={{
-        bgcolor: `${color}`,
-        "&:hover": { cursor: "pointer" },
+        border: "1px solid #000",
+        "&:hover": {
+          cursor: "pointer",
+          boxShadow: "rgba(17, 12, 46, 0.15) 0px 48px 100px 0px",
+        },
         padding: "10px",
         borderRadius: "10px",
         textAlign: "center",
         marginLeft: "5px",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
       }}
       onClick={handleClick}
     >
-      <Typography variant="h6">{booking.title}</Typography>
-      <Divider />
+      <Typography
+        variant="h6"
+        sx={{ textDecoration: "underline", padding: "0 0 5px 0" }}
+      >
+        {booking.title}
+      </Typography>
       <div>
-        <div>
-          <Typography sx={{ textDecoration: "underline" }} variant="subtitle1">
-            Date
-          </Typography>
+        <div className="flex items-center gap-2 border-b-2 w-full justify-between">
+          <CalendarMonthIcon />
           <p>
             {dayjs(booking.start).format("DD-MM-YYYY")} -{" "}
             {dayjs(booking.end).format("DD-MM-YYYY")}{" "}
           </p>
         </div>
-        <div>
-          <Typography sx={{ textDecoration: "underline" }} variant="subtitle1">
-            Time
-          </Typography>
+        <div className="flex items-center gap-2 border-b-2 w-full justify-between">
+          <AccessTimeIcon />
           <p>
             {dayjs(booking.start).format("HH:mm")} -{" "}
             {dayjs(booking.end).format("HH:mm")}{" "}
@@ -348,17 +358,23 @@ function BookingBox({ booking }) {
         </div>
       </div>
 
-      <div>
-        <Typography sx={{ textDecoration: "underline" }} variant="subtitle1">
-          Status
-        </Typography>
-        <p>{booking.status}</p>
+      <div className="flex items-center gap-2 border-b-2 w-full justify-evenly">
+        <GroupsIcon />
+        <div className="flex items-center gap-2 capitalize">
+          <p>{booking.status}</p>
+          <Box
+            sx={{
+              bgcolor: `${color}`,
+              width: "10px",
+              height: "10px",
+              borderRadius: "100px",
+            }}
+          ></Box>
+        </div>
       </div>
 
-      <div>
-        <Typography sx={{ textDecoration: "underline" }} variant="subtitle1">
-          Group Leader
-        </Typography>
+      <div className="flex items-center gap-2 border-b-2 w-full justify-ev">
+        <AccessibilityNewIcon />
         <p>{booking.contactPerson}</p>
       </div>
 
@@ -381,7 +397,7 @@ function BookingBox({ booking }) {
       )}
 
       {guide && (
-        <div>
+        <div className="flex flex-col items-center gap-1">
           <Typography sx={{ textDecoration: "underline" }} variant="subtitle1">
             Guide
           </Typography>

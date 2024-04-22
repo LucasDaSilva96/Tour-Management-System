@@ -49,6 +49,7 @@ export default function ReservationModal() {
   const selectedBookingWasModified = useSelector(
     getCurrentSelectedBookingModified
   );
+  const reservationModalStatus = useSelector(getReservationModalStatus);
   const navigate = useNavigate();
 
   if (!selectedBooking.start || !selectedBooking.end) return null;
@@ -67,6 +68,9 @@ export default function ReservationModal() {
     }
 
     queryClient.invalidateQueries();
+    if (reservationModalStatus) {
+      dispatch(toggleReservationModal());
+    }
   };
 
   const toggleDrawer = (newOpen) => () => {

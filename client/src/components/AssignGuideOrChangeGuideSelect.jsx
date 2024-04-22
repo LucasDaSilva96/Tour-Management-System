@@ -10,6 +10,7 @@ import {
   getCurrentSelectedBooking,
   setCurrentSelectedBooking,
   setCurrentSelectedBookingModified,
+  toggleReservationModal,
 } from "../redux/bookingSlice";
 import { removeGuideFromBooking } from "../utils/postData";
 import { getCurrentUser } from "../redux/userSlice";
@@ -67,7 +68,7 @@ function AssignGuideOrChangeGuideSelect() {
 
     if (await removeGuideFromBooking(user.token, selectedBooking._id)) {
       queryClient.invalidateQueries(["AllBookings", "AllGuides"]);
-      dispatch(setCurrentSelectedBookingModified(true));
+      dispatch(toggleReservationModal());
     }
   };
 

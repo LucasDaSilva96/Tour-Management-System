@@ -13,7 +13,7 @@ export const updateOneBooking = async (token, data, bookingID, guideEmail) => {
     return false;
   }
 
-  console.log(DATA);
+  // console.log(DATA);
 
   try {
     if (guide) {

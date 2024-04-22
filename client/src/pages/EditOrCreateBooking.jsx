@@ -1,7 +1,9 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentSelectedBooking,
+  getReservationModalStatus,
   setCurrentSelectedBooking,
+  toggleReservationModal,
 } from "../redux/bookingSlice";
 import * as React from "react";
 import Box from "@mui/material/Box";
@@ -23,6 +25,7 @@ import Stack from "@mui/material/Stack";
 import {
   createNewBooking,
   deleteOneBooking,
+  removeGuideFromBooking,
   updateOneBooking,
 } from "../utils/postData";
 import { getCurrentUser } from "../redux/userSlice";
@@ -52,7 +55,7 @@ const initialState = {
   end: dayjs()
     .utc()
     .hour(new Date().getHours() + 1),
-  guide: null,
+  guide: "",
   status: "preliminary",
   color: "",
   textColor: "black",
@@ -102,20 +105,27 @@ function EditOrCreateBooking() {
 
 // ** Edit booking component
 function EditBooking({ user, allGuides, navigate, queryClient }) {
+  const { bookingID } = useParams();
   const selectedBooking = useSelector(getCurrentSelectedBooking);
-  const [BOOKING, SETBOOKING] = React.useState({ ...selectedBooking });
+  const [BOOKING, SETBOOKING] = React.useState({
+    ...selectedBooking,
+    guide: selectedBooking.guide ? selectedBooking.guide : "",
+  });
   const [selectedDate, setSelectedDate] = React.useState(dayjs());
   const [open, setOpen] = React.useState(false);
+  const reservationModalStatus = useSelector(getReservationModalStatus);
   const dispatch = useDispatch();
   const [guide, setGuide] = React.useState(
     BOOKING.guide ? allGuides.find((el) => el._id === BOOKING.guide) : ""
   );
 
-  console.log(guide);
   const handleUpdateReservation = async () => {
     if (await updateOneBooking(user.token, BOOKING, BOOKING._id, guide.email)) {
       if (selectedBooking) dispatch(setCurrentSelectedBooking(BOOKING));
       queryClient.invalidateQueries();
+      if (reservationModalStatus) {
+        dispatch(toggleReservationModal());
+      }
       navigate("/");
     }
   };
@@ -132,14 +142,18 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
     SETBOOKING({ ...BOOKING, status: e.target.value });
   };
 
-  const handleChangeGuide = (e) => {
-    setGuide(allGuides.find((el) => el._id === e.target.value));
+  const handleChangeGuide = async (e) => {
+    setGuide(allGuides.find((el) => el._id === e.target.value) || "");
+
+    if (BOOKING.guide && e.target.value === "") {
+      await removeGuideFromBooking(user.token, bookingID);
+      queryClient.invalidateQueries();
+    }
+
     SETBOOKING({
       ...BOOKING,
-      guide: guide._id,
+      guide: e.target.value,
     });
-
-    console.log(BOOKING);
   };
 
   return (
@@ -299,8 +313,11 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
                     input={<OutlinedInput label="Guide" />}
                     MenuProps={MenuProps}
                   >
+                    <MenuItem key={"none"} value={""}>
+                      None
+                    </MenuItem>
                     {allGuides.map((guide) => (
-                      <MenuItem key={guide._id} value={BOOKING.guide}>
+                      <MenuItem key={guide._id} value={guide._id}>
                         {guide.fullName}
                       </MenuItem>
                     ))}
