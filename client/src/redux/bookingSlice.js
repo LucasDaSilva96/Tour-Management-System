@@ -12,7 +12,7 @@ const bookingSlice = createSlice({
   name: "bookingSlice",
   initialState,
   reducers: {
-    toggleReservationModal(state) {
+    toggleReservationModal(state, action) {
       state.openReservationModal = !state.openReservationModal;
       if (state.openReservationModal === false) {
         state.currentSelectedBookingModified = false;

@@ -83,44 +83,74 @@ export const getFilteredBookings = (
   const OBJ = { ...filterObjOptions };
 
   for (const [KEY, VALUE] of Object.entries(filterObjOptions)) {
-    if (!VALUE) {
+    if (VALUE === "" || VALUE === undefined || VALUE === null) {
       delete OBJ[KEY];
     }
   }
 
   const filteredBookings = bookingDoc.bookings.filter((booking) => {
+    let shouldInclude = true; // Assume booking should be included by default
+
     for (const [key, value] of Object.entries(OBJ)) {
       switch (key) {
         case "guide":
-          if (booking.guide && booking.guide._id !== value) return false;
-          break;
+          if (booking.guide === value) {
+            return (shouldInclude = true);
+          } else {
+            return (shouldInclude = false);
+          }
+
         case "title":
-          if (!booking.title.includes(value)) return false;
+          if (!booking.title.includes(value)) {
+            shouldInclude = false;
+          }
           break;
         case "status":
-          if (booking.status !== value) return false;
+          if (booking.status !== value) {
+            shouldInclude = false;
+          }
           break;
         case "start":
-          const start = new Date(booking.start).toISOString();
-          if (start !== dayjs(value).toISOString()) return false;
+          const start = new Date(booking.start).toISOString().split("T")[0];
+          const Value = new Date(value).toISOString().split("T")[0];
+
+          if (start !== Value) {
+            shouldInclude = false;
+          } else {
+            shouldInclude = true;
+          }
           break;
         case "contactPerson":
-          if (!booking.contactPerson.includes(value)) return false;
+          if (!String(booking.contactPerson).includes(value)) {
+            shouldInclude = false;
+          }
           break;
         case "contactPhone":
-          if (!booking.contactPhone.includes(value)) return false;
+          if (String(booking.contactPhone) !== String(value)) {
+            shouldInclude = false;
+          }
           break;
         case "contactEmail":
-          if (!booking.contactEmail.includes(value)) return false;
+          if (String(booking.contactEmail) !== String(value)) {
+            shouldInclude = false;
+          }
           break;
         case "snacks":
-          if (booking.snacks !== value) return false;
+          if (booking.snacks !== value) {
+            shouldInclude = false;
+          }
           break;
         default:
           break;
       }
+
+      // If shouldInclude is false for any condition, no need to check further
+      if (!shouldInclude) {
+        break;
+      }
     }
-    return true; // Include the booking by default if none of the conditions fail
+
+    return shouldInclude;
   });
 
   toast.dismiss(toastId);

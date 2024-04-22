@@ -2,7 +2,7 @@ import Container from "@mui/material/Container";
 import { useQueryClient } from "@tanstack/react-query";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-import { Avatar, Divider, Typography } from "@mui/material";
+import { Avatar, Typography } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DemoItem } from "@mui/x-date-pickers/internals/demo";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -27,6 +27,10 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import GroupsIcon from "@mui/icons-material/Groups";
 import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
+import ContactPhoneIcon from "@mui/icons-material/ContactPhone";
+import EmailIcon from "@mui/icons-material/Email";
+import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
+import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("UTC");
@@ -53,6 +57,7 @@ function SearchBooking() {
   const [BOOKING, SETBOOKING] = useState(initialState);
   const [searchResult, setSearchResult] = useState([]);
   const statusArray = ["preliminary", "confirmed", "cancelled"];
+  const [selectedDate, setSelectedDate] = useState(dayjs());
   const queryClient = useQueryClient();
   const allYearsDoc = queryClient.getQueryData(["AllYearsDoc"]);
   const allGuides = queryClient.getQueryData(["AllGuides"]);
@@ -89,9 +94,11 @@ function SearchBooking() {
   const handleReset = () => {
     SETBOOKING(initialState);
     setSearchResult([]);
+    setSelectedDate(dayjs());
   };
 
   const handleSearchBookings = () => {
+    setSearchResult([]);
     const result = getFilteredBookings(allYearsDoc, BOOKING.year, BOOKING);
     if (result.length > 0) {
       return setSearchResult(result);
@@ -106,6 +113,7 @@ function SearchBooking() {
 
   return (
     <Container
+      maxWidth="xl"
       sx={{
         display: "flex",
         justifyContent: "space-around",
@@ -140,13 +148,15 @@ function SearchBooking() {
                   maxDate={maxDate}
                   timezone="UTC"
                   defaultValue={dayjs()}
+                  value={selectedDate}
                   format="DD/MM/YYYY"
-                  onChange={(date) =>
+                  onChange={(date) => {
                     SETBOOKING({
                       ...BOOKING,
                       start: dayjs(date).toISOString(),
-                    })
-                  }
+                    });
+                    setSelectedDate(dayjs(date));
+                  }}
                 />
               </DemoItem>
             </Box>
@@ -285,7 +295,7 @@ function SearchBooking() {
         </Stack>
       </div>
 
-      <aside className="min-w-[25dvw] max-h-[81dvh] overflow-y-auto flex flex-col gap-2">
+      <aside className="min-w-[25dvw] max-h-[81dvh] overflow-y-auto flex flex-col gap-4 py-2">
         {searchResult.map((booking) => (
           <BookingBox booking={booking} key={booking._id} />
         ))}
@@ -319,10 +329,9 @@ function BookingBox({ booking }) {
     <Box
       component="article"
       sx={{
-        border: "1px solid #000",
+        border: "1px solid #2196f3",
         "&:hover": {
           cursor: "pointer",
-          boxShadow: "rgba(17, 12, 46, 0.15) 0px 48px 100px 0px",
         },
         padding: "10px",
         borderRadius: "10px",
@@ -332,6 +341,7 @@ function BookingBox({ booking }) {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
+        gap: "8px",
       }}
       onClick={handleClick}
     >
@@ -341,27 +351,36 @@ function BookingBox({ booking }) {
       >
         {booking.title}
       </Typography>
-      <div>
+      <div className="w-full">
         <div className="flex items-center gap-2 border-b-2 w-full justify-between">
-          <CalendarMonthIcon />
-          <p>
+          <div className="flex items-center gap-2">
+            <CalendarMonthIcon />
+            <span>Date</span>
+          </div>
+          <strong>
             {dayjs(booking.start).format("DD-MM-YYYY")} -{" "}
             {dayjs(booking.end).format("DD-MM-YYYY")}{" "}
-          </p>
+          </strong>
         </div>
         <div className="flex items-center gap-2 border-b-2 w-full justify-between">
-          <AccessTimeIcon />
-          <p>
+          <div className="flex items-center gap-2">
+            <AccessTimeIcon />
+            <span>Time</span>
+          </div>
+          <strong>
             {dayjs(booking.start).format("HH:mm")} -{" "}
             {dayjs(booking.end).format("HH:mm")}{" "}
-          </p>
+          </strong>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 border-b-2 w-full justify-evenly">
-        <GroupsIcon />
+      <div className="flex items-center gap-2 border-b-2 w-full justify-between">
+        <div className="flex items-center gap-2">
+          <GroupsIcon />
+          <span>Status</span>
+        </div>
         <div className="flex items-center gap-2 capitalize">
-          <p>{booking.status}</p>
+          <strong>{booking.status}</strong>
           <Box
             sx={{
               bgcolor: `${color}`,
@@ -373,38 +392,61 @@ function BookingBox({ booking }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 border-b-2 w-full justify-ev">
-        <AccessibilityNewIcon />
-        <p>{booking.contactPerson}</p>
+      <div className="flex items-center gap-2 border-b-2 w-full justify-between">
+        <div className="flex items-center gap-2">
+          <RestaurantMenuIcon />
+          <span>Snacks || Mingel</span>
+        </div>
+        <strong>{booking.snacks === false ? "No" : "Yes"}</strong>
+      </div>
+
+      <div className="flex items-center gap-2 border-b-2 w-full justify-between">
+        <div className="flex items-center gap-2">
+          <AccessibilityNewIcon />
+          <span>Group Leader</span>
+        </div>
+        <strong>{booking.contactPerson}</strong>
       </div>
 
       {booking.contactPhone && (
-        <div>
-          <Typography sx={{ textDecoration: "underline" }} variant="subtitle1">
-            Phone
-          </Typography>
-          <p>{booking.contactPhone}</p>
+        <div className="flex items-center gap-2 border-b-2 w-full justify-between">
+          <div className="flex items-center gap-2">
+            <ContactPhoneIcon />
+            <span>Phone Number</span>
+          </div>
+          <strong>{booking.contactPhone}</strong>
         </div>
       )}
 
       {booking.contactEmail && (
-        <div>
-          <Typography sx={{ textDecoration: "underline" }} variant="subtitle1">
-            Email
-          </Typography>
-          <p>{booking.contactEmail}</p>
+        <div className="flex items-center gap-2 border-b-2 w-full justify-between">
+          <div className="flex items-center gap-2">
+            <EmailIcon />
+            <span>Email</span>
+          </div>
+          <strong>{booking.contactEmail}</strong>
         </div>
       )}
 
       {guide && (
-        <div className="flex flex-col items-center gap-1">
-          <Typography sx={{ textDecoration: "underline" }} variant="subtitle1">
-            Guide
-          </Typography>
-          <Avatar alt={guide.fullName} src={guide.photo} />
-          <p>{guide.fullName}</p>
+        <div className="flex items-center gap-1 w-full justify-between border-b-2 py-2">
+          <div className="flex items-center gap-2">
+            <AssignmentIndIcon />
+            <span>Guide</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Avatar alt={guide.fullName} src={guide.photo} />
+            <p>{guide.fullName}</p>
+          </div>
         </div>
       )}
+
+      <div className="mt-2">
+        <h2 className="pb-2 font-semibold underline">Description</h2>
+        <div className="py-2 px-2 max-h-[80px] overflow-y-auto rounded">
+          <p>{booking.description}</p>
+        </div>
+      </div>
     </Box>
   );
 }
