@@ -28,6 +28,7 @@ const guideSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
+    required: [true, 'A guide must have a phone number.'],
   },
   createdAt: {
     type: Date,
