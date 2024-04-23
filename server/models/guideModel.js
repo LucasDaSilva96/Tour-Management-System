@@ -32,7 +32,7 @@ const guideSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now,
+    default: new Date().toISOString(),
   },
   active: {
     type: Boolean,

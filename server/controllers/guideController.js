@@ -1,4 +1,5 @@
 const { Guide } = require('../models/guideModel');
+const { Tour, Bookings } = require('../models/tourModel');
 const { responseHelper } = require('../utils/httpResponse');
 
 // ** Create guide Middleware
@@ -50,11 +51,12 @@ exports.updateGuide = async (req, res, next) => {
     const { guideID } = req.params;
     if (!guideID) throw new Error('Please enter a valid guide-id.');
 
-    await Guide.findByIdAndUpdate(guideID, {
+    const GUIDE = await Guide.findByIdAndUpdate(guideID, {
       ...req.body,
-      updatedAt: Date.now(),
+      updatedAt: new Date().toISOString(),
       updatedBy: req.user.name,
     });
+
     responseHelper(200, 'Guide successfully updated', res);
   } catch (err) {
     responseHelper(404, err.message, res);
