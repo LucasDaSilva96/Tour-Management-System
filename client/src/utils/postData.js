@@ -147,3 +147,45 @@ export const deleteOneBooking = async (token, booking) => {
     return false;
   }
 };
+
+export const updateGuide = async (token, guideObj) => {
+  const toastId = toast.loading("Loading...");
+  if (!token) {
+    toast.dismiss(toastId);
+    toast.error("No user-token provided");
+    return false;
+  }
+
+  try {
+    const { photo, _id, ...OBJ } = guideObj;
+    if (typeof guideObj.photo == "object") {
+      const url = `http://localhost:8000/api/v1/guides/uploadGuideImage/${guideObj._id}`;
+      const formData = new FormData();
+      formData.append("image", photo);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "content-type": "multipart/form-data",
+        },
+      };
+
+      await axios.post(url, formData, config);
+    }
+
+    await axios.patch(
+      `http://localhost:8000/api/v1/guides/updateGuide/${guideObj._id}`,
+      OBJ,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    toast.success("Guide successfully updated.");
+    return true;
+  } catch (e) {
+    toast.error("ERROR: " + e.response.data.message);
+    return false;
+  } finally {
+    toast.dismiss(toastId);
+  }
+};

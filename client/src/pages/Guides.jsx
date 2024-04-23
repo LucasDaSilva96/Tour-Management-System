@@ -1,4 +1,4 @@
-import { Divider, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
@@ -8,11 +8,30 @@ import TextField from "@mui/material/TextField";
 import { useEffect, useState } from "react";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 import Stack from "@mui/material/Stack";
+import { getCurrentUser } from "../redux/userSlice";
+import { useSelector } from "react-redux";
+import { updateGuide } from "../utils/postData";
 
 function Guides() {
   const queryClient = useQueryClient();
-  const allGuides = queryClient.getQueryData(["AllGuides"]);
-  const [selectedGuide, setSelectedGuide] = useState(null);
+  const [allGuides, setAllGuides] = useState(
+    queryClient.getQueryData(["AllGuides"])
+  );
+  const [selectedGuide, setSelectedGuide] = useState(
+    allGuides.length > 0 ? allGuides[0] : null
+  );
+  const [disabled, setDisabled] = useState(true);
+  const user = useSelector(getCurrentUser);
+
+  const handleSaveGuide = async () => {
+    if (await updateGuide(user.token, selectedGuide)) {
+      queryClient.invalidateQueries();
+      setDisabled(true);
+      setTimeout(() => {
+        setAllGuides(queryClient.getQueryData(["AllGuides"]));
+      }, 1000);
+    }
+  };
 
   return (
     <Container
@@ -38,14 +57,28 @@ function Guides() {
           }}
         >
           {allGuides.map((guide) => (
-            <article key={guide._id} onClick={() => setSelectedGuide(guide)}>
+            <article
+              key={guide._id}
+              onClick={() => {
+                setSelectedGuide(guide);
+                setDisabled(true);
+              }}
+            >
               <GuideSideBox guide={guide} />
             </article>
           ))}
         </Box>
         <Button variant="outlined">Add New Guide</Button>
       </div>
-      {selectedGuide && <GuideOverviewEdit selectedGuide={selectedGuide} />}
+      {selectedGuide && (
+        <GuideOverviewEdit
+          disabled={disabled}
+          setDisabled={setDisabled}
+          selectedGuide={selectedGuide}
+          handleSaveGuide={handleSaveGuide}
+          setSelectedGuide={setSelectedGuide}
+        />
+      )}
     </Container>
   );
 }
@@ -73,28 +106,38 @@ function GuideSideBox({ guide }) {
   );
 }
 
-function GuideOverviewEdit({ selectedGuide }) {
-  const [disabled, setDisabled] = useState(true);
-  const [GUIDE, SETGUIDE] = useState({ ...selectedGuide });
+function GuideOverviewEdit({
+  selectedGuide,
+  disabled,
+  setDisabled,
+  handleSaveGuide,
+  setSelectedGuide,
+}) {
+  const [file, setFile] = useState(selectedGuide.photo);
+
+  useEffect(() => {
+    setFile(selectedGuide.photo);
+  }, [selectedGuide]);
 
   const handleEditName = (e) => {
-    SETGUIDE({ ...GUIDE, fullName: e.target.value });
+    setSelectedGuide({ ...selectedGuide, fullName: e.target.value });
   };
 
   const handleEditEmail = (e) => {
-    SETGUIDE({ ...GUIDE, email: e.target.value });
+    setSelectedGuide({ ...selectedGuide, email: e.target.value });
   };
 
   const handleEditPhone = (e) => {
-    SETGUIDE({ ...GUIDE, phone: e.target.value });
+    setSelectedGuide({ ...selectedGuide, phone: e.target.value });
   };
-
-  useEffect(() => {
-    SETGUIDE({ ...selectedGuide });
-  }, [selectedGuide]);
 
   const toggleEditMode = () => {
     setDisabled(!disabled);
+  };
+
+  const handleChangeGuidePhoto = (e) => {
+    setSelectedGuide({ ...selectedGuide, photo: e.target.files[0] });
+    setFile(URL.createObjectURL(e.target.files[0]));
   };
 
   return (
@@ -115,12 +158,18 @@ function GuideOverviewEdit({ selectedGuide }) {
       <div className="flex gap-2">
         <div className="relative min-h-full flex flex-col items-end">
           <Avatar
-            alt={GUIDE.fullName}
-            src={GUIDE.photo}
+            alt={selectedGuide.fullName}
+            src={typeof file == "object" ? URL.createObjectURL(file) : file}
             sx={{ width: 86, height: 86 }}
           />
           <div className="z-50 mt-[-10px]">
-            <input id="guide_photo__uploader" type="file" disabled={disabled} />
+            <input
+              id="guide_photo__uploader"
+              type="file"
+              disabled={disabled}
+              onChange={handleChangeGuidePhoto}
+              name="image"
+            />
             <label htmlFor="guide_photo__uploader">
               <CloudUploadOutlinedIcon
                 color={disabled ? "action" : "success"}
@@ -137,7 +186,7 @@ function GuideOverviewEdit({ selectedGuide }) {
             id="outlined-basic"
             label="Name"
             variant="outlined"
-            value={GUIDE.fullName}
+            value={selectedGuide.fullName}
           />
 
           <TextField
@@ -146,7 +195,7 @@ function GuideOverviewEdit({ selectedGuide }) {
             id="outlined-basic"
             label="Email"
             variant="outlined"
-            value={GUIDE.email}
+            value={selectedGuide.email}
           />
 
           <TextField
@@ -155,7 +204,7 @@ function GuideOverviewEdit({ selectedGuide }) {
             id="outlined-basic"
             label="Phone"
             variant="outlined"
-            value={GUIDE.phone}
+            value={selectedGuide.phone}
           />
         </div>
         {/*  */}
@@ -169,11 +218,16 @@ function GuideOverviewEdit({ selectedGuide }) {
         <Button variant="contained" onClick={toggleEditMode}>
           Edit
         </Button>
-        <Button variant="outlined" color="error">
+        <Button variant="outlined" color="error" disabled={disabled}>
           Delete
         </Button>
 
-        <Button variant="outlined" color="success">
+        <Button
+          disabled={disabled}
+          variant="outlined"
+          color="success"
+          onClick={async () => await handleSaveGuide()}
+        >
           Save
         </Button>
       </Stack>
