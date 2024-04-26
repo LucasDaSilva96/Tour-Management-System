@@ -68,7 +68,44 @@ exports.deleteOneGuide = async (req, res, next) => {
   try {
     const { guideID } = req.params;
     if (!guideID) throw new Error('Please enter a valid guide-id.');
-    await Guide.findByIdAndUpdate(guideID, { active: false });
+
+    const tourDocs = await Tour.find();
+    const BOOKINGS = await Bookings.find();
+    const GUIDE = await Guide.findById(guideID);
+
+    for (const tourDoc of tourDocs) {
+      for (const booking of tourDoc.bookings) {
+        const ID = JSON.stringify(booking.guide).split('"')[1];
+
+        if (ID === guideID) {
+          booking.guide = null;
+          await tourDoc.save();
+        }
+      }
+    }
+
+    for (const booking of BOOKINGS) {
+      if (booking.guide) {
+        const ID = booking.guide._id.toString();
+
+        if (ID === guideID) {
+          booking.guide = null;
+          await booking.save();
+        }
+      }
+    }
+
+    GUIDE.guide_bookings = [
+      {
+        year: new Date().getFullYear(),
+        bookings: [],
+      },
+    ];
+
+    GUIDE.active = false;
+
+    await GUIDE.save();
+
     responseHelper(200, 'Guide successfully deleted', res);
   } catch (err) {
     responseHelper(400, err.message, res);
