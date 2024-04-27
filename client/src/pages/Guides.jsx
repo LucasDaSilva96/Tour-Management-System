@@ -7,10 +7,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import TextField from "@mui/material/TextField";
 import { useEffect, useState } from "react";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
+import Modal from "@mui/material/Modal";
 import Stack from "@mui/material/Stack";
 import { getCurrentUser } from "../redux/userSlice";
 import { useSelector } from "react-redux";
-import { updateGuide } from "../utils/postData";
+import { deleteGuide, updateGuide } from "../utils/postData";
 
 function Guides() {
   const queryClient = useQueryClient();
@@ -115,6 +116,12 @@ function GuideOverviewEdit({
 }) {
   const [file, setFile] = useState(selectedGuide.photo);
 
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+
+  const handleOpeDeleteModal = () => {
+    setOpenDeleteModal(true);
+  };
+
   useEffect(() => {
     setFile(selectedGuide.photo);
   }, [selectedGuide]);
@@ -218,7 +225,12 @@ function GuideOverviewEdit({
         <Button variant="contained" onClick={toggleEditMode}>
           Edit
         </Button>
-        <Button variant="outlined" color="error" disabled={disabled}>
+        <Button
+          variant="outlined"
+          color="error"
+          disabled={disabled}
+          onClick={handleOpeDeleteModal}
+        >
           Delete
         </Button>
 
@@ -231,7 +243,77 @@ function GuideOverviewEdit({
           Save
         </Button>
       </Stack>
+      <GuideModal
+        selectedGuide={selectedGuide}
+        setOpenDeleteModal={setOpenDeleteModal}
+        openDeleteModal={openDeleteModal}
+      />
     </Box>
+  );
+}
+
+const style = {
+  position: "fixed",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  minHeight: 200,
+  overflow: "auto",
+  bgcolor: "background.paper",
+  border: "1px solid #000",
+  boxShadow: 24,
+  p: 4,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "space-around",
+  borderRadius: "10px",
+  textAlign: "center",
+  gap: "15px",
+};
+
+function GuideModal({ selectedGuide, setOpenDeleteModal, openDeleteModal }) {
+  // const queryClient = useQueryClient();
+  const user = useSelector(getCurrentUser);
+
+  const handleDeleteGuide = async () => {
+    if (await deleteGuide(user.token, selectedGuide._id)) {
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
+  };
+  return (
+    <Modal
+      open={openDeleteModal}
+      onClose={() => setOpenDeleteModal(false)}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      <Box sx={style}>
+        <Typography id="modal-modal-title" variant="h6" component="h2">
+          Delete {selectedGuide.fullName} ?
+        </Typography>
+        <Avatar
+          alt={selectedGuide.fullName}
+          src={selectedGuide.photo}
+          sx={{ width: 86, height: 86 }}
+        />
+        <Stack direction={"row"} spacing={4}>
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={async () => await handleDeleteGuide()}
+          >
+            Yes
+          </Button>
+          <Button variant="outlined" onClick={() => setOpenDeleteModal(false)}>
+            No
+          </Button>
+        </Stack>
+      </Box>
+    </Modal>
   );
 }
 

@@ -189,3 +189,26 @@ export const updateGuide = async (token, guideObj) => {
     toast.dismiss(toastId);
   }
 };
+
+export const deleteGuide = async (token, guideID) => {
+  const toastId = toast.loading("Loading...");
+  if (!token) {
+    toast.dismiss(toastId);
+    toast.error("No user-token provided");
+    return false;
+  }
+
+  try {
+    axios.delete(`http://localhost:8000/api/v1/guides/deleteGuide/${guideID}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    toast.success("Guide successfully deleted.");
+    return true;
+  } catch (e) {
+    toast.error("ERROR: " + e.response.data.message);
+    return false;
+  } finally {
+    toast.dismiss(toastId);
+  }
+};
