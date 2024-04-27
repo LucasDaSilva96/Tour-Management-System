@@ -3,6 +3,7 @@ const { responseHelper } = require('./httpResponse');
 const { Guide } = require('../models/guideModel');
 const User = require('../models/userModel');
 const path = require('path');
+const fs = require('fs');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -44,20 +45,43 @@ exports.uploadImageToDB = async (req, res, next) => {
     if (req.err) throw new Error(req.err);
 
     if (req.params.id) {
+      const USER = await User.findById(req.params.id);
+
+      if (!USER.photo.includes('default.jpg')) {
+        // Delete the old image file
+        fs.unlink(`public/img/users/${USER.photo.split('users')[1]}`, (err) => {
+          if (err) throw new Error(err);
+        });
+      }
+
       await User.findByIdAndUpdate(req.params.id, {
         photo: `${req.protocol}://${req.get('host')}/public/img/users/${
           req.file.filename
         }`,
       });
-    } else {
+    } else if (req.params.guideID) {
       const { guideID } = req.params;
       if (!guideID) throw new Error('No guide id defined');
+
+      const GUIDE = await Guide.findById(guideID);
+
+      if (!GUIDE.photo.includes('default.jpg')) {
+        // Delete the old image file
+        fs.unlink(
+          `public/img/guides/${GUIDE.photo.split('guides')[1]}`,
+          (err) => {
+            if (err) throw new Error(err);
+          }
+        );
+      }
 
       await Guide.findByIdAndUpdate(guideID, {
         photo: `${req.protocol}://${req.get('host')}/public/img/guides/${
           req.file.filename
         }`,
       });
+    } else {
+      throw new Error('Invalid upload settings/options.');
     }
 
     responseHelper(200, 'Image successfully uploaded', res);
