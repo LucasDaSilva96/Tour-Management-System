@@ -11,7 +11,9 @@ import Modal from "@mui/material/Modal";
 import Stack from "@mui/material/Stack";
 import { getCurrentUser } from "../redux/userSlice";
 import { useSelector } from "react-redux";
-import { deleteGuide, updateGuide } from "../utils/postData";
+import { createNewGuide, deleteGuide, updateGuide } from "../utils/postData";
+import toast from "react-hot-toast";
+import { fetchAllGuides } from "../utils/fetchData";
 
 function Guides() {
   const queryClient = useQueryClient();
@@ -23,6 +25,7 @@ function Guides() {
   );
   const [disabled, setDisabled] = useState(true);
   const user = useSelector(getCurrentUser);
+  const [openNewGuideForm, setOpenNewGuideForm] = useState(false);
 
   const handleSaveGuide = async () => {
     if (await updateGuide(user.token, selectedGuide)) {
@@ -34,6 +37,11 @@ function Guides() {
     }
   };
 
+  const handleAddNewGuide = () => {
+    setSelectedGuide(null);
+    setOpenNewGuideForm(true);
+  };
+
   return (
     <Container
       maxWidth="xl"
@@ -42,34 +50,45 @@ function Guides() {
         width: "100%",
         justifyContent: "space-around",
         padding: "15px 0",
+        flexWrap: "wrap",
+        gap: "20px",
       }}
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-12 ">
         <Box
           sx={{
-            bgcolor: "primary.light",
-            minWidth: "28dvw",
-            maxHeight: "65dvh",
-            borderRadius: "8px",
-            overflowY: "auto",
             display: "flex",
-            flexDirection: "column",
+            flexWrap: "wrap",
             gap: "15px",
+            maxWidth: "650px",
+            maxHeight: "400px",
+            padding: "10px 10px 20px 10px",
+            boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+            overflowY: "scroll",
+            borderRadius: "10px",
           }}
         >
           {allGuides.map((guide) => (
             <article
+              className=" border rounded h-[130px] w-[200px] flex items-center justify-center hover:cursor-pointer hover:bg-[#2196f3]"
               key={guide._id}
               onClick={() => {
                 setSelectedGuide(guide);
                 setDisabled(true);
+                setOpenNewGuideForm(false);
               }}
             >
               <GuideSideBox guide={guide} />
             </article>
           ))}
         </Box>
-        <Button variant="outlined">Add New Guide</Button>
+        <Button
+          variant="outlined"
+          onClick={handleAddNewGuide}
+          sx={{ maxWidth: "450px", alignSelf: "center", minWidth: "300px" }}
+        >
+          Add New Guide
+        </Button>
       </div>
       {selectedGuide && (
         <GuideOverviewEdit
@@ -78,6 +97,15 @@ function Guides() {
           selectedGuide={selectedGuide}
           handleSaveGuide={handleSaveGuide}
           setSelectedGuide={setSelectedGuide}
+          setAllGuides={setAllGuides}
+          queryClient={queryClient}
+        />
+      )}
+      {openNewGuideForm && (
+        <NewGuideForm
+          setAllGuides={setAllGuides}
+          queryClient={queryClient}
+          setOpenNewGuideForm={setOpenNewGuideForm}
         />
       )}
     </Container>
@@ -95,13 +123,13 @@ function GuideSideBox({ guide }) {
         alignItems: "center",
         gap: "10px",
         border: "1px solid transparent",
-        "&:hover": {
-          cursor: "pointer",
-          borderColor: "primary.dark",
-        },
       }}
     >
-      <Avatar alt={guide.fullName} src={guide.photo} />
+      <Avatar
+        sx={{ width: 86, height: 86 }}
+        alt={guide.fullName}
+        src={guide.photo}
+      />
       <Typography variant="subtitle2">{guide.fullName}</Typography>
     </Box>
   );
@@ -113,6 +141,8 @@ function GuideOverviewEdit({
   setDisabled,
   handleSaveGuide,
   setSelectedGuide,
+  setAllGuides,
+  queryClient,
 }) {
   const [file, setFile] = useState(selectedGuide.photo);
 
@@ -156,8 +186,10 @@ function GuideOverviewEdit({
         padding: "10px 30px",
         borderRadius: "10px",
         maxWidth: "650px",
+        maxHeight: "250px",
         display: "flex",
         flexDirection: "column",
+        boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
       }}
       noValidate
       autoComplete="off"
@@ -247,6 +279,9 @@ function GuideOverviewEdit({
         selectedGuide={selectedGuide}
         setOpenDeleteModal={setOpenDeleteModal}
         openDeleteModal={openDeleteModal}
+        setAllGuides={setAllGuides}
+        queryClient={queryClient}
+        setSelectedGuide={setSelectedGuide}
       />
     </Box>
   );
@@ -273,14 +308,25 @@ const style = {
   gap: "15px",
 };
 
-function GuideModal({ selectedGuide, setOpenDeleteModal, openDeleteModal }) {
-  // const queryClient = useQueryClient();
+function GuideModal({
+  selectedGuide,
+  setOpenDeleteModal,
+  openDeleteModal,
+  queryClient,
+  setAllGuides,
+  setSelectedGuide,
+}) {
   const user = useSelector(getCurrentUser);
 
   const handleDeleteGuide = async () => {
     if (await deleteGuide(user.token, selectedGuide._id)) {
-      setTimeout(() => {
-        window.location.reload();
+      queryClient.invalidateQueries(["AllGuides"]);
+
+      setTimeout(async () => {
+        const newAllGuides = await fetchAllGuides(user.token);
+        setAllGuides(newAllGuides);
+        setSelectedGuide(null);
+        setOpenDeleteModal(false);
       }, 1000);
     }
   };
@@ -314,6 +360,112 @@ function GuideModal({ selectedGuide, setOpenDeleteModal, openDeleteModal }) {
         </Stack>
       </Box>
     </Modal>
+  );
+}
+
+function NewGuideForm({ setAllGuides, queryClient, setOpenNewGuideForm }) {
+  const user = useSelector(getCurrentUser);
+  const [newGuide, setNewGuide] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+  });
+
+  const handleCreateGuide = async () => {
+    if (!newGuide.fullName || !newGuide.email || !newGuide.phone) {
+      toast.error(
+        "Please enter the name, email and phone number of the guide."
+      );
+      return;
+    }
+
+    if (await createNewGuide(user.token, newGuide)) {
+      queryClient.invalidateQueries(["AllGuides"]);
+
+      const newAllGuides = await fetchAllGuides(user.token);
+
+      setAllGuides(newAllGuides);
+
+      setOpenNewGuideForm(false);
+    }
+  };
+
+  return (
+    <Box
+      component="form"
+      sx={{
+        "& .MuiTextField-root": { m: 1, width: "25ch" },
+        border: "1px solid #2196f3",
+        padding: "10px 30px",
+        borderRadius: "10px",
+        maxWidth: "650px",
+        maxHeight: "250px",
+        display: "flex",
+        flexDirection: "column",
+        boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+      }}
+      noValidate
+      autoComplete="off"
+    >
+      <div className="flex gap-2">
+        <div className="relative min-h-full flex flex-col items-end">
+          <Avatar
+            alt="New guide default image"
+            src="/img/default.jpg"
+            sx={{ width: 86, height: 86 }}
+          />
+        </div>
+        {/*  */}
+        <div className="grid grid-cols-2">
+          <TextField
+            id="outlined-basic"
+            label="Name"
+            variant="outlined"
+            onChange={(e) =>
+              setNewGuide({ ...newGuide, fullName: e.target.value })
+            }
+            value={newGuide.fullName}
+          />
+          <TextField
+            id="outlined-basic"
+            label="Email"
+            variant="outlined"
+            onChange={(e) =>
+              setNewGuide({ ...newGuide, email: e.target.value })
+            }
+            value={newGuide.email}
+          />
+          <TextField
+            id="outlined-basic"
+            label="Phone"
+            variant="outlined"
+            onChange={(e) =>
+              setNewGuide({ ...newGuide, phone: e.target.value })
+            }
+            value={newGuide.phone}
+          />
+        </div>
+        {/*  */}
+      </div>
+
+      <Stack
+        sx={{ alignSelf: "center", padding: "15px 0" }}
+        spacing={2}
+        direction={"row"}
+      >
+        <Button
+          variant="outlined"
+          color="success"
+          onClick={async () => await handleCreateGuide()}
+        >
+          Save
+        </Button>
+
+        <Button variant="outlined" onClick={() => setOpenNewGuideForm(false)}>
+          Cancel
+        </Button>
+      </Stack>
+    </Box>
   );
 }
 

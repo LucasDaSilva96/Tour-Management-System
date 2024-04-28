@@ -13,8 +13,6 @@ export const updateOneBooking = async (token, data, bookingID, guideEmail) => {
     return false;
   }
 
-  // console.log(DATA);
-
   try {
     if (guide) {
       await axios.post(
@@ -204,6 +202,33 @@ export const deleteGuide = async (token, guideID) => {
     });
 
     toast.success("Guide successfully deleted.");
+    return true;
+  } catch (e) {
+    toast.error("ERROR: " + e.response.data.message);
+    return false;
+  } finally {
+    toast.dismiss(toastId);
+  }
+};
+
+export const createNewGuide = async (token, guideObj) => {
+  const toastId = toast.loading("Loading...");
+  if (!token) {
+    toast.dismiss(toastId);
+    toast.error("No user-token provided");
+    return false;
+  }
+
+  try {
+    await axios.post(
+      `http://localhost:8000/api/v1/guides/createNewGuide`,
+      guideObj,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    toast.success("New guide successfully created.");
     return true;
   } catch (e) {
     toast.error("ERROR: " + e.response.data.message);
