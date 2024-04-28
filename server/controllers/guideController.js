@@ -71,7 +71,7 @@ exports.deleteOneGuide = async (req, res, next) => {
 
     const tourDocs = await Tour.find();
     const BOOKINGS = await Bookings.find();
-    const GUIDE = await Guide.findById(guideID);
+    await Guide.findByIdAndDelete(guideID);
 
     for (const tourDoc of tourDocs) {
       for (const booking of tourDoc.bookings) {
@@ -94,17 +94,6 @@ exports.deleteOneGuide = async (req, res, next) => {
         }
       }
     }
-
-    GUIDE.guide_bookings = [
-      {
-        year: new Date().getFullYear(),
-        bookings: [],
-      },
-    ];
-
-    GUIDE.active = false;
-
-    await GUIDE.save();
 
     responseHelper(200, 'Guide successfully deleted', res);
   } catch (err) {
