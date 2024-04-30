@@ -8,13 +8,13 @@ function Layout() {
   const year = new Date().getFullYear();
   const { state } = useNavigation();
   return (
-    <main className=" w-[100dvw] h-[100dvh] flex flex-col relative gap-2">
+    <main className=" w-[100dvw] h-[100dvh] flex flex-col relative gap-2 overflow-x-hidden overflow-y-auto">
       <ThemeProvider theme={defaultTheme}>
         <Header />
         {state === "loading" && <Loading />}
         <Outlet />
         <footer className=" mt-auto py-1 bg-[#2195f3ec] flex items-center justify-center w-[100dvw] text-white">
-          Ⓒ {year} || Lucas Da Silva
+          ⒸCopyright {year} Lucas Da Silva
         </footer>
       </ThemeProvider>
     </main>
