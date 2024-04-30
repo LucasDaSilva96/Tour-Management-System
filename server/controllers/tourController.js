@@ -438,7 +438,7 @@ exports.deleteBooking = async (req, res, next) => {
   }
 };
 
-// ** Get all tours by year Middleware
+// ** Get all tours by year and filter options Middleware
 exports.getAllBookingsByYearAndFilter = async (req, res, next) => {
   try {
     const { year, ...filterObj } = req.query;
