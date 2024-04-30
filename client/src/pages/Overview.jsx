@@ -6,6 +6,19 @@ import FormControl from "@mui/material/FormControl";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import { useState } from "react";
+import {
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  Bar,
+  ResponsiveContainer,
+  LabelList,
+} from "recharts";
+import { formatChartData } from "../utils/formatData";
+import toast from "react-hot-toast";
 
 function Overview() {
   const queryClient = useQueryClient();
@@ -13,28 +26,15 @@ function Overview() {
     .getQueryData(["AllYearsDoc"])
     .map((el) => el.year);
   const availableGuides = queryClient.getQueryData(["AllGuides"]);
+  const allBookings = queryClient.getQueryData(["AllYearsDoc"]);
 
   const [DATAOBJ, SETDATAOBJ] = useState({
     year: availableYears[0],
     month: "",
     guide: "",
+    status: "all",
   });
 
-  console.log(DATAOBJ);
-
-  return (
-    <section className="flex h-full w-full py-2 px-2">
-      <OverviewSearchBox
-        data={DATAOBJ}
-        setData={SETDATAOBJ}
-        years={availableYears}
-        guides={availableGuides}
-      />
-    </section>
-  );
-}
-
-function OverviewSearchBox({ data, setData, years, guides }) {
   const months = [
     "January",
     "February",
@@ -50,6 +50,60 @@ function OverviewSearchBox({ data, setData, years, guides }) {
     "December",
   ];
 
+  const [CHART_DATA, SET_CHART_DATA] = useState([]);
+
+  return (
+    <section className="relative w-full h-full py-2 px-2">
+      <h1 className=" text-center flex items-center gap-3 w-full justify-center  text-lg">
+        {DATAOBJ.year && (
+          <span className="py-1 px-2 border rounded-lg bg-slate-100 shadow-sm">
+            Year: {DATAOBJ.year}
+          </span>
+        )}
+        {DATAOBJ.status && (
+          <span className="py-1 px-2 border rounded-lg bg-slate-100 shadow-sm">
+            Status: {DATAOBJ.status}
+          </span>
+        )}
+        {DATAOBJ.month && DATAOBJ.month >= 0 && (
+          <span className="py-1 px-2 border rounded-lg bg-slate-100 shadow-sm">
+            Month: {months[DATAOBJ.month]}
+          </span>
+        )}
+        {DATAOBJ.guide && (
+          <span className="py-1 px-2 border rounded-lg bg-slate-100 shadow-sm">
+            Guide: {DATAOBJ.guide}
+          </span>
+        )}
+      </h1>
+      <div className="flex h-full w-full items-center justify-around">
+        <OverviewSearchBox
+          data={DATAOBJ}
+          setData={SETDATAOBJ}
+          years={availableYears}
+          guides={availableGuides}
+          allBookings={allBookings}
+          setChartData={SET_CHART_DATA}
+          months={months}
+        />
+
+        {CHART_DATA.length > 0 && <OverviewChartBox DATA={CHART_DATA} />}
+      </div>
+    </section>
+  );
+}
+
+function OverviewSearchBox({
+  data,
+  setData,
+  years,
+  guides,
+  allBookings,
+  setChartData,
+  months,
+}) {
+  const statusOpts = ["all", "preliminary", "confirmed", "cancelled"];
+
   const handleYearChange = (e) => {
     setData({ ...data, year: e.target.value });
   };
@@ -62,8 +116,26 @@ function OverviewSearchBox({ data, setData, years, guides }) {
     setData({ ...data, month: e.target.value });
   };
 
+  const handleStatusChange = (e) => {
+    setData({ ...data, status: e.target.value });
+  };
+
   const handleReset = () => {
-    setData({ year: years[0], month: "", guide: "" });
+    const toastId = toast.loading("Loading...");
+    setData({ year: years[0], month: "", guide: "", status: "all" });
+
+    setChartData(
+      formatChartData(
+        { year: years[0], month: "", guide: "", status: "all" },
+        allBookings,
+        guides
+      )
+    );
+    toast.dismiss(toastId);
+  };
+
+  const handleSearch = () => {
+    setChartData(formatChartData(data, allBookings, guides));
   };
 
   return (
@@ -80,6 +152,23 @@ function OverviewSearchBox({ data, setData, years, guides }) {
           {years.map((year, index) => (
             <MenuItem value={year} key={index}>
               {year}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <FormControl fullWidth>
+        <InputLabel id="demo-simple-select-label">Status</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={data.status}
+          label="Status"
+          onChange={handleStatusChange}
+        >
+          {statusOpts.map((status, index) => (
+            <MenuItem value={status} key={index}>
+              {status}
             </MenuItem>
           ))}
         </Select>
@@ -124,7 +213,7 @@ function OverviewSearchBox({ data, setData, years, guides }) {
         sx={{ justifyContent: "space-around" }}
         width="100%"
       >
-        <Button variant="outlined" color="success">
+        <Button variant="outlined" color="success" onClick={handleSearch}>
           Search
         </Button>
 
@@ -136,6 +225,30 @@ function OverviewSearchBox({ data, setData, years, guides }) {
   );
 }
 
-function OverviewChartBox() {}
+function OverviewChartBox({ DATA }) {
+  return (
+    <ResponsiveContainer width={700} height="80%">
+      <BarChart data={DATA}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name"></XAxis>
+        <YAxis
+          allowDecimals={false}
+          dataKey="amount"
+          label={{
+            value: "Amount of bookings",
+            angle: -90,
+            position: "insideLeft",
+            textAnchor: "middle",
+          }}
+        />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="amount" fill="#2196f3">
+          <LabelList dataKey="amount" position="top" />
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
 
 export default Overview;
