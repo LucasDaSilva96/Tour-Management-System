@@ -20,6 +20,7 @@ import { useQuery } from "@tanstack/react-query";
 import Loading from "./pages/Loading";
 import ErrorPage from "./pages/ErrorPage";
 import SearchBooking from "./pages/SearchBooking";
+import UserDashboard from "./pages/UserDashboard";
 
 export const changeTabText = (text) => {
   return (window.document.title = `Sandgrund || ${text}`);
@@ -64,20 +65,16 @@ const router = createBrowserRouter([
         path: "New-Booking",
         element: <EditOrCreateBooking />,
       },
+      {
+        path: "Account",
+        element: <UserDashboard />,
+      },
     ],
     errorElement: <ErrorPage />,
   },
 ]);
 
 function App() {
-  const userLoggedIn = useSelector(isLoggedIn);
-  if (!userLoggedIn) {
-    changeTabText("Login");
-  } else {
-    changeTabText("Calendar");
-  }
-
-  const user = useSelector(getCurrentUser);
   const dispatch = useDispatch();
 
   const {
@@ -87,7 +84,7 @@ function App() {
   } = useQuery({
     queryKey: [`AllBookings`],
     queryFn: async () => {
-      const data = await fetchAllBookingsByYear(user.token);
+      const data = await fetchAllBookingsByYear();
       return data || [];
     },
   });
@@ -99,7 +96,7 @@ function App() {
   } = useQuery({
     queryKey: ["AllGuides"],
     queryFn: async () => {
-      const data = await fetchAllGuides(user.token);
+      const data = await fetchAllGuides();
       return data || [];
     },
   });
@@ -111,7 +108,7 @@ function App() {
   } = useQuery({
     queryKey: ["AllYearsDoc"],
     queryFn: async () => {
-      const data = await fetchAllYearsDoc(user.token);
+      const data = await fetchAllYearsDoc();
       return data || [];
     },
   });
@@ -135,7 +132,7 @@ function App() {
 
   return (
     <div className="App">
-      {userLoggedIn ? <RouterProvider router={router} /> : <Login />}
+      <RouterProvider router={router} />
     </div>
   );
 }

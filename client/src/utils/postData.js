@@ -2,6 +2,37 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import store from "../redux/store";
 import { v4 as uuidv4 } from "uuid";
+
+export const loginUser = async (email, password) => {
+  const toastId = toast.loading("Loading...");
+
+  if (!email || !password) {
+    toast.dismiss(toastId);
+    toast.error("Please provide email and password.");
+    return false;
+  }
+
+  try {
+    const req = await axios.post("http://localhost:8000/api/v1/users/login", {
+      email,
+      password,
+    });
+
+    toast.success("User successfully logged in.");
+    return {
+      status: "success",
+      user: { ...req.data.data.user, token: req.data.token },
+    };
+  } catch (e) {
+    toast.error("ERROR: " + e.response.data.message);
+    return false;
+  } finally {
+    toast.dismiss(toastId);
+  }
+};
+
+export const logOutUser = async () => {};
+
 export const updateOneBooking = async (token, data, bookingID, guideEmail) => {
   // * This is for removing the doc-id, because we don't want to change the doc-id & the guide
   let { _id, guide, ...DATA } = data;

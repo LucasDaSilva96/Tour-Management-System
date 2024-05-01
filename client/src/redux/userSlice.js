@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getMe } from "../utils/rememberMe";
+import { forgetMe, getMe } from "../utils/rememberMe";
 
 const initialState = getMe() || {
   email: "",
@@ -21,6 +21,7 @@ const userSlice = createSlice({
     },
     logOut(state) {
       state = { ...initialState };
+      forgetMe();
     },
   },
 });

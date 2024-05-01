@@ -330,6 +330,9 @@ function BookingBox({ booking }) {
       component="article"
       sx={{
         border: "1px solid #2196f3",
+        backgroundColor: "rgb(241 245 249)",
+        boxShadow:
+          "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
         "&:hover": {
           cursor: "pointer",
         },

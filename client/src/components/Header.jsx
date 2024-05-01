@@ -40,7 +40,8 @@ function Header() {
 
   const handleCloseNavMenu = (page) => {
     setAnchorElNav(null);
-    if (page) {
+
+    if (page && typeof page === "string") {
       changeTabText(`${page}`);
       switch (page) {
         case "Calendar":
@@ -170,7 +171,13 @@ function Header() {
             >
               {settings.map((setting) => (
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
+                  <div
+                    onClick={() => {
+                      if (setting === "Account") navigate(setting);
+                    }}
+                  >
+                    <Typography textAlign="center">{setting}</Typography>
+                  </div>
                 </MenuItem>
               ))}
             </Menu>

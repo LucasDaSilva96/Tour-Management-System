@@ -13,11 +13,9 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useDispatch } from "react-redux";
-import { setIsLoading, notLoading } from "../redux/loadingSlice";
-import { resetError, setError } from "../redux/errorSlice";
-import axios from "axios";
 import { login } from "../redux/userSlice";
 import { saveMe } from "../utils/rememberMe";
+import { loginUser } from "../utils/postData";
 
 export const defaultTheme = createTheme({
   palette: {
@@ -41,32 +39,22 @@ export default function Login() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    dispatch(setIsLoading());
     const data = new FormData(event.currentTarget);
     const email = data.get("email");
     const password = data.get("password");
     const remember = data.get("remember");
 
-    await axios
-      .post("http://localhost:8000/api/v1/users/login", {
-        email,
-        password,
-      })
-      .then((res) => {
-        dispatch(login({ ...res.data.data.user, token: res.data.token }));
-        dispatch(resetError());
-        if (remember)
-          saveMe({
-            ...res.data.data.user,
-            token: res.data.token,
-            isLoggedIn: true,
-          });
-      })
-      .catch((err) =>
-        dispatch(setError({ message: err.response.data.message }))
-      )
-      .finally(dispatch(notLoading()));
+    const res = await loginUser(email, password);
+
+    if (res.status === "success") {
+      dispatch(login(res.user));
+
+      if (remember) {
+        saveMe({ ...res.user, isLoggedIn: true });
+      }
+    } else {
+      return null;
+    }
   };
 
   return (
