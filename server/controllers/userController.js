@@ -1,5 +1,5 @@
 const { responseHelper } = require('../utils/httpResponse');
-
+const bcrypt = require('bcrypt');
 const User = require('../models/userModel');
 
 // ** The get all users Middleware
@@ -56,6 +56,35 @@ exports.deleteUser = async (req, res, next) => {
     const user = await User.findOneAndUpdate({ email }, { active: false });
     await user.save();
     responseHelper(204, 'User successfully deleted.', res);
+  } catch (err) {
+    responseHelper(400, err.message, res);
+  }
+};
+
+exports.updatePassword = async (req, res, next) => {
+  try {
+    const { email, currentPassword, newPassword } = req.body;
+
+    if (!email || !currentPassword || !newPassword)
+      throw new Error(
+        'Please provide email, current password and new password.'
+      );
+
+    const user = await User.findOne({ email: req.body.email }).select(
+      '+password'
+    );
+
+    if (!user) throw new Error('No user found with the provided email.');
+
+    if (await user.correctPassword(currentPassword, user.password)) {
+      user.password = newPassword;
+
+      await user.save();
+
+      responseHelper(200, 'Password successfully updated', res);
+    } else {
+      throw new Error('Wrong password. Please verify your current password');
+    }
   } catch (err) {
     responseHelper(400, err.message, res);
   }

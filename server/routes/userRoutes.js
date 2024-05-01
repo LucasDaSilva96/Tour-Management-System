@@ -11,6 +11,7 @@ const {
   getAllUsers,
   updateOneUser,
   deleteUser,
+  updatePassword,
 } = require('../controllers/userController');
 const { upload, uploadImageToDB } = require('../utils/upload');
 
@@ -26,5 +27,6 @@ router.post('/uploadUserImage/:id', upload.single('image'), uploadImageToDB);
 router.patch('/resetPassword/:token', resetPassword);
 router.patch('/updateMe', updateOneUser);
 router.delete('/deleteUser/:email', deleteUser);
+router.post('/updatePassword', updatePassword);
 
 module.exports = router;

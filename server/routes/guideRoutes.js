@@ -10,10 +10,10 @@ const { upload, uploadImageToDB } = require('../utils/upload');
 
 const router = express.Router();
 
+router.get('/getGuides', getAllGuides);
 router.use(protect);
 
 router.post('/createNewGuide', createGuide);
-router.get('/getGuides', getAllGuides);
 router.patch('/updateGuide/:guideID', updateGuide);
 router.post(
   '/uploadGuideImage/:guideID',

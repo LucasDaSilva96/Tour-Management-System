@@ -46,31 +46,24 @@ exports.login = async (req, res, next) => {
   try {
     // Check if email and password is provided
     if (!email || !password) {
-      responseHelper(401, 'Please enter your email and password.', res);
-      return next();
+      throw new Error('Please provided email and password.');
     }
     // Check if the user with the provided email exists
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
-      responseHelper(
-        401,
-        'The provided user was not found. Please verify your credentials.',
-        res
-      );
-      return next();
+      throw new Error('no user found with the provided email.');
     }
     // Check if the provided password is equal to the password in the DB
     const correct = await user.correctPassword(password, user.password);
     if (!correct) {
-      responseHelper(401, 'Wrong password. Please verify your password.', res);
-      return next();
+      throw new Error('Wrong password. Please verify your password.');
     }
 
     // Send the token if everything is correct
     createSendToken(user, 200, req, res);
   } catch (err) {
-    responseHelper(401, `${err.message}`, res);
+    responseHelper(401, err.message, res);
   }
 };
 

@@ -15,12 +15,13 @@ const {
 
 const router = express.Router();
 
+router.get('/bookings', getAllBookingsByYearAndFilter);
+router.get('/tourDocs', getAllYearsBookingDocs);
+
 router.use(protect);
 router.post('/createBooking', createYearDocument, createTour);
-router.get('/bookings', getAllBookingsByYearAndFilter);
 
 router.delete('/booking/delete', deleteBooking);
-router.get('/tourDocs', getAllYearsBookingDocs);
 
 router.use(findYearAndPassOn);
 router.post('/booking/assignGuide', createYearDocument, assignGuideToBooking);
