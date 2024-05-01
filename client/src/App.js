@@ -1,7 +1,5 @@
 import React from "react";
-import Login from "./pages/Login";
-import { useDispatch, useSelector } from "react-redux";
-import { getCurrentUser, isLoggedIn } from "./redux/userSlice";
+import { useDispatch } from "react-redux";
 import Layout from "./pages/Layout";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/CalenderHomePage";
