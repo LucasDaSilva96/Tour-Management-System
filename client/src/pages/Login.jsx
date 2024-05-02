@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -15,9 +15,13 @@ import { useDispatch } from "react-redux";
 import { login } from "../redux/userSlice";
 import { saveMe, saveSessionMe } from "../utils/rememberMe";
 import { loginUser } from "../utils/postData";
+import ResetPasswordModal from "../components/ResetPasswordModal";
 
 export default function Login() {
   const dispatch = useDispatch();
+  const [open, setOpen] = useState(false);
+
+  const handleForgotPassword = "";
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -118,14 +122,18 @@ export default function Login() {
             </Button>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">
+                <p
+                  className=" cursor-pointer text-blue-500"
+                  onClick={() => setOpen(true)}
+                >
                   Forgot password?
-                </Link>
+                </p>
               </Grid>
             </Grid>
           </Box>
         </Box>
       </Grid>
+      <ResetPasswordModal open={open} setOpen={setOpen} />
     </Grid>
   );
 }

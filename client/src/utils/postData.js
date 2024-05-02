@@ -363,3 +363,35 @@ export const updateUserPassword = async (
     toast.dismiss(toastId);
   }
 };
+
+export const resetUserPassword = async (
+  resetToken,
+  password,
+  passwordConfirm,
+  email
+) => {
+  const toastId = toast.loading("Loading...");
+  if (!resetToken) {
+    toast.dismiss(toastId);
+    toast.error("No reset token provided");
+    return false;
+  }
+  try {
+    await axios.patch(
+      `http://localhost:8000/api/v1/users/resetPassword/${resetToken}`,
+      {
+        password,
+        passwordConfirm,
+        email,
+      }
+    );
+
+    toast.success("Password successfully changed");
+    return true;
+  } catch (e) {
+    toast.error("ERROR: " + e.response.data.message);
+    return false;
+  } finally {
+    toast.dismiss(toastId);
+  }
+};

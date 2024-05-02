@@ -21,6 +21,7 @@ import SearchBooking from "./pages/SearchBooking";
 import UserDashboard from "./pages/UserDashboard";
 import { createTheme, ThemeProvider } from "@mui/material";
 import { getMe } from "./utils/rememberMe";
+import ResetPassword from "./pages/ResetPassword";
 
 export const changeTabText = (text) => {
   return (window.document.title = `Sandgrund || ${text}`);
@@ -88,6 +89,10 @@ const router = createBrowserRouter([
       },
     ],
     errorElement: <ErrorPage />,
+  },
+  {
+    path: "resetPassword/:token/:email",
+    element: <ResetPassword />,
   },
 ]);
 

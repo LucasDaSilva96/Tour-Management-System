@@ -128,3 +128,37 @@ export const getFilteredBookings = (
   toast.dismiss(toastId);
   return filteredBookings;
 };
+
+export const getResetPasswordToken = async (email) => {
+  const toastId = toast.loading("Loading...");
+  if (!email) {
+    toast.dismiss(toastId);
+    toast.error("No email provided");
+    return {
+      status: "fail",
+      resetToken: null,
+    };
+  }
+  try {
+    const req = await axios.post(
+      `http://localhost:8000/api/v1/users/resetPassword`,
+      {
+        email,
+      }
+    );
+
+    toast.success("Token successfully retrieved.");
+    return {
+      status: "success",
+      resetToken: req.data.resetToken,
+    };
+  } catch (e) {
+    toast.error("ERROR: " + e.response.data.message);
+    return {
+      status: "fail",
+      resetToken: null,
+    };
+  } finally {
+    toast.dismiss(toastId);
+  }
+};
