@@ -175,14 +175,23 @@ exports.forgotPassword = async (req, res, next) => {
     }
     // 2 Generate random token
     const resetToken = user.createPasswordResetToken();
+    const hashToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+    user.passwordResetToken = hashToken;
     await user.save();
     // 3) Send it back as email
     // TODO change reset url ↓
     const resetURL = `http://localhost:8000/api/v1/users/resetPassword/${resetToken}`;
-    await sendResetPasswordMail(user, resetURL);
-    responseHelper(200, 'Token sent to email', res);
 
-    next();
+    // TODO If the company wants to receive emails in order to reset password, change this ↓
+    // await sendResetPasswordMail(user, resetURL);
+
+    res.status(200).json({
+      status: 'success',
+      resetToken: hashToken,
+    });
   } catch (err) {
     responseHelper(400, err.message, res);
   }
@@ -193,13 +202,8 @@ exports.resetPassword = async (req, res, next) => {
   try {
     const { password, passwordConfirm } = req.body;
     // Get the user based on the token
-    const hashToken = crypto
-      .createHash('sha256')
-      .update(req.params.token)
-      .digest('hex');
-
     const user = await User.findOne({
-      passwordResetToken: hashToken,
+      passwordResetToken: req.params.token,
       passwordResetExpires: { $gt: Date.now() },
     });
 
