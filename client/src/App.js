@@ -19,10 +19,29 @@ import Loading from "./pages/Loading";
 import ErrorPage from "./pages/ErrorPage";
 import SearchBooking from "./pages/SearchBooking";
 import UserDashboard from "./pages/UserDashboard";
+import { createTheme, ThemeProvider } from "@mui/material";
+import { getMe } from "./utils/rememberMe";
 
 export const changeTabText = (text) => {
   return (window.document.title = `Sandgrund || ${text}`);
 };
+
+const defaultTheme = createTheme({
+  palette: {
+    primary: {
+      light: "#4dabf5",
+      main: "#2196f3",
+      dark: "#002884",
+      contrastText: "#fff",
+    },
+    secondary: {
+      light: "#ff7961",
+      main: "#f44336",
+      dark: "#ba000d",
+      contrastText: "#000",
+    },
+  },
+});
 
 const router = createBrowserRouter([
   {
@@ -130,7 +149,9 @@ function App() {
 
   return (
     <div className="App">
-      <RouterProvider router={router} />
+      <ThemeProvider theme={defaultTheme}>
+        <RouterProvider router={router} />
+      </ThemeProvider>
     </div>
   );
 }

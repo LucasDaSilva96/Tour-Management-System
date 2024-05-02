@@ -1,24 +1,35 @@
 import { Box, Button, Container, Stack } from "@mui/material";
-import { useSelector } from "react-redux";
-import { getCurrentUser } from "../redux/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentUser, login } from "../redux/userSlice";
 import TextField from "@mui/material/TextField";
 import Avatar from "@mui/material/Avatar";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 import { useState, useEffect } from "react";
+import { updateUser, updateUserPassword } from "../utils/postData";
+import { useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 function UserDashboard() {
+  const queryClient = useQueryClient();
   const { _id, role, isLoggedIn, token, ...data } = useSelector(getCurrentUser);
   const [DATA, SETDATA] = useState({
     ...data,
     currentPassword: "",
     newPassword: "",
+    _id,
   });
+
+  const dispatch = useDispatch();
 
   const [file, setFile] = useState(DATA.photo);
   const [openChangePassword, setOpenChangePassword] = useState(false);
 
   const handleOpenChangePasswordFields = () => {
     setOpenChangePassword(!openChangePassword);
+
+    if (!openChangePassword) {
+      SETDATA({ ...DATA, currentPassword: "", newPassword: "" });
+    }
   };
 
   const handleChangeName = (e) => {
@@ -42,8 +53,54 @@ function UserDashboard() {
   }, [DATA.photo]);
 
   const handleChangeUserPhoto = (e) => {
-    SETDATA({ ...DATA, photo: e.target.files[0] });
-    setFile(URL.createObjectURL(e.target.files[0]));
+    if (e.target.files[0].type.includes("image")) {
+      SETDATA({ ...DATA, photo: e.target.files[0] });
+      setFile(URL.createObjectURL(e.target.files[0]));
+    } else {
+      toast.error("The selected file is not a image.");
+      return null;
+    }
+  };
+
+  const handleSaveUser = async () => {
+    const { status, user } = await updateUser(token, DATA);
+
+    if (status === "success") {
+      const local = JSON.parse(localStorage.getItem("user"));
+      const session = JSON.parse(sessionStorage.getItem("user"));
+
+      if (local) {
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ ...user, token, isLoggedIn: true })
+        );
+      } else if (session) {
+        sessionStorage.setItem(
+          "user",
+          JSON.stringify({ ...user, token, isLoggedIn: true })
+        );
+      }
+      queryClient.invalidateQueries();
+
+      dispatch(login({ ...user, token }));
+    }
+  };
+
+  const handleUpdatePassword = async () => {
+    if (
+      !(await updateUserPassword(
+        token,
+        DATA.email,
+        DATA.currentPassword,
+        DATA.newPassword
+      ))
+    ) {
+      toast.error("ERROR: Failed to change user password.");
+      return null;
+    } else {
+      setOpenChangePassword(false);
+      SETDATA({ ...DATA, currentPassword: "", newPassword: "" });
+    }
   };
 
   return (
@@ -96,6 +153,7 @@ function UserDashboard() {
             label="Name"
             variant="outlined"
             value={DATA.name}
+            disabled={openChangePassword}
             onChange={handleChangeName}
           />
 
@@ -104,6 +162,7 @@ function UserDashboard() {
             label="Email"
             variant="outlined"
             value={DATA.email}
+            disabled={openChangePassword}
             onChange={handleChangeEmail}
           />
 
@@ -127,8 +186,13 @@ function UserDashboard() {
 
               <Button
                 variant="contained"
+                onClick={async () => handleUpdatePassword()}
                 disabled={
-                  DATA.currentPassword && DATA.newPassword ? false : true
+                  DATA.currentPassword &&
+                  DATA.newPassword &&
+                  DATA.currentPassword !== DATA.newPassword
+                    ? false
+                    : true
                 }
               >
                 Save new Password
@@ -158,6 +222,7 @@ function UserDashboard() {
               ? true
               : false
           }
+          onClick={async () => await handleSaveUser()}
         >
           Save
         </Button>

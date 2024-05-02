@@ -31,8 +31,6 @@ export const loginUser = async (email, password) => {
   }
 };
 
-export const logOutUser = async () => {};
-
 export const updateOneBooking = async (token, data, bookingID, guideEmail) => {
   // * This is for removing the doc-id, because we don't want to change the doc-id & the guide
   let { _id, guide, ...DATA } = data;
@@ -187,7 +185,7 @@ export const updateGuide = async (token, guideObj) => {
 
   try {
     const { photo, _id, ...OBJ } = guideObj;
-    if (typeof guideObj.photo == "object") {
+    if (typeof guideObj.photo === "object") {
       const url = `http://localhost:8000/api/v1/guides/uploadGuideImage/${guideObj._id}`;
       const formData = new FormData();
       formData.append("image", photo);
@@ -260,6 +258,103 @@ export const createNewGuide = async (token, guideObj) => {
     );
 
     toast.success("New guide successfully created.");
+    return true;
+  } catch (e) {
+    toast.error("ERROR: " + e.response.data.message);
+    return false;
+  } finally {
+    toast.dismiss(toastId);
+  }
+};
+
+export const updateUser = async (token, userObj) => {
+  const toastId = toast.loading("Loading...");
+  if (!token) {
+    toast.dismiss(toastId);
+    toast.error("No user-token provided");
+    return false;
+  }
+
+  try {
+    const { photo, ...OBJ } = userObj;
+    if (typeof userObj.photo === "object") {
+      const url = `http://localhost:8000/api/v1/users/uploadUserImage/${OBJ._id}`;
+      const formData = new FormData();
+      formData.append("image", photo);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "content-type": "multipart/form-data",
+        },
+      };
+
+      await axios.post(url, formData, config);
+    }
+
+    const req = await axios.patch(
+      `http://localhost:8000/api/v1/users/updateMe`,
+      OBJ,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    toast.success("User successfully updated.");
+    return {
+      status: "success",
+      user: req.data._doc,
+    };
+  } catch (e) {
+    toast.error("ERROR: " + e.response.data.message);
+    return {
+      status: "fail",
+      user: null,
+    };
+  } finally {
+    toast.dismiss(toastId);
+  }
+};
+
+export const logUserOut = async () => {
+  const toastId = toast.loading("Loading...");
+  try {
+    await axios.post(`http://localhost:8000/api/v1/users/logOut`);
+    return true;
+  } catch (e) {
+    toast.error("ERROR: " + e.response.data.message);
+    return false;
+  } finally {
+    toast.dismiss(toastId);
+  }
+};
+
+export const updateUserPassword = async (
+  token,
+  email,
+  currentPassword,
+  newPassword
+) => {
+  const toastId = toast.loading("Loading...");
+  if (!token) {
+    toast.dismiss(toastId);
+    toast.error("No user-token provided");
+    return false;
+  }
+
+  try {
+    await axios.post(
+      `http://localhost:8000/api/v1/users/updatePassword`,
+      {
+        email,
+        currentPassword,
+        newPassword,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    toast.success("Password successfully updated.");
     return true;
   } catch (e) {
     toast.error("ERROR: " + e.response.data.message);

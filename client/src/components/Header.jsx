@@ -11,10 +11,13 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import { useSelector } from "react-redux";
-import { getCurrentUser } from "../redux/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentUser, login } from "../redux/userSlice";
 import { useNavigate } from "react-router-dom";
 import { changeTabText } from "../App";
+import { logUserOut } from "../utils/postData";
+import { forgetMe } from "../utils/rememberMe";
+import toast from "react-hot-toast";
 
 const pages = [
   "Calendar",
@@ -30,6 +33,30 @@ function Header() {
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleLogout = async () => {
+    if (await logUserOut()) {
+      forgetMe();
+      dispatch(
+        login({
+          email: "",
+          name: "",
+          photo: "",
+          role: "",
+          _id: "",
+          token: "",
+          isLoggedIn: false,
+        })
+      );
+
+      window.location.replace("/");
+      window.location.assign("/");
+    } else {
+      toast.error("Error: Could't log the user out.");
+      return null;
+    }
+  };
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -172,8 +199,18 @@ function Header() {
               {settings.map((setting) => (
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
                   <div
-                    onClick={() => {
-                      if (setting === "Account") navigate(setting);
+                    onClick={async () => {
+                      switch (setting) {
+                        case "Account":
+                          navigate(setting);
+                          break;
+                        case "Logout":
+                          await handleLogout();
+                          break;
+
+                        default:
+                          return null;
+                      }
                     }}
                   >
                     <Typography textAlign="center">{setting}</Typography>

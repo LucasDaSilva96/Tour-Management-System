@@ -3,9 +3,17 @@ export function saveMe(obj) {
 }
 
 export function getMe() {
-  return JSON.parse(localStorage.getItem("user"));
+  return (
+    JSON.parse(localStorage.getItem("user")) ||
+    JSON.parse(sessionStorage.getItem("user"))
+  );
 }
 
 export function forgetMe() {
-  return localStorage.removeItem("user");
+  localStorage.removeItem("user");
+  sessionStorage.removeItem("user");
+}
+
+export function saveSessionMe(obj) {
+  sessionStorage.setItem("user", JSON.stringify(obj));
 }
