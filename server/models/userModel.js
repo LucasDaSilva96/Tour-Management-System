@@ -19,7 +19,8 @@ const userSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    default: 'default.jpg',
+    // TODO Update the url
+    default: 'http://localhost:8000/public/img/default.jpg',
   },
   role: {
     type: String,
