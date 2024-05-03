@@ -6,6 +6,7 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { useEffect, useState } from "react";
 import { resetUserPassword } from "../utils/postData";
+import { forgetMe } from "../utils/rememberMe";
 function ResetPassword() {
   const navigate = useNavigate();
   const { token, email } = useParams();
@@ -40,9 +41,10 @@ function ResetPassword() {
         email
       )
     ) {
+      forgetMe();
       setTimeout(() => {
         navigate("/", { replace: true });
-      });
+      }, 1000);
     } else {
       return null;
     }
@@ -71,16 +73,17 @@ function ResetPassword() {
           }}
         >
           <TextField
-            id="outlined-basic"
+            id="reset__password__password"
             label="Password*"
             variant="outlined"
             value={passwordObj.password}
             onChange={(e) =>
               setPasswordObj({ ...passwordObj, password: e.target.value })
             }
+            name="password"
           />
           <TextField
-            id="outlined-basic"
+            id="reset__password__password__confirm"
             label="Confirm Password*"
             variant="outlined"
             value={passwordObj.passwordConfirm}
@@ -90,6 +93,7 @@ function ResetPassword() {
                 passwordConfirm: e.target.value,
               })
             }
+            name="password__confirm"
           />
         </Box>
         <Button

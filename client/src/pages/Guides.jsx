@@ -222,28 +222,31 @@ function GuideOverviewEdit({
           <TextField
             onChange={handleEditName}
             disabled={disabled}
-            id="outlined-basic"
+            id="edit__or__create__booking__name"
             label="Name"
             variant="outlined"
             value={selectedGuide.fullName}
+            name="name"
           />
 
           <TextField
             onChange={handleEditEmail}
             disabled={disabled}
-            id="outlined-basic"
+            id="edit__or__create__booking__email"
             label="Email"
             variant="outlined"
             value={selectedGuide.email}
+            name="email"
           />
 
           <TextField
             onChange={handleEditPhone}
             disabled={disabled}
-            id="outlined-basic"
+            id="edit__or__create__booking__phone"
             label="Phone"
             variant="outlined"
             value={selectedGuide.phone}
+            name="phone"
           />
         </div>
         {/*  */}
@@ -418,7 +421,7 @@ function NewGuideForm({ setAllGuides, queryClient, setOpenNewGuideForm }) {
         {/*  */}
         <div className="grid grid-cols-2">
           <TextField
-            id="outlined-basic"
+            id="new__guide__name"
             label="Name"
             variant="outlined"
             onChange={(e) =>
@@ -427,22 +430,24 @@ function NewGuideForm({ setAllGuides, queryClient, setOpenNewGuideForm }) {
             value={newGuide.fullName}
           />
           <TextField
-            id="outlined-basic"
+            id="new__guide__email"
             label="Email"
             variant="outlined"
             onChange={(e) =>
               setNewGuide({ ...newGuide, email: e.target.value })
             }
             value={newGuide.email}
+            name="email"
           />
           <TextField
-            id="outlined-basic"
+            id="new__guide__phone"
             label="Phone"
             variant="outlined"
             onChange={(e) =>
               setNewGuide({ ...newGuide, phone: e.target.value })
             }
             value={newGuide.phone}
+            name="phone"
           />
         </div>
         {/*  */}

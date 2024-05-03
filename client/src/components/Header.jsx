@@ -14,7 +14,6 @@ import MenuItem from "@mui/material/MenuItem";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser, login } from "../redux/userSlice";
 import { useNavigate } from "react-router-dom";
-import { changeTabText } from "../App";
 import { logUserOut } from "../utils/postData";
 import { forgetMe } from "../utils/rememberMe";
 import toast from "react-hot-toast";
@@ -69,7 +68,6 @@ function Header() {
     setAnchorElNav(null);
 
     if (page && typeof page === "string") {
-      changeTabText(`${page}`);
       switch (page) {
         case "Calendar":
           navigate("/");
@@ -182,7 +180,7 @@ function Header() {
             </Tooltip>
             <Menu
               sx={{ mt: "45px" }}
-              id="menu-appbar"
+              id="menu-appbar__small"
               anchorEl={anchorElUser}
               anchorOrigin={{
                 vertical: "top",

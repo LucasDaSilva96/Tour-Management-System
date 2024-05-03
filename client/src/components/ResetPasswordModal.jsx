@@ -4,7 +4,6 @@ import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 import { useNavigate } from "react-router-dom";
-import { forgetMe } from "../utils/rememberMe";
 import { useState } from "react";
 import { getResetPasswordToken } from "../utils/fetchData";
 
@@ -25,7 +24,6 @@ const style = {
 };
 
 export default function ResetPasswordModal({ open, setOpen }) {
-  const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   const [email, setEmail] = useState(null);
@@ -43,21 +41,17 @@ export default function ResetPasswordModal({ open, setOpen }) {
 
   return (
     <div>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
+      <Modal open={open} onClose={handleClose}>
         <Box sx={style}>
           <Typography sx={{ textAlign: "center" }}>
             Enter the email of the account
           </Typography>
           <TextField
-            id="outlined-basic"
+            id="reset__password__email__field"
             label="Email*"
             variant="outlined"
             onChange={(e) => setEmail(e.target.value)}
+            name="email"
           />
           <Button
             variant="contained"

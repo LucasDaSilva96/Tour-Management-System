@@ -78,7 +78,7 @@ function AssignGuideOrChangeGuideSelect() {
         <InputLabel
           variant="filled"
           sx={{ fontSize: "18px", marginLeft: "2px" }}
-          id="guide"
+          id="Guide"
         >
           Guide
         </InputLabel>

@@ -137,51 +137,55 @@ function UserDashboard() {
           />
           <div className="z-50 mt-[-10px]">
             <input
-              id="guide_photo__uploader"
+              id="user__photo__uploader"
               type="file"
               onChange={handleChangeUserPhoto}
               name="image"
             />
-            <label htmlFor="guide_photo__uploader">
+            <label htmlFor="user__photo__uploader">
               <CloudUploadOutlinedIcon sx={{ width: "32px", height: "32px" }} />
             </label>
           </div>
         </div>
         <div className="flex items-center flex-wrap gap-4">
           <TextField
-            id="outlined-basic"
+            id="user__dashboard__name"
             label="Name"
             variant="outlined"
             value={DATA.name}
             disabled={openChangePassword}
             onChange={handleChangeName}
+            name="user__name"
           />
 
           <TextField
-            id="outlined-basic"
+            id="user__dashboard__email"
             label="Email"
             variant="outlined"
             value={DATA.email}
             disabled={openChangePassword}
             onChange={handleChangeEmail}
+            name="user__email"
           />
 
           {openChangePassword && (
             <>
               <TextField
-                id="outlined-basic"
+                id="user__dashboard__password"
                 label="Current Password"
                 variant="outlined"
                 value={DATA.currentPassword}
                 onChange={handleCurrentPasswordChange}
+                name="user__current__password"
               />
 
               <TextField
-                id="outlined-basic"
+                id="user__dashboard__new__password"
                 label="New Password"
                 variant="outlined"
                 value={DATA.newPassword}
                 onChange={handleNewPasswordChange}
+                name="user__new__password"
               />
 
               <Button

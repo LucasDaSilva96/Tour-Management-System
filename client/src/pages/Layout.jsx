@@ -4,17 +4,10 @@ import Login from "./Login";
 import Loading from "./Loading";
 import { useSelector } from "react-redux";
 import { isLoggedIn } from "../redux/userSlice";
-import { changeTabText } from "../App";
 
 function Layout() {
   const year = new Date().getFullYear();
   const userLoggedIn = useSelector(isLoggedIn);
-
-  if (!userLoggedIn) {
-    changeTabText("Login");
-  } else {
-    changeTabText("Calendar");
-  }
 
   const { state } = useNavigation();
 

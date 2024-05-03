@@ -58,7 +58,8 @@ body {
   z-index: 100000;
 }
 
-#guide_photo__uploader {
+#guide_photo__uploader,
+#user__photo__uploader {
   width: 0.1px;
   height: 0.1px;
   opacity: 0;
@@ -68,5 +69,9 @@ body {
 }
 
 #guide_photo__uploader:enabled + label:hover {
+  cursor: pointer;
+}
+
+#user__photo__uploader:enabled + label:hover {
   cursor: pointer;
 }

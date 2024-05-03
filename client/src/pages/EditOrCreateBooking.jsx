@@ -182,7 +182,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
             <div className="flex flex-col items-center">
               <Typography variant="subtitle2">Title</Typography>
               <TextField
-                id="outlined-multiline-flexible"
+                id="edit__or__create__booking__title"
                 multiline
                 maxRows={2}
                 value={BOOKING.title}
@@ -195,11 +195,11 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
             <div className="flex flex-col items-center">
               <Typography variant="subtitle2">Group Leader</Typography>
               <TextField
-                id="outlined-multiline-flexible"
+                id="edit__or__create__booking__leader"
                 multiline
                 maxRows={2}
                 value={BOOKING.contactPerson}
-                name="title"
+                name="group__leader"
                 onChange={(e) =>
                   SETBOOKING({ ...BOOKING, contactPerson: e.target.value })
                 }
@@ -208,11 +208,11 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
             <div className="flex flex-col items-center">
               <Typography variant="subtitle2">Email</Typography>
               <TextField
-                id="outlined-multiline-flexible"
+                id="edit__or__create__booking__email"
                 multiline
                 maxRows={2}
                 value={BOOKING.contactEmail}
-                name="title"
+                name="email"
                 onChange={(e) =>
                   SETBOOKING({ ...BOOKING, contactEmail: e.target.value })
                 }
@@ -222,11 +222,11 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
             <div className="flex flex-col items-center">
               <Typography variant="subtitle2">Phone</Typography>
               <TextField
-                id="outlined-multiline-flexible"
+                id="edit__or__create__booking__phone"
                 multiline
                 maxRows={2}
                 value={BOOKING.contactPhone}
-                name="title"
+                name="phone"
                 onChange={(e) =>
                   SETBOOKING({ ...BOOKING, contactPhone: e.target.value })
                 }
@@ -235,11 +235,13 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
 
             <TextField
               label="Group Size"
+              id="edit__or__create__booking__size"
               placeholder={BOOKING.participants ? null : "Group Size"}
               color="primary"
               sx={{ alignSelf: "end" }}
               type="number"
               value={BOOKING.participants}
+              name="size"
               onChange={(e) =>
                 SETBOOKING({ ...BOOKING, participants: Number(e.target.value) })
               }
@@ -306,7 +308,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
                     Guide
                   </InputLabel>
                   <Select
-                    labelId="Guide"
+                    labelId="select-guide__label"
                     id="select-guide"
                     value={BOOKING.guide}
                     onChange={handleChangeGuide}
@@ -327,12 +329,12 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
 
               <Box sx={{ marginTop: "18px" }}>
                 <FormControl sx={{ minWidth: "150px" }}>
-                  <InputLabel id="demo-simple-select-label">
+                  <InputLabel id="edit__or__create__booking__mingel__label">
                     Snacks or Mingel
                   </InputLabel>
                   <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
+                    labelId="edit__or__create__booking__mingel__label"
+                    id="edit__or__create__booking__mingel"
                     value={BOOKING.snacks}
                     label="Snacks"
                     onChange={(e) =>
@@ -382,10 +384,10 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
 
             <TextField
               sx={{ minWidth: "375px" }}
-              id="outlined-textarea"
+              id="edit__or__create__booking__description"
               label="Description"
-              placeholder={BOOKING.description ? null : "Description"}
               multiline
+              name="description"
               rows={6}
               value={BOOKING.description}
               onChange={(e) =>
@@ -495,7 +497,7 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
             <TextField
               required
               label="Required"
-              id="outlined-multiline-flexible"
+              id="edit__or__create__booking__title"
               multiline
               maxRows={2}
               value={BOOKING.title}
@@ -508,13 +510,13 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
           <div className="flex flex-col items-center">
             <Typography variant="subtitle2">Group Leader</Typography>
             <TextField
-              id="outlined-multiline-flexible"
+              id="edit__or__create__booking__title__leader"
               required
               label="Required"
               multiline
               maxRows={2}
               value={BOOKING.contactPerson}
-              name="title"
+              name="group__leader"
               onChange={(e) =>
                 SETBOOKING({ ...BOOKING, contactPerson: e.target.value })
               }
@@ -525,11 +527,11 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
             <TextField
               required
               label="Phone or email required"
-              id="outlined-multiline-flexible"
+              id="edit__or__create__booking__email"
               multiline
               maxRows={2}
               value={BOOKING.contactEmail}
-              name="title"
+              name="email"
               onChange={(e) =>
                 SETBOOKING({ ...BOOKING, contactEmail: e.target.value })
               }
@@ -541,11 +543,11 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
             <TextField
               required
               label="Phone or email required"
-              id="outlined-multiline-flexible"
+              id="edit__or__create__booking__phone"
               multiline
               maxRows={2}
               value={BOOKING.contactPhone}
-              name="title"
+              name="phone"
               onChange={(e) =>
                 SETBOOKING({ ...BOOKING, contactPhone: e.target.value })
               }
@@ -559,6 +561,7 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
             sx={{ alignSelf: "end" }}
             type="number"
             value={BOOKING.participants}
+            name="size"
             onChange={(e) =>
               SETBOOKING({ ...BOOKING, participants: Number(e.target.value) })
             }
@@ -622,7 +625,7 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
                 <InputLabel
                   variant="filled"
                   sx={{ fontSize: "18px", marginLeft: "2px" }}
-                  id="guide"
+                  id="Guide"
                 >
                   Guide
                 </InputLabel>
@@ -658,12 +661,12 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
 
             <Box sx={{ marginTop: "18px" }}>
               <FormControl sx={{ minWidth: "150px" }}>
-                <InputLabel id="demo-simple-select-label">
+                <InputLabel id="edit__or__create__booking__snacks__label">
                   Snacks or Mingel
                 </InputLabel>
                 <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
+                  labelId="edit__or__create__booking__snacks__label"
+                  id="edit__or__create__booking__snacks"
                   value={BOOKING.snacks}
                   label="Snacks"
                   onChange={(e) =>
@@ -678,12 +681,13 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
           </div>
           <TextField
             sx={{ minWidth: "375px" }}
-            id="outlined-textarea"
+            id="edit__or__create__booking__description"
             label="Description"
             placeholder={BOOKING.description ? null : "Description"}
             multiline
             rows={6}
             value={BOOKING.description}
+            name="description"
             onChange={(e) =>
               SETBOOKING({ ...BOOKING, description: e.target.value })
             }
@@ -693,7 +697,6 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
           <Button
             variant="outlined"
             sx={{ padding: "10px 35px" }}
-            // TODO
             onClick={async () => await handleCreateBooking()}
           >
             Save

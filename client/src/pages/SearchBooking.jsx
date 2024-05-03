@@ -22,7 +22,6 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCurrentSelectedBooking } from "../redux/bookingSlice";
-import { changeTabText } from "../App";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import GroupsIcon from "@mui/icons-material/Groups";
@@ -127,11 +126,12 @@ function SearchBooking() {
         <div>
           <Typography variant="subtitle2">Group Title</Typography>
           <TextField
-            id="outlined-basic"
+            id="edit__or__create__booking__title"
             label="Title"
             variant="outlined"
             onChange={handleChangeTitle}
             value={BOOKING.title}
+            name="group__title"
           />
         </div>
         <div className="mt-[-1dvh]">
@@ -236,6 +236,7 @@ function SearchBooking() {
             variant="outlined"
             onChange={handleChangeGroupLeader}
             value={BOOKING.contactPerson}
+            name="group__leader"
           />
         </div>
 
@@ -263,6 +264,7 @@ function SearchBooking() {
             variant="outlined"
             onChange={handleChangeEmail}
             value={BOOKING.contactEmail}
+            name="email"
           />
         </div>
 
@@ -274,6 +276,7 @@ function SearchBooking() {
             variant="outlined"
             onChange={handleChangePhone}
             value={BOOKING.contactPhone}
+            name="phone"
           />
         </div>
 
@@ -322,7 +325,7 @@ function BookingBox({ booking }) {
 
   const handleClick = () => {
     dispatch(setCurrentSelectedBooking(booking));
-    changeTabText("Edit Reservation");
+
     return navigate(`/booking/${booking._id}`);
   };
   return (

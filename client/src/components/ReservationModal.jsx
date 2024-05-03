@@ -31,11 +31,9 @@ import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import AssignGuideOrChangeGuideSelect from "./AssignGuideOrChangeGuideSelect";
 import { getCurrentUser } from "../redux/userSlice";
 import { updateOneBooking } from "../utils/postData.js";
-
 import { getAllGuides } from "../redux/guideSlice.js";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { changeTabText } from "../App.js";
 
 export default function ReservationModal() {
   const queryClient = useQueryClient();
@@ -261,7 +259,6 @@ export default function ReservationModal() {
           <Button
             variant="contained"
             onClick={() => {
-              changeTabText("Edit Reservation");
               return navigate(`booking/${selectedBooking._id}`);
             }}
           >

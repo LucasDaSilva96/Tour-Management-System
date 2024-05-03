@@ -20,7 +20,6 @@ import ErrorPage from "./pages/ErrorPage";
 import SearchBooking from "./pages/SearchBooking";
 import UserDashboard from "./pages/UserDashboard";
 import { createTheme, ThemeProvider } from "@mui/material";
-import { getMe } from "./utils/rememberMe";
 import ResetPassword from "./pages/ResetPassword";
 
 export const changeTabText = (text) => {
@@ -74,25 +73,34 @@ const router = createBrowserRouter([
       {
         path: "booking/:bookingID",
         element: <EditOrCreateBooking />,
+        loader: () => changeTabText("Edit | Create booking"),
       },
       {
         path: "Search-Bookings",
         element: <SearchBooking />,
+        loader: () => changeTabText("Search booking"),
       },
       {
         path: "New-Booking",
         element: <EditOrCreateBooking />,
+        loader: () => changeTabText("New booking"),
       },
       {
         path: "Account",
         element: <UserDashboard />,
+        loader: () => changeTabText("Account"),
       },
     ],
-    errorElement: <ErrorPage />,
   },
   {
     path: "resetPassword/:token/:email",
     element: <ResetPassword />,
+    loader: () => changeTabText("Reset password"),
+  },
+  {
+    path: "*",
+    element: <ErrorPage />,
+    loader: () => changeTabText("404 - Not found"),
   },
 ]);
 

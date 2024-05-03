@@ -141,13 +141,14 @@ function OverviewSearchBox({
   return (
     <aside className="flex flex-col items-center relative w-[340px] gap-8">
       <FormControl fullWidth>
-        <InputLabel id="demo-simple-select-label">Year</InputLabel>
+        <InputLabel id="overview__year__label">Year</InputLabel>
         <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
+          labelId="overview__year__label"
+          id="overview__year"
           value={data.year}
           label="Year"
           onChange={handleYearChange}
+          name="year"
         >
           {years.map((year, index) => (
             <MenuItem value={year} key={index}>
@@ -158,12 +159,13 @@ function OverviewSearchBox({
       </FormControl>
 
       <FormControl fullWidth>
-        <InputLabel id="demo-simple-select-label">Status</InputLabel>
+        <InputLabel id="overview__status__label">Status</InputLabel>
         <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
+          labelId="overview__status__label"
+          id="overview__status"
           value={data.status}
           label="Status"
+          name="status"
           onChange={handleStatusChange}
         >
           {statusOpts.map((status, index) => (
@@ -175,12 +177,13 @@ function OverviewSearchBox({
       </FormControl>
 
       <FormControl fullWidth>
-        <InputLabel id="demo-simple-select-label">Month</InputLabel>
+        <InputLabel id="overview__month__label">Month</InputLabel>
         <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
+          labelId="overview__month__label"
+          id="overview__month"
           value={data.month}
           label="Month"
+          name="month"
           onChange={handleMonthChange}
         >
           {months.map((_month, index) => (
@@ -192,13 +195,14 @@ function OverviewSearchBox({
       </FormControl>
 
       <FormControl fullWidth>
-        <InputLabel id="demo-simple-select-label">Guide</InputLabel>
+        <InputLabel id="overview__guide__label">Guide</InputLabel>
         <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
+          labelId="overview__guide__label"
+          id="overview__guide"
           value={data.guide}
           label="Guide"
           onChange={handleGuideChange}
+          name="guide"
         >
           {guides.map((guide, index) => (
             <MenuItem value={guide.fullName} key={index}>
