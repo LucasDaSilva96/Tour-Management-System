@@ -22,6 +22,11 @@ Tour Management System is a web application designed to manage tours, bookings, 
 
 ## Installation
 
+```bash
+**Note**: Before running this project locally, please ensure you have set up your own MongoDB Atlas connection. You can do this by signing up for a MongoDB Atlas account and configuring the connection string in the appropriate environment variables or configuration files.
+
+```
+
 To run this project locally, follow these steps:
 
 1. Clone the repository:
