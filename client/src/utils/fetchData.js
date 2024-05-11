@@ -1,14 +1,11 @@
 import axios from "axios";
 import toast from "react-hot-toast";
-
-// TODO Update all URL's after deployment
-
 export const fetchAllBookingsByYear = async (
   year = new Date().getFullYear()
 ) => {
   try {
     const res = await axios.get(
-      `http://localhost:8000/api/v1/tours/bookings?year=${year}`
+      `${process.env.REACT_APP_BASE_URL}/api/v1/tours/bookings?year=${year}`
     );
 
     return res.data.result;
@@ -20,7 +17,7 @@ export const fetchAllBookingsByYear = async (
 export const fetchAllGuides = async () => {
   try {
     const res = await axios.get(
-      `http://localhost:8000/api/v1/guides/getGuides`
+      `${process.env.REACT_APP_BASE_URL}/api/v1/guides/getGuides`
     );
 
     return res.data.guides;
@@ -31,7 +28,9 @@ export const fetchAllGuides = async () => {
 
 export const fetchAllYearsDoc = async () => {
   try {
-    const res = await axios.get(`http://localhost:8000/api/v1/tours/tourDocs`);
+    const res = await axios.get(
+      `${process.env.REACT_APP_BASE_URL}/api/v1/tours/tourDocs`
+    );
 
     return res.data.data;
   } catch (e) {
@@ -141,7 +140,7 @@ export const getResetPasswordToken = async (email) => {
   }
   try {
     const req = await axios.post(
-      `http://localhost:8000/api/v1/users/resetPassword`,
+      `${process.env.REACT_APP_BASE_URL}/api/v1/users/resetPassword`,
       {
         email,
       }

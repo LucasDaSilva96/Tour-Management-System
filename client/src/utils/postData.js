@@ -13,10 +13,13 @@ export const loginUser = async (email, password) => {
   }
 
   try {
-    const req = await axios.post("http://localhost:8000/api/v1/users/login", {
-      email,
-      password,
-    });
+    const req = await axios.post(
+      `${process.env.REACT_APP_BASE_URL}/api/v1/users/login`,
+      {
+        email,
+        password,
+      }
+    );
 
     toast.success("User successfully logged in.");
     return {
@@ -45,7 +48,7 @@ export const updateOneBooking = async (token, data, bookingID, guideEmail) => {
   try {
     if (guide) {
       await axios.post(
-        `http://localhost:8000/api/v1/tours/booking/assignGuide?guide=${guideEmail}&bookingID=${bookingID}`,
+        `${process.env.REACT_APP_BASE_URL}/api/v1/tours/booking/assignGuide?guide=${guideEmail}&bookingID=${bookingID}`,
         {}, // Empty request body
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -54,7 +57,7 @@ export const updateOneBooking = async (token, data, bookingID, guideEmail) => {
     }
 
     await axios.patch(
-      `http://localhost:8000/api/v1/tours/booking/update?bookingID=${bookingID}`,
+      `${process.env.REACT_APP_BASE_URL}/api/v1/tours/booking/update?bookingID=${bookingID}`,
       DATA,
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -86,7 +89,7 @@ export const removeGuideFromBooking = async (token, bookingID) => {
   if (BOOKING.guide) {
     try {
       const req = await axios.post(
-        `http://localhost:8000/api/v1/tours/booking/removeGuide?bookingID=${bookingID}`,
+        `${process.env.REACT_APP_BASE_URL}/api/v1/tours/booking/removeGuide?bookingID=${bookingID}`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -118,7 +121,7 @@ export const createNewBooking = async (token, data, guideEmail) => {
 
   try {
     const { data: DATA } = await axios.post(
-      `http://localhost:8000/api/v1/tours/createBooking`,
+      `${process.env.REACT_APP_BASE_URL}/api/v1/tours/createBooking`,
       data,
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -127,7 +130,7 @@ export const createNewBooking = async (token, data, guideEmail) => {
 
     if (guideEmail) {
       await axios.post(
-        `http://localhost:8000/api/v1/tours/booking/assignGuide?guide=${guideEmail}&bookingID=${DATA._id}`,
+        `${process.env.REACT_APP_BASE_URL}/api/v1/tours/booking/assignGuide?guide=${guideEmail}&bookingID=${DATA._id}`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -157,7 +160,7 @@ export const deleteOneBooking = async (token, booking) => {
 
   try {
     axios.delete(
-      `http://localhost:8000/api/v1/tours/booking/delete?uuid=${booking.uuid}&year=${year}`,
+      `${process.env.REACT_APP_BASE_URL}/api/v1/tours/booking/delete?uuid=${booking.uuid}&year=${year}`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -186,7 +189,7 @@ export const updateGuide = async (token, guideObj) => {
   try {
     const { photo, _id, ...OBJ } = guideObj;
     if (typeof guideObj.photo === "object") {
-      const url = `http://localhost:8000/api/v1/guides/uploadGuideImage/${guideObj._id}`;
+      const url = `${process.env.REACT_APP_BASE_URL}/api/v1/guides/uploadGuideImage/${guideObj._id}`;
       const formData = new FormData();
       formData.append("image", photo);
       const config = {
@@ -200,7 +203,7 @@ export const updateGuide = async (token, guideObj) => {
     }
 
     await axios.patch(
-      `http://localhost:8000/api/v1/guides/updateGuide/${guideObj._id}`,
+      `${process.env.REACT_APP_BASE_URL}/api/v1/guides/updateGuide/${guideObj._id}`,
       OBJ,
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -226,9 +229,12 @@ export const deleteGuide = async (token, guideID) => {
   }
 
   try {
-    axios.delete(`http://localhost:8000/api/v1/guides/deleteGuide/${guideID}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    axios.delete(
+      `${process.env.REACT_APP_BASE_URL}/api/v1/guides/deleteGuide/${guideID}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
 
     toast.success("Guide successfully deleted.");
     return true;
@@ -250,7 +256,7 @@ export const createNewGuide = async (token, guideObj) => {
 
   try {
     await axios.post(
-      `http://localhost:8000/api/v1/guides/createNewGuide`,
+      `${process.env.REACT_APP_BASE_URL}/api/v1/guides/createNewGuide`,
       guideObj,
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -278,7 +284,7 @@ export const updateUser = async (token, userObj) => {
   try {
     const { photo, ...OBJ } = userObj;
     if (typeof userObj.photo === "object") {
-      const url = `http://localhost:8000/api/v1/users/uploadUserImage/${OBJ._id}`;
+      const url = `${process.env.REACT_APP_BASE_URL}/api/v1/users/uploadUserImage/${OBJ._id}`;
       const formData = new FormData();
       formData.append("image", photo);
       const config = {
@@ -292,7 +298,7 @@ export const updateUser = async (token, userObj) => {
     }
 
     const req = await axios.patch(
-      `http://localhost:8000/api/v1/users/updateMe`,
+      `${process.env.REACT_APP_BASE_URL}/api/v1/users/updateMe`,
       OBJ,
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -318,7 +324,7 @@ export const updateUser = async (token, userObj) => {
 export const logUserOut = async () => {
   const toastId = toast.loading("Loading...");
   try {
-    await axios.post(`http://localhost:8000/api/v1/users/logOut`);
+    await axios.post(`${process.env.REACT_APP_BASE_URL}/api/v1/users/logOut`);
     return true;
   } catch (e) {
     toast.error("ERROR: " + e.response.data.message);
@@ -343,7 +349,7 @@ export const updateUserPassword = async (
 
   try {
     await axios.post(
-      `http://localhost:8000/api/v1/users/updatePassword`,
+      `${process.env.REACT_APP_BASE_URL}/api/v1/users/updatePassword`,
       {
         email,
         currentPassword,
@@ -378,7 +384,7 @@ export const resetUserPassword = async (
   }
   try {
     await axios.patch(
-      `http://localhost:8000/api/v1/users/resetPassword/${resetToken}`,
+      `${process.env.REACT_APP_BASE_URL}/api/v1/users/resetPassword/${resetToken}`,
       {
         password,
         passwordConfirm,
