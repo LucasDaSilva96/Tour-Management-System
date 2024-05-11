@@ -30,10 +30,13 @@ import ContactPhoneIcon from "@mui/icons-material/ContactPhone";
 import EmailIcon from "@mui/icons-material/Email";
 import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
+
+// Extend dayjs with timezone functionality
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("UTC");
 
+// Initial state for booking
 const initialState = {
   title: "",
   start: "",
@@ -46,6 +49,7 @@ const initialState = {
   year: dayjs().get("year"),
 };
 
+// Component for displaying label
 function Label({ componentName }) {
   const content = <strong>{componentName}</strong>;
 
@@ -53,16 +57,22 @@ function Label({ componentName }) {
 }
 
 function SearchBooking() {
+  // Initialize state for booking and search result
   const [BOOKING, SETBOOKING] = useState(initialState);
   const [searchResult, setSearchResult] = useState([]);
+
+  // Constants for status and selected date
   const statusArray = ["preliminary", "confirmed", "cancelled"];
   const [selectedDate, setSelectedDate] = useState(dayjs());
+
+  // Initialize necessary hooks
   const queryClient = useQueryClient();
   const allYearsDoc = queryClient.getQueryData(["AllYearsDoc"]);
   const allGuides = queryClient.getQueryData(["AllGuides"]);
   const minDate = dayjs(`${allYearsDoc[0].year}-01-01`);
   const maxDate = dayjs(`${allYearsDoc[allYearsDoc.length - 1].year}-12-31`);
 
+  // Event handlers for input changes
   const handleChangeTitle = (e) => {
     SETBOOKING({ ...BOOKING, title: e.target.value });
   };
@@ -90,12 +100,14 @@ function SearchBooking() {
     SETBOOKING({ ...BOOKING, contactPhone: e.target.value });
   };
 
+  // Reset booking and search result
   const handleReset = () => {
     SETBOOKING(initialState);
     setSearchResult([]);
     setSelectedDate(dayjs());
   };
 
+  // Search bookings based on provided criteria
   const handleSearchBookings = () => {
     setSearchResult([]);
     const result = getFilteredBookings(allYearsDoc, BOOKING.year, BOOKING);
@@ -106,6 +118,7 @@ function SearchBooking() {
     }
   };
 
+  // Handle year change
   const handleYearChange = (e) => {
     SETBOOKING({ ...BOOKING, year: e.target.value });
   };
@@ -122,6 +135,7 @@ function SearchBooking() {
         position: "relative",
       }}
     >
+      {/* Search criteria form */}
       <div className="flex items-center gap-4 flex-wrap max-w-[50dvw] h-full border-r border-[#2196f3]">
         <div>
           <Typography variant="subtitle2">Group Title</Typography>
@@ -134,6 +148,7 @@ function SearchBooking() {
             name="group__title"
           />
         </div>
+        {/* Date picker */}
         <div className="mt-[-1dvh]">
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Box
@@ -163,6 +178,7 @@ function SearchBooking() {
           </LocalizationProvider>
         </div>
 
+        {/* Year select */}
         <div className="pt-[2.5dvh]">
           <FormControl sx={{ m: 1, minWidth: 120 }}>
             <InputLabel id="year__select">Year</InputLabel>
@@ -185,6 +201,7 @@ function SearchBooking() {
           </FormControl>
         </div>
 
+        {/* Guide select */}
         <div className="pt-[2.5dvh]">
           <FormControl sx={{ m: 1, minWidth: 120 }}>
             <InputLabel id="guide__select">Guide</InputLabel>
@@ -207,6 +224,7 @@ function SearchBooking() {
           </FormControl>
         </div>
 
+        {/* Status select */}
         <div className="pt-[2.5dvh]">
           <FormControl sx={{ m: 1, minWidth: 120 }}>
             <InputLabel id="status__label">Status</InputLabel>
@@ -228,6 +246,7 @@ function SearchBooking() {
           </FormControl>
         </div>
 
+        {/* Group leader input */}
         <div>
           <Typography variant="subtitle2">Group Leader</Typography>
           <TextField
@@ -240,6 +259,7 @@ function SearchBooking() {
           />
         </div>
 
+        {/* Snacks select */}
         <div className="pt-[2.5dvh]">
           <FormControl sx={{ m: 1, minWidth: 120 }}>
             <InputLabel id="snacks__label">Snacks</InputLabel>
@@ -256,6 +276,7 @@ function SearchBooking() {
           </FormControl>
         </div>
 
+        {/* Email input */}
         <div>
           <Typography variant="subtitle2">Email</Typography>
           <TextField
@@ -268,6 +289,7 @@ function SearchBooking() {
           />
         </div>
 
+        {/* Phone input */}
         <div>
           <Typography variant="subtitle2">Phone</Typography>
           <TextField
@@ -280,6 +302,7 @@ function SearchBooking() {
           />
         </div>
 
+        {/* Buttons for search and reset */}
         <Stack spacing={4} direction="row" sx={{ marginTop: "3dvh" }}>
           <Button
             variant="contained"
@@ -298,6 +321,7 @@ function SearchBooking() {
         </Stack>
       </div>
 
+      {/* Search result display */}
       <aside className="min-w-[25dvw] max-h-[81dvh] overflow-y-auto flex flex-col gap-4 py-2">
         {searchResult.map((booking) => (
           <BookingBox booking={booking} key={booking._id} />
@@ -307,6 +331,7 @@ function SearchBooking() {
   );
 }
 
+// Component to display booking details
 function BookingBox({ booking }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -323,6 +348,7 @@ function BookingBox({ booking }) {
       ? "#f21b3f"
       : "#ffc300";
 
+  // Handle click on booking box
   const handleClick = () => {
     dispatch(setCurrentSelectedBooking(booking));
 
@@ -351,6 +377,7 @@ function BookingBox({ booking }) {
       }}
       onClick={handleClick}
     >
+      {/* Booking details */}
       <Typography
         variant="h6"
         sx={{ textDecoration: "underline", padding: "0 0 5px 0" }}
@@ -380,6 +407,7 @@ function BookingBox({ booking }) {
         </div>
       </div>
 
+      {/* Status */}
       <div className="flex items-center gap-2 border-b-2 w-full justify-between">
         <div className="flex items-center gap-2">
           <GroupsIcon />
@@ -398,6 +426,7 @@ function BookingBox({ booking }) {
         </div>
       </div>
 
+      {/* Snacks */}
       <div className="flex items-center gap-2 border-b-2 w-full justify-between">
         <div className="flex items-center gap-2">
           <RestaurantMenuIcon />
@@ -406,6 +435,7 @@ function BookingBox({ booking }) {
         <strong>{booking.snacks === false ? "No" : "Yes"}</strong>
       </div>
 
+      {/* Group leader */}
       <div className="flex items-center gap-2 border-b-2 w-full justify-between">
         <div className="flex items-center gap-2">
           <AccessibilityNewIcon />
@@ -414,6 +444,7 @@ function BookingBox({ booking }) {
         <strong>{booking.contactPerson}</strong>
       </div>
 
+      {/* Phone number */}
       {booking.contactPhone && (
         <div className="flex items-center gap-2 border-b-2 w-full justify-between">
           <div className="flex items-center gap-2">
@@ -424,6 +455,7 @@ function BookingBox({ booking }) {
         </div>
       )}
 
+      {/* Email */}
       {booking.contactEmail && (
         <div className="flex items-center gap-2 border-b-2 w-full justify-between">
           <div className="flex items-center gap-2">
@@ -434,6 +466,7 @@ function BookingBox({ booking }) {
         </div>
       )}
 
+      {/* Guide */}
       {guide && (
         <div className="flex items-center gap-1 w-full justify-between border-b-2 py-2">
           <div className="flex items-center gap-2">
@@ -447,6 +480,7 @@ function BookingBox({ booking }) {
         </div>
       )}
 
+      {/* Description */}
       <div className="mt-2">
         <h2 className="pb-2 font-semibold underline">Description</h2>
         <div className="py-2 px-2 max-h-[80px] overflow-y-auto rounded">

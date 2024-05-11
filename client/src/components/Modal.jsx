@@ -19,15 +19,18 @@ const style = {
   textAlign: "center",
 };
 
+// ModalWindow component
 export default function ModalWindow({ open, setOpen, handleConfirm }) {
   return (
     <div>
+      {/* Modal component */}
       <Modal
         open={open}
         onClose={() => setOpen(false)}
         aria-labelledby="delete__booking__title"
         aria-describedby="delete__booking__description"
       >
+        {/* Box component for modal content */}
         <Box sx={style}>
           <Typography id="delete__booking__title" variant="h6" component="h2">
             Delete Booking
@@ -36,6 +39,7 @@ export default function ModalWindow({ open, setOpen, handleConfirm }) {
             Are you sure that you want to delete the selected booking permanent?
           </Typography>
           <Stack direction={"row"} spacing={"55%"} sx={{ padding: "10px 0" }}>
+            {/* Button to confirm deletion */}
             <Button
               variant="outlined"
               color="error"
@@ -43,6 +47,7 @@ export default function ModalWindow({ open, setOpen, handleConfirm }) {
             >
               Yes
             </Button>
+            {/* Button to cancel deletion */}
             <Button variant="outlined" onClick={() => setOpen(false)}>
               No
             </Button>

@@ -24,23 +24,26 @@ const style = {
 };
 
 export default function ResetPasswordModal({ open, setOpen }) {
-  const handleClose = () => setOpen(false);
+  const handleClose = () => setOpen(false); // Function to close the modal
 
-  const [email, setEmail] = useState(null);
+  const [email, setEmail] = useState(null); // State variable to store the email input
 
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Function to navigate to different routes
 
+  // Function to handle the reset password navigation
   const handleResetPasswordNavigation = async () => {
-    const res = await getResetPasswordToken(email);
+    const res = await getResetPasswordToken(email); // Fetching the reset password token
 
+    // If the reset password token is fetched successfully
     if (res.status === "success") {
-      navigate(`resetPassword/${res.resetToken}/${email}`);
-      handleClose();
+      navigate(`resetPassword/${res.resetToken}/${email}`); // Navigating to the reset password page
+      handleClose(); // Closing the modal
     }
   };
 
   return (
     <div>
+      {/* Modal for resetting password */}
       <Modal open={open} onClose={handleClose}>
         <Box sx={style}>
           <Typography sx={{ textAlign: "center" }}>

@@ -22,10 +22,12 @@ import UserDashboard from "./pages/UserDashboard";
 import { createTheme, ThemeProvider } from "@mui/material";
 import ResetPassword from "./pages/ResetPassword";
 
+// Function to change tab text
 export const changeTabText = (text) => {
   return (window.document.title = `Sandgrund || ${text}`);
 };
 
+// Default theme for the app
 const defaultTheme = createTheme({
   palette: {
     primary: {
@@ -43,6 +45,7 @@ const defaultTheme = createTheme({
   },
 });
 
+// Creating the router
 const router = createBrowserRouter([
   {
     path: "/",
@@ -107,6 +110,7 @@ const router = createBrowserRouter([
 function App() {
   const dispatch = useDispatch();
 
+  // Fetching all bookings
   const {
     data: bookings,
     isLoading,
@@ -119,6 +123,7 @@ function App() {
     },
   });
 
+  // Fetching all guides
   const {
     data: guides,
     isLoading: guideLoading,
@@ -131,6 +136,7 @@ function App() {
     },
   });
 
+  // Fetching all years document
   const {
     data: allYearsDoc,
     isLoading: allYearsDocLoading,
@@ -143,10 +149,12 @@ function App() {
     },
   });
 
+  // Handling loading states
   if (isLoading || guideLoading || allYearsDocLoading) {
     return <Loading />;
   }
 
+  // Handling error states
   if (error || guideError || allYearsDocError) {
     return (
       <ErrorPage
@@ -157,6 +165,7 @@ function App() {
     );
   }
 
+  // Dispatching fetched data to Redux store
   dispatch(setAllBookings(bookings));
   dispatch(setAllGuides(guides));
 

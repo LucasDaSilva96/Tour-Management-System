@@ -6,13 +6,19 @@ import { useSelector } from "react-redux";
 import { isLoggedIn } from "../redux/userSlice";
 
 function Layout() {
+  // Get the current year
   const year = new Date().getFullYear();
+
+  // Check if user is logged in
   const userLoggedIn = useSelector(isLoggedIn);
 
+  // Get the navigation state
   const { state } = useNavigation();
 
+  // If user is not logged in, render the login page
   if (!userLoggedIn) return <Login />;
 
+  // Render the layout
   return (
     <main className=" w-[100dvw] h-[100dvh] flex flex-col relative gap-2 overflow-x-hidden overflow-y-auto">
       <Header />

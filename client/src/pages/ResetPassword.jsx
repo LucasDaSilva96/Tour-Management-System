@@ -11,13 +11,16 @@ function ResetPassword() {
   const navigate = useNavigate();
   const { token, email } = useParams();
 
+  // State variables to hold password and confirmation, initially empty
   const [passwordObj, setPasswordObj] = useState({
     password: "",
     passwordConfirm: "",
   });
 
+  // State variable to manage button disable state, initially true
   const [disabledBtn, setDisableBtn] = useState(true);
 
+  // Function to enable or disable the reset password button based on password validity
   const handleDisableBtn = () => {
     if (!passwordObj.password || !passwordObj.passwordConfirm) {
       setDisableBtn(true);
@@ -28,10 +31,12 @@ function ResetPassword() {
     }
   };
 
+  // Effect to handle button state whenever passwordObj changes
   useEffect(() => {
     handleDisableBtn();
   }, [passwordObj]);
 
+  // Function to handle password reset process
   const handleResetPassword = async () => {
     if (
       await resetUserPassword(
@@ -41,7 +46,8 @@ function ResetPassword() {
         email
       )
     ) {
-      forgetMe();
+      forgetMe(); // Clear any stored user data
+      // Navigate back to home page after successful password reset
       setTimeout(() => {
         navigate("/", { replace: true });
       }, 1000);
@@ -51,6 +57,7 @@ function ResetPassword() {
   };
 
   return (
+    // Container to center align the password reset form
     <Container
       fixed
       sx={{
@@ -60,6 +67,7 @@ function ResetPassword() {
         height: "100dvh",
       }}
     >
+      {/* Title */}
       <div className="w-[475px] flex flex-col items-center gap-[25px]">
         <Typography fontSize={36}>Reset password</Typography>
         <Box
@@ -72,6 +80,7 @@ function ResetPassword() {
             borderRadius: "10px",
           }}
         >
+          {/* Password and confirmation text fields */}
           <TextField
             id="reset__password__password"
             label="Password*"

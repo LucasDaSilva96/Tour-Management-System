@@ -16,27 +16,38 @@ import toast from "react-hot-toast";
 import { fetchAllGuides } from "../utils/fetchData";
 
 function Guides() {
+  // React Query client instance
   const queryClient = useQueryClient();
+  // State for storing all guides
   const [allGuides, setAllGuides] = useState(
     queryClient.getQueryData(["AllGuides"])
   );
+  // State for storing the selected guide
   const [selectedGuide, setSelectedGuide] = useState(
     allGuides.length > 0 ? allGuides[0] : null
   );
+  // State for managing the disabled state of form fields
   const [disabled, setDisabled] = useState(true);
+  // Redux state selector for getting the current user
   const user = useSelector(getCurrentUser);
+  // State for managing the visibility of the new guide form modal
   const [openNewGuideForm, setOpenNewGuideForm] = useState(false);
 
+  // Function to handle saving a guide
   const handleSaveGuide = async () => {
     if (await updateGuide(user.token, selectedGuide)) {
+      // Invalidate the query to fetch all guides
       queryClient.invalidateQueries();
+      // Disable form fields
       setDisabled(true);
+      // Refresh all guides data
       setTimeout(() => {
         setAllGuides(queryClient.getQueryData(["AllGuides"]));
       }, 1000);
     }
   };
 
+  // Function to handle adding a new guide
   const handleAddNewGuide = () => {
     setSelectedGuide(null);
     setOpenNewGuideForm(true);
@@ -55,6 +66,7 @@ function Guides() {
       }}
     >
       <div className="flex flex-col gap-12 ">
+        {/* Display all guides */}
         <Box
           sx={{
             display: "flex",
@@ -82,6 +94,7 @@ function Guides() {
             </article>
           ))}
         </Box>
+        {/* Button to add a new guide */}
         <Button
           variant="outlined"
           onClick={handleAddNewGuide}
@@ -90,6 +103,7 @@ function Guides() {
           Add New Guide
         </Button>
       </div>
+      {/* Display selected guide details for editing */}
       {selectedGuide && (
         <GuideOverviewEdit
           disabled={disabled}
@@ -101,6 +115,7 @@ function Guides() {
           queryClient={queryClient}
         />
       )}
+      {/* Display new guide form */}
       {openNewGuideForm && (
         <NewGuideForm
           setAllGuides={setAllGuides}
@@ -112,6 +127,7 @@ function Guides() {
   );
 }
 
+// Component to display guide information in a box
 function GuideSideBox({ guide }) {
   return (
     <Box
@@ -135,6 +151,7 @@ function GuideSideBox({ guide }) {
   );
 }
 
+// Component to display and edit guide details
 function GuideOverviewEdit({
   selectedGuide,
   disabled,
@@ -144,10 +161,13 @@ function GuideOverviewEdit({
   setAllGuides,
   queryClient,
 }) {
+  // State for storing the guide photo
   const [file, setFile] = useState(selectedGuide.photo);
 
+  // State for managing the visibility of the delete modal
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
+  // Function to open the delete modal
   const handleOpeDeleteModal = () => {
     setOpenDeleteModal(true);
   };
@@ -156,6 +176,7 @@ function GuideOverviewEdit({
     setFile(selectedGuide.photo);
   }, [selectedGuide]);
 
+  // Functions to handle editing guide details
   const handleEditName = (e) => {
     setSelectedGuide({ ...selectedGuide, fullName: e.target.value });
   };
@@ -168,10 +189,12 @@ function GuideOverviewEdit({
     setSelectedGuide({ ...selectedGuide, phone: e.target.value });
   };
 
+  // Function to toggle edit mode
   const toggleEditMode = () => {
     setDisabled(!disabled);
   };
 
+  // Function to handle changing guide photo
   const handleChangeGuidePhoto = (e) => {
     setSelectedGuide({ ...selectedGuide, photo: e.target.files[0] });
     setFile(URL.createObjectURL(e.target.files[0]));
@@ -252,6 +275,7 @@ function GuideOverviewEdit({
         {/*  */}
       </div>
 
+      {/* Buttons for toggling edit mode, deleting guide, and saving changes */}
       <Stack
         sx={{ alignSelf: "center", padding: "15px 0" }}
         spacing={2}
@@ -278,6 +302,7 @@ function GuideOverviewEdit({
           Save
         </Button>
       </Stack>
+      {/* Modal for confirming guide deletion */}
       <GuideModal
         selectedGuide={selectedGuide}
         setOpenDeleteModal={setOpenDeleteModal}
@@ -290,6 +315,7 @@ function GuideOverviewEdit({
   );
 }
 
+// Styles for the modal
 const style = {
   position: "fixed",
   top: "50%",
@@ -311,6 +337,7 @@ const style = {
   gap: "15px",
 };
 
+// Modal component for confirming guide deletion
 function GuideModal({
   selectedGuide,
   setOpenDeleteModal,
@@ -321,6 +348,7 @@ function GuideModal({
 }) {
   const user = useSelector(getCurrentUser);
 
+  // Function to handle guide deletion
   const handleDeleteGuide = async () => {
     if (await deleteGuide(user.token, selectedGuide._id)) {
       queryClient.invalidateQueries(["AllGuides"]);
@@ -366,14 +394,17 @@ function GuideModal({
   );
 }
 
+// Component for creating a new guide
 function NewGuideForm({ setAllGuides, queryClient, setOpenNewGuideForm }) {
   const user = useSelector(getCurrentUser);
+  // State for storing the new guide information
   const [newGuide, setNewGuide] = useState({
     fullName: "",
     email: "",
     phone: "",
   });
 
+  // Function to handle creating a new guide
   const handleCreateGuide = async () => {
     if (!newGuide.fullName || !newGuide.email || !newGuide.phone) {
       toast.error(

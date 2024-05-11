@@ -11,6 +11,7 @@ import {
   setCurrentSelectedBookingModified,
 } from "../redux/bookingSlice";
 
+// Constants for menu height
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -22,21 +23,26 @@ const MenuProps = {
   },
 };
 
+// Array of possible status values
 const STATUS = ["preliminary", "confirmed", "cancelled"];
 
+// Component for changing reservation status
 function ChangeReservationStatusSelect() {
-  const selectedBooking = useSelector(getCurrentSelectedBooking);
-  const [status, setStatus] = React.useState(selectedBooking.status);
-  const dispatch = useDispatch();
+  const selectedBooking = useSelector(getCurrentSelectedBooking); // Getting currently selected booking from Redux store
+  const [status, setStatus] = React.useState(selectedBooking.status); // State for selected status
+  const dispatch = useDispatch(); // Dispatch function from Redux
 
+  // Function to handle status change
   const handleChange = (event) => {
-    setStatus(event.target.value);
+    setStatus(event.target.value); // Setting selected status
+    // Dispatching action to update selected booking with new status
     dispatch(
       setCurrentSelectedBooking({
         ...selectedBooking,
         status: event.target.value,
       })
     );
+    // Dispatching action to mark booking as modified
     dispatch(setCurrentSelectedBookingModified(true));
   };
 

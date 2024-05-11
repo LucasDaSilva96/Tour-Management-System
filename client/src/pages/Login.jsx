@@ -18,33 +18,44 @@ import ResetPasswordModal from "../components/ResetPasswordModal";
 
 export default function Login() {
   const dispatch = useDispatch();
+
+  // State to manage the visibility of the password reset modal
   const [open, setOpen] = useState(false);
 
+  // Function to handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
+    // Extract data from the form
     const data = new FormData(event.currentTarget);
     const email = data.get("email");
     const password = data.get("password");
     const remember = data.get("remember");
 
+    // Attempt to login user
     const res = await loginUser(email, password);
 
+    // If login successful
     if (res.status === "success") {
+      // Dispatch user login action
       dispatch(login(res.user));
 
+      // Save user data based on remember option
       if (remember) {
         saveMe({ ...res.user, isLoggedIn: true });
       } else {
         saveSessionMe({ ...res.user, isLoggedIn: true });
       }
     } else {
+      // Handle login failure
       return null;
     }
   };
 
   return (
+    // Main container
     <Grid container component="main" sx={{ height: "100vh" }}>
       <CssBaseline />
+      {/* Background image */}
       <Grid
         item
         xs={false}
@@ -61,6 +72,7 @@ export default function Login() {
           backgroundPosition: "center",
         }}
       />
+      {/* Login form container */}
       <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
         <Box
           sx={{
@@ -71,6 +83,7 @@ export default function Login() {
             alignItems: "center",
           }}
         >
+          {/* Avatar */}
           <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
             <LockOutlinedIcon />
           </Avatar>
@@ -83,6 +96,7 @@ export default function Login() {
             onSubmit={handleSubmit}
             sx={{ mt: 1 }}
           >
+            {/* Email input */}
             <TextField
               margin="normal"
               required
@@ -93,6 +107,7 @@ export default function Login() {
               autoComplete="email"
               autoFocus
             />
+            {/* Password input */}
             <TextField
               margin="normal"
               required
@@ -103,12 +118,14 @@ export default function Login() {
               id="password"
               autoComplete="current-password"
             />
+            {/* Remember me checkbox */}
             <FormControlLabel
               control={
                 <Checkbox value="remember" name="remember" color="primary" />
               }
               label="Remember me"
             />
+            {/* Sign in button */}
             <Button
               type="submit"
               fullWidth
@@ -117,6 +134,7 @@ export default function Login() {
             >
               Sign In
             </Button>
+            {/* Forgot password link */}
             <Grid container>
               <Grid item xs>
                 <p
@@ -130,6 +148,7 @@ export default function Login() {
           </Box>
         </Box>
       </Grid>
+      {/* Password reset modal */}
       <ResetPasswordModal open={open} setOpen={setOpen} />
     </Grid>
   );

@@ -17,27 +17,31 @@ import toast from "react-hot-toast";
 import dayjs from "dayjs";
 
 export default function Calendar() {
-  const bookings = useQueryClient().getQueryData(["AllBookings"]);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const calendarRef = useRef(null);
+  const bookings = useQueryClient().getQueryData(["AllBookings"]); // Getting bookings data from React Query
+  const dispatch = useDispatch(); // Dispatch function from Redux
+  const navigate = useNavigate(); // Navigate function from React Router
+  const calendarRef = useRef(null); // Ref for accessing FullCalendar instance
 
+  // Function to navigate to the previous year in the calendar
   const goToPrevYear = () => {
     calendarRef.current.getApi().prevYear();
   };
 
+  // Function to navigate to the next year in the calendar
   const goToNextYear = () => {
     calendarRef.current.getApi().nextYear();
   };
 
+  // Function to handle click on a calendar event
   const handleEventClick = (clickInfo) => {
     const selectedBooking = bookings.find(
       (el) => el._id === clickInfo.event.extendedProps._id
     );
-    dispatch(toggleReservationModal());
-    dispatch(setCurrentSelectedBooking(selectedBooking));
+    dispatch(toggleReservationModal()); // Dispatching action to toggle reservation modal
+    dispatch(setCurrentSelectedBooking(selectedBooking)); // Dispatching action to set current selected booking
   };
 
+  // Function to handle click on adding a new event in the calendar
   const handleAddNewEventClick = (clickInfo) => {
     const dateClicked = new Date(clickInfo.dateStr).setHours(0, 0, 0, 0);
     const today = new Date().setHours(0, 0, 0, 0);
@@ -45,14 +49,16 @@ export default function Calendar() {
     const isBefore = dayjs(dateClicked).isBefore(dayjs(today));
 
     if (!isBefore || dateClicked.toLocaleString() === today.toLocaleString()) {
+      // Navigate to new reservation page
       return navigate(`newReservation/${clickInfo.dateStr}`);
     } else {
-      return toast.error("A new booking can't take place in the past.");
+      return toast.error("A new booking can't take place in the past."); // Show error toast
     }
   };
 
+  // Function to handle view change in the calendar
   const handleView = (view) => {
-    localStorage.setItem("view", view.view.type);
+    localStorage.setItem("view", view.view.type); // Storing current view type in localStorage
   };
 
   // Function to render custom event content
@@ -73,45 +79,48 @@ export default function Calendar() {
 
   return (
     <div>
+      {/* FullCalendar component */}
       <FullCalendar
         themeSystem="bootstrap5"
-        dateClick={handleAddNewEventClick}
+        dateClick={handleAddNewEventClick} // Event handler for date click
         ref={calendarRef}
-        plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]}
-        initialView={localStorage.getItem("view")}
+        plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]} // Plugins used in FullCalendar
+        initialView={localStorage.getItem("view")} // Initial view of the calendar
         slotLabelFormat={{
           hour: "2-digit",
           minute: "2-digit",
           hour12: false, // Set to false for 24-hour format
         }}
-        height={"80dvh"}
-        events={bookings}
+        height={"80dvh"} // Height of the calendar
+        events={bookings} // Events to be displayed in the calendar
         eventDisplay="block"
+        // Buttons for switching views
         headerToolbar={{
           start: "dayGridMonth,timeGridWeek,timeGridDay",
           center: "title",
           end: "today,prev,prevYear,next,nextYear,custom2",
         }}
+        // Buttons for navigation
         customButtons={{
           prevYear: {
             text: "Prev Year",
-            click: goToPrevYear,
+            click: goToPrevYear, // Event handler for clicking "Prev Year" button
           },
           nextYear: {
             text: "Next Year",
-            click: goToNextYear,
+            click: goToNextYear, // Event handler for clicking "Next Year" button
           },
         }}
-        eventClick={handleEventClick}
-        eventClassNames="point"
-        timeZone="UTC"
+        eventClick={handleEventClick} // Event handler for clicking an event
+        eventClassNames="point" // Custom CSS class for events
+        timeZone="UTC" // Timezone for the calendar
         eventTimeFormat={{
           hour: "2-digit",
           minute: "2-digit",
           hour12: false,
-        }}
-        viewDidMount={handleView}
-        eventContent={renderEventContent}
+        }} // Time format for events
+        viewDidMount={handleView} // Event handler for view change
+        eventContent={renderEventContent} // Custom event content renderer
       ></FullCalendar>
       <ReservationModal />
     </div>

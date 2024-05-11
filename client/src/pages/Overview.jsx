@@ -22,12 +22,14 @@ import toast from "react-hot-toast";
 
 function Overview() {
   const queryClient = useQueryClient();
+  // Retrieve available years, guides, and bookings data from query client
   const availableYears = queryClient
     .getQueryData(["AllYearsDoc"])
     .map((el) => el.year);
   const availableGuides = queryClient.getQueryData(["AllGuides"]);
   const allBookings = queryClient.getQueryData(["AllYearsDoc"]);
 
+  // State to hold selected filters for overview
   const [DATAOBJ, SETDATAOBJ] = useState({
     year: availableYears[0],
     month: "",
@@ -35,6 +37,7 @@ function Overview() {
     status: "all",
   });
 
+  // Array of month names
   const months = [
     "January",
     "February",
@@ -50,10 +53,12 @@ function Overview() {
     "December",
   ];
 
+  // State to hold chart data
   const [CHART_DATA, SET_CHART_DATA] = useState([]);
 
   return (
     <section className="relative w-full h-full py-2 px-2">
+      {/* Display selected filters */}
       <h1 className=" text-center flex items-center gap-3 w-full justify-center  text-lg">
         {DATAOBJ.year && (
           <span className="py-1 px-2 border rounded-lg bg-slate-100 shadow-sm">
@@ -87,6 +92,7 @@ function Overview() {
           months={months}
         />
 
+        {/* Display chart if data is available */}
         {CHART_DATA.length > 0 && <OverviewChartBox DATA={CHART_DATA} />}
       </div>
     </section>
@@ -104,6 +110,7 @@ function OverviewSearchBox({
 }) {
   const statusOpts = ["all", "preliminary", "confirmed", "cancelled"];
 
+  // Handlers for changing filters
   const handleYearChange = (e) => {
     setData({ ...data, year: e.target.value });
   };
@@ -120,8 +127,10 @@ function OverviewSearchBox({
     setData({ ...data, status: e.target.value });
   };
 
+  // Function to reset filters and fetch new data
   const handleReset = () => {
     const toastId = toast.loading("Loading...");
+    // Reset filters
     setData({ year: years[0], month: "", guide: "", status: "all" });
 
     setChartData(
@@ -134,6 +143,7 @@ function OverviewSearchBox({
     toast.dismiss(toastId);
   };
 
+  // Function to search data with current filters
   const handleSearch = () => {
     setChartData(formatChartData(data, allBookings, guides));
   };
@@ -141,6 +151,7 @@ function OverviewSearchBox({
   return (
     <aside className="flex flex-col items-center relative w-[340px] gap-8">
       <FormControl fullWidth>
+        {/* Year filter */}
         <InputLabel id="overview__year__label">Year</InputLabel>
         <Select
           labelId="overview__year__label"
@@ -158,6 +169,7 @@ function OverviewSearchBox({
         </Select>
       </FormControl>
 
+      {/* Status filter */}
       <FormControl fullWidth>
         <InputLabel id="overview__status__label">Status</InputLabel>
         <Select
@@ -176,6 +188,7 @@ function OverviewSearchBox({
         </Select>
       </FormControl>
 
+      {/* Month filter */}
       <FormControl fullWidth>
         <InputLabel id="overview__month__label">Month</InputLabel>
         <Select
@@ -194,6 +207,7 @@ function OverviewSearchBox({
         </Select>
       </FormControl>
 
+      {/* Guide filter */}
       <FormControl fullWidth>
         <InputLabel id="overview__guide__label">Guide</InputLabel>
         <Select
@@ -212,6 +226,7 @@ function OverviewSearchBox({
         </Select>
       </FormControl>
 
+      {/* Buttons for searching and resetting */}
       <Stack
         direction="row"
         sx={{ justifyContent: "space-around" }}
@@ -231,6 +246,7 @@ function OverviewSearchBox({
 
 function OverviewChartBox({ DATA }) {
   return (
+    // Responsive container for the bar chart
     <ResponsiveContainer width={700} height="80%">
       <BarChart data={DATA}>
         <CartesianGrid strokeDasharray="3 3" />

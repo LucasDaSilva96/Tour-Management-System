@@ -32,12 +32,15 @@ import { getCurrentUser } from "../redux/userSlice";
 import { useNavigate, useParams } from "react-router-dom";
 import ModalWindow from "../components/Modal";
 
+// Extend dayjs with necessary plugins
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("UTC");
 
+// Define possible booking status options
 const STATUS = ["preliminary", "confirmed", "cancelled"];
 
+// Define MenuProps for Select components
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -49,6 +52,7 @@ const MenuProps = {
   },
 };
 
+// Initial state for a booking
 const initialState = {
   title: "",
   start: dayjs().utc().hour(new Date().getHours()),
@@ -67,12 +71,14 @@ const initialState = {
   snacks: false,
 };
 
+// Label component for rendering label with specific styling
 function Label({ componentName }) {
   const content = <strong className="ml-[20%]">{componentName}</strong>;
 
   return content;
 }
 
+// Main component for editing or creating a booking
 function EditOrCreateBooking() {
   const queryClient = useQueryClient();
   const user = useSelector(getCurrentUser);
@@ -103,7 +109,7 @@ function EditOrCreateBooking() {
   );
 }
 
-// ** Edit booking component
+// Edit booking component
 function EditBooking({ user, allGuides, navigate, queryClient }) {
   const { bookingID } = useParams();
   const selectedBooking = useSelector(getCurrentSelectedBooking);
@@ -119,43 +125,61 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
     BOOKING.guide ? allGuides.find((el) => el._id === BOOKING.guide) : ""
   );
 
+  // Function to handle updating a reservation
   const handleUpdateReservation = async () => {
+    // Update booking data on the server
     if (await updateOneBooking(user.token, BOOKING, BOOKING._id, guide.email)) {
+      // Dispatch action to update current selected booking in Redux state
       if (selectedBooking) dispatch(setCurrentSelectedBooking(BOOKING));
+      // Invalidate query to fetch updated data
       queryClient.invalidateQueries();
+      // Close reservation modal if open
       if (reservationModalStatus) {
         dispatch(toggleReservationModal());
       }
+      // Navigate to home page after updating reservation
       navigate("/");
     }
   };
 
+  // Function to handle deleting a booking
   const handleDeleteBooking = async () => {
+    // Delete booking from the server
     if (await deleteOneBooking(user.token, BOOKING)) {
+      // Invalidate query to fetch updated data
       queryClient.invalidateQueries();
+      // Clear current selected booking in Redux state
       dispatch(setCurrentSelectedBooking({}));
+      // Close modal window
       setOpen(false);
     }
   };
 
+  // Function to handle change in booking status
   const handleChangeStatus = (e) => {
     SETBOOKING({ ...BOOKING, status: e.target.value });
   };
 
+  // Function to handle change in guide selection
   const handleChangeGuide = async (e) => {
+    // Find the selected guide
     setGuide(allGuides.find((el) => el._id === e.target.value) || "");
 
+    // Remove guide from booking if selected guide is empty
     if (BOOKING.guide && e.target.value === "") {
       await removeGuideFromBooking(user.token, bookingID);
+      // Invalidate query to fetch updated data
       queryClient.invalidateQueries();
     }
 
+    // Update booking with selected guide
     SETBOOKING({
       ...BOOKING,
       guide: e.target.value,
     });
   };
 
+  // JSX rendering for EditBooking component
   return (
     <>
       <ModalWindow
@@ -178,6 +202,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
           noValidate
           autoComplete="off"
         >
+          {/* Form fields for editing booking details */}
           <div className="flex flex-wrap items-center">
             <div className="flex flex-col items-center">
               <Typography variant="subtitle2">Title</Typography>
@@ -192,6 +217,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
                 }
               />
             </div>
+            {/* Group Leader */}
             <div className="flex flex-col items-center">
               <Typography variant="subtitle2">Group Leader</Typography>
               <TextField
@@ -205,6 +231,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
                 }
               />
             </div>
+            {/* Email */}
             <div className="flex flex-col items-center">
               <Typography variant="subtitle2">Email</Typography>
               <TextField
@@ -218,7 +245,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
                 }
               />
             </div>
-
+            {/* Phone */}
             <div className="flex flex-col items-center">
               <Typography variant="subtitle2">Phone</Typography>
               <TextField
@@ -232,7 +259,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
                 }
               />
             </div>
-
+            {/* Group Size */}
             <TextField
               label="Group Size"
               id="edit__or__create__booking__size"
@@ -246,7 +273,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
                 SETBOOKING({ ...BOOKING, participants: Number(e.target.value) })
               }
             />
-
+            {/* Date and time pickers for start and end */}
             <div className="flex items-center flex-wrap gap-2">
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <Box
@@ -298,6 +325,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
                 </Box>
               </LocalizationProvider>
 
+              {/* Select guide */}
               <Box sx={{ marginTop: "18px" }}>
                 <FormControl sx={{ width: 200 }}>
                   <InputLabel
@@ -327,6 +355,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
                 </FormControl>
               </Box>
 
+              {/* Select snacks or mingel */}
               <Box sx={{ marginTop: "18px" }}>
                 <FormControl sx={{ minWidth: "150px" }}>
                   <InputLabel id="edit__or__create__booking__mingel__label">
@@ -348,6 +377,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
               </Box>
             </div>
 
+            {/* Select booking status */}
             <div className="min-w-[100%] pl-2 py-2">
               <FormControl sx={{ width: 200 }}>
                 <InputLabel
@@ -382,6 +412,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
               </FormControl>
             </div>
 
+            {/* Description */}
             <TextField
               sx={{ minWidth: "375px" }}
               id="edit__or__create__booking__description"
@@ -395,6 +426,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
               }
             />
           </div>
+          {/* Buttons for saving, canceling, and deleting booking */}
           <Stack direction={"row"} spacing={2} sx={{ marginLeft: ".7%" }}>
             <Button
               variant="outlined"
@@ -425,7 +457,7 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
   );
 }
 
-// ** Create new booking component
+// Create new booking component
 function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
@@ -448,6 +480,7 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
   const [selectedDate, setSelectedDate] = React.useState(dayjs());
   const [guide, setGuide] = React.useState("");
 
+  // Function to handle change in guide selection
   const handleChangeGuide = (e) => {
     const guide = allGuides.find((el) => el.fullName === e.target.value);
     setGuide(guide.fullName);
@@ -459,15 +492,20 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
     SETBOOKING({ ...BOOKING, guide: null });
   };
 
+  // Function to handle creating a new booking
   const handleCreateBooking = async () => {
     if (BOOKING.guide) {
       const guideEmail = allGuides.find((el) => el._id === BOOKING.guide).email;
 
+      // Create new booking on the server with guide
       if (await createNewBooking(user.token, BOOKING, guideEmail)) {
+        // Invalidate query to fetch updated data
         queryClient.invalidateQueries();
+        // Close reservation modal if open
         SETBOOKING({ ...initialState });
       }
     } else {
+      // Create new booking on the server without guide
       if (await createNewBooking(user.token, BOOKING)) {
         queryClient.invalidateQueries();
         SETBOOKING({ ...initialState });
@@ -475,6 +513,7 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
     }
   };
 
+  // JSX rendering for CreateNewBooking component
   return (
     <Container maxWidth="lg">
       <Box
@@ -491,6 +530,7 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
         noValidate
         autoComplete="off"
       >
+        {/* Title */}
         <div className="flex flex-wrap items-center">
           <div className="flex flex-col items-center">
             <Typography variant="subtitle2">Title</Typography>
@@ -507,6 +547,8 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
               }
             />
           </div>
+
+          {/* Group Leader */}
           <div className="flex flex-col items-center">
             <Typography variant="subtitle2">Group Leader</Typography>
             <TextField
@@ -522,6 +564,8 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
               }
             />
           </div>
+
+          {/* Email */}
           <div className="flex flex-col items-center">
             <Typography variant="subtitle2">Email</Typography>
             <TextField
@@ -538,6 +582,7 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
             />
           </div>
 
+          {/* Phone */}
           <div className="flex flex-col items-center">
             <Typography variant="subtitle2">Phone</Typography>
             <TextField
@@ -554,6 +599,7 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
             />
           </div>
 
+          {/* Group Size */}
           <TextField
             label="Group Size"
             placeholder={BOOKING.participants ? null : "Group Size"}
@@ -567,6 +613,7 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
             }
           />
 
+          {/* Date and time pickers for start and end */}
           <div className="flex items-center flex-wrap gap-2">
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <Box
@@ -620,6 +667,7 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
               </Box>
             </LocalizationProvider>
 
+            {/* Select guide */}
             <Box sx={{ marginTop: "18px" }}>
               <FormControl sx={{ width: 200 }}>
                 <InputLabel
@@ -659,6 +707,7 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
               </Box>
             )}
 
+            {/* Select snacks or mingel */}
             <Box sx={{ marginTop: "18px" }}>
               <FormControl sx={{ minWidth: "150px" }}>
                 <InputLabel id="edit__or__create__booking__snacks__label">
@@ -679,6 +728,8 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
               </FormControl>
             </Box>
           </div>
+
+          {/* Description */}
           <TextField
             sx={{ minWidth: "375px" }}
             id="edit__or__create__booking__description"
@@ -693,6 +744,8 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
             }
           />
         </div>
+
+        {/* Button for saving new booking */}
         <Stack direction={"row"} spacing={2} sx={{ marginLeft: ".7%" }}>
           <Button
             variant="outlined"

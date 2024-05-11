@@ -16,6 +16,7 @@ import { removeGuideFromBooking } from "../utils/postData";
 import { getCurrentUser } from "../redux/userSlice";
 import { useQueryClient } from "@tanstack/react-query";
 
+// Styling for the menu
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -28,17 +29,22 @@ const MenuProps = {
 };
 
 function AssignGuideOrChangeGuideSelect() {
-  const queryClient = useQueryClient();
-  const user = useSelector(getCurrentUser);
-  const allGuides = useQueryClient().getQueryData(["AllGuides"]);
-  const selectedBooking = useSelector(getCurrentSelectedBooking);
+  const queryClient = useQueryClient(); // Query client instance from React Query
+  const user = useSelector(getCurrentUser); // Current user data from Redux store
+  const allGuides = useQueryClient().getQueryData(["AllGuides"]); // All guides data from React Query
+  const selectedBooking = useSelector(getCurrentSelectedBooking); // Currently selected booking from Redux store
+
+  // State for selected guide
   const [guide, setGuide] = React.useState(
     selectedBooking.guide
       ? allGuides.find((e) => e._id === selectedBooking.guide).fullName
       : ""
   );
+
+  // Dispatch function from Redux
   const dispatch = useDispatch();
 
+  // Function to handle guide change
   const handleChange = (event) => {
     const selectedFullName = event.target.value; // Get the selected fullName
     setGuide(selectedFullName); // Store the selected fullName in state
@@ -51,24 +57,26 @@ function AssignGuideOrChangeGuideSelect() {
     dispatch(
       setCurrentSelectedBooking({
         ...selectedBooking,
-        guide: selectedGuide,
+        guide: selectedGuide, // Set the guide ID in the booking
       })
     );
-    dispatch(setCurrentSelectedBookingModified(true));
+    dispatch(setCurrentSelectedBookingModified(true)); // Mark the booking as modified
   };
 
+  // Function to handle removing guide from booking
   const handleRemoveGuide = async () => {
     dispatch(
       setCurrentSelectedBooking({
         ...selectedBooking,
-        guide: null,
+        guide: null, // Remove the guide from the booking
       })
     );
-    setGuide("");
+    setGuide(""); // Clear the selected guide
 
+    // Remove the guide from the booking on the server side
     if (await removeGuideFromBooking(user.token, selectedBooking._id)) {
-      queryClient.invalidateQueries(["AllBookings", "AllGuides"]);
-      dispatch(toggleReservationModal());
+      queryClient.invalidateQueries(["AllBookings", "AllGuides"]); // Invalidate relevant queries
+      dispatch(toggleReservationModal()); // Close the reservation modal
     }
   };
 

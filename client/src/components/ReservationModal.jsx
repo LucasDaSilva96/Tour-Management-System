@@ -36,23 +36,26 @@ import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function ReservationModal() {
-  const queryClient = useQueryClient();
-  const modalOpen = useSelector(getReservationModalStatus);
-  const dispatch = useDispatch();
-  const selectedBooking = useSelector(getCurrentSelectedBooking);
+  const queryClient = useQueryClient(); // Initializing useQueryClient hook
+  const modalOpen = useSelector(getReservationModalStatus); // Getting modal open status from Redux store
+  const dispatch = useDispatch(); // Initializing useDispatch hook
+  const selectedBooking = useSelector(getCurrentSelectedBooking); // Getting currently selected booking from Redux store
   const guide =
     useSelector(getAllGuides).find((el) => el._id === selectedBooking.guide) ||
-    null;
-  const user = useSelector(getCurrentUser);
+    null; // Getting guide information from Redux store based on the selected booking
+  const user = useSelector(getCurrentUser); // Getting current user information from Redux store
   const selectedBookingWasModified = useSelector(
     getCurrentSelectedBookingModified
   );
-  const reservationModalStatus = useSelector(getReservationModalStatus);
-  const navigate = useNavigate();
+  const reservationModalStatus = useSelector(getReservationModalStatus); // Getting reservation modal status from Redux store
+  const navigate = useNavigate(); // Initializing useNavigate hook
 
+  // If selected booking start or end date is not available, return null
   if (!selectedBooking.start || !selectedBooking.end) return null;
 
+  // Function to handle updating the booking
   const handleUpdateBookingClick = async () => {
+    // If guide is assigned to the booking, update booking with guide's email
     if (selectedBooking.guide) {
       await updateOneBooking(
         user.token,
@@ -60,30 +63,36 @@ export default function ReservationModal() {
         selectedBooking._id,
         guide.email
       );
-      queryClient.invalidateQueries();
+      queryClient.invalidateQueries(); // Invalidate queries to fetch updated data
     } else {
+      // If no guide is assigned, update booking without guide's email
       await updateOneBooking(user.token, selectedBooking, selectedBooking._id);
     }
 
-    queryClient.invalidateQueries();
+    queryClient.invalidateQueries(); // Invalidate queries to fetch updated data
+    // If reservation modal is open, close it
     if (reservationModalStatus) {
       dispatch(toggleReservationModal());
     }
   };
 
+  // Function to toggle the reservation modal
   const toggleDrawer = (newOpen) => () => {
-    dispatch(toggleReservationModal());
+    dispatch(toggleReservationModal()); // Dispatching action to toggle reservation modal
   };
+  // Extracting start hour and minute from selected booking start time
   const [startHour, startMinute] = selectedBooking.start
     .split("T")[1]
     .split(".")[0]
     .split(":");
 
+  // Extracting end hour and minute from selected booking end time
   const [endHour, endMinute] = selectedBooking.end
     .split("T")[1]
     .split(".")[0]
     .split(":");
 
+  // List of items to display in the drawer
   const DrawerList = (
     <List
       sx={{

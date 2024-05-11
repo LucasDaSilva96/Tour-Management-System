@@ -10,8 +10,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 function UserDashboard() {
+  // Initialize query client
   const queryClient = useQueryClient();
+
+  // Get user data from Redux store
   const { _id, role, isLoggedIn, token, ...data } = useSelector(getCurrentUser);
+
+  // Initialize local state
   const [DATA, SETDATA] = useState({
     ...data,
     currentPassword: "",
@@ -19,39 +24,51 @@ function UserDashboard() {
     _id,
   });
 
+  // Dispatch function
   const dispatch = useDispatch();
 
+  // Local state for user photo
   const [file, setFile] = useState(DATA.photo);
+
+  // Local state for changing password fields visibility
   const [openChangePassword, setOpenChangePassword] = useState(false);
 
+  // Function to handle opening/closing change password fields
   const handleOpenChangePasswordFields = () => {
     setOpenChangePassword(!openChangePassword);
 
+    // Reset password fields if closing
     if (!openChangePassword) {
       SETDATA({ ...DATA, currentPassword: "", newPassword: "" });
     }
   };
 
+  // Function to handle name change
   const handleChangeName = (e) => {
     SETDATA({ ...DATA, name: e.target.value });
   };
 
+  // Function to handle email change
   const handleChangeEmail = (e) => {
     SETDATA({ ...DATA, email: e.target.value });
   };
 
+  // Function to handle current password change
   const handleCurrentPasswordChange = (e) => {
     SETDATA({ ...DATA, currentPassword: e.target.value });
   };
 
+  // Function to handle new password change
   const handleNewPasswordChange = (e) => {
     SETDATA({ ...DATA, newPassword: e.target.value });
   };
 
+  // Update file state when user photo changes
   useEffect(() => {
     setFile(DATA.photo);
   }, [DATA.photo]);
 
+  // Function to handle user photo change
   const handleChangeUserPhoto = (e) => {
     if (e.target.files[0].type.includes("image")) {
       SETDATA({ ...DATA, photo: e.target.files[0] });
@@ -62,6 +79,7 @@ function UserDashboard() {
     }
   };
 
+  // Function to handle saving user data
   const handleSaveUser = async () => {
     const { status, user } = await updateUser(token, DATA);
 
@@ -86,6 +104,7 @@ function UserDashboard() {
     }
   };
 
+  // Function to handle updating user password
   const handleUpdatePassword = async () => {
     if (
       !(await updateUserPassword(
@@ -187,7 +206,7 @@ function UserDashboard() {
                 onChange={handleNewPasswordChange}
                 name="user__new__password"
               />
-
+              {/* Buttons for changing password and saving user */}
               <Button
                 variant="contained"
                 onClick={async () => handleUpdatePassword()}

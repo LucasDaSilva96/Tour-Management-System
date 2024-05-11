@@ -18,6 +18,7 @@ import { logUserOut } from "../utils/postData";
 import { forgetMe } from "../utils/rememberMe";
 import toast from "react-hot-toast";
 
+// Array of pages for navigation
 const pages = [
   "Calendar",
   "Overview",
@@ -25,18 +26,23 @@ const pages = [
   "Search-Bookings",
   "New-Booking",
 ];
+
+// Array of settings
 const settings = ["Account", "Logout"];
 
+// Header component
 function Header() {
-  const user = useSelector(getCurrentUser);
-  const [anchorElNav, setAnchorElNav] = useState(null);
-  const [anchorElUser, setAnchorElUser] = useState(null);
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const user = useSelector(getCurrentUser); // Getting current user from Redux store
+  const [anchorElNav, setAnchorElNav] = useState(null); // State for navigation menu anchor element
+  const [anchorElUser, setAnchorElUser] = useState(null); // State for user menu anchor element
+  const navigate = useNavigate(); // Navigate function from react-router-dom
+  const dispatch = useDispatch(); // Dispatch function from Redux
 
+  // Function to handle logout
   const handleLogout = async () => {
     if (await logUserOut()) {
-      forgetMe();
+      forgetMe(); // Clearing remember me
+      // Dispatching login action with empty user data
       dispatch(
         login({
           email: "",
@@ -49,28 +55,32 @@ function Header() {
         })
       );
 
-      window.location.replace("/");
+      window.location.replace("/"); // Redirecting to home
       window.location.assign("/");
     } else {
-      toast.error("Error: Could't log the user out.");
+      toast.error("Error: Could't log the user out."); // Error toast
       return null;
     }
   };
 
+  // Function to open navigation menu
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
+
+  // Function to open user menu
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
 
+  // Function to close navigation menu
   const handleCloseNavMenu = (page) => {
     setAnchorElNav(null);
 
     if (page && typeof page === "string") {
       switch (page) {
         case "Calendar":
-          navigate("/");
+          navigate("/"); // Navigate to calendar
           break;
         case "New-Booking":
           const dateStr = new Date().toISOString().split("T")[0];
@@ -83,6 +93,7 @@ function Header() {
     }
   };
 
+  // Function to close user menu
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
