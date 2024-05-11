@@ -84,7 +84,7 @@ npm run start
 
 ## Contributing
 
-Contributions are welcome! Please fork the repository and create a pull request with your changes. Be sure to follow the contributing guidelines.
+Contributions are welcome! Please fork the repository and create a pull request with your changes. Be sure to follow the [contributing guidelines] (https://github.com/LucasDaSilva96/Tour-Management-System/blob/main/CONTRIBUTING.md).
 
 ## License
 
