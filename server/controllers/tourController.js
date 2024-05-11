@@ -1,8 +1,9 @@
+// Import required modules and models
 const { Guide } = require('../models/guideModel');
 const { Tour, Bookings } = require('../models/tourModel');
 const { responseHelper } = require('../utils/httpResponse');
 
-// ? Helper function to check if the booking has a valid year
+// Helper function to check if the booking has a valid year
 const isValidYear = (date) => {
   const currentYear = new Date().getFullYear();
   const providedYear = new Date(date).toISOString().split('-')[0];
@@ -13,30 +14,35 @@ const isValidYear = (date) => {
   }
 };
 
-// ** The create booking Middleware
+// Middleware to create a tour booking
 exports.createTour = async (req, res, next) => {
   try {
     let { start } = req.body;
 
+    // Check if start date is provided and valid
     if (!start) throw new Error('A tour must have a date.');
     if (isValidYear(start) === false)
       throw new Error('A booking must take place in the present or future.');
+    // Find or create tour document for the year
     const period = await Tour.findOne({
       year: Number(start.toString().split('-')[0]),
     });
 
     if (!period)
       throw new Error('The document for the provided year is not yet created');
+
     start = new Date(req.body.start);
     const timeIsTaken = period.bookings.find((el) => {
       return el.start.toISOString() === start.toISOString();
     });
 
+    // Check if the requested time slot is already booked
     if (timeIsTaken)
       throw new Error(
         'You already have a booking on the provided day and time.'
       );
 
+    // Add the booking to the tour document
     let newBooking = undefined;
     if (req.body.status) {
       const color =
@@ -55,6 +61,7 @@ exports.createTour = async (req, res, next) => {
 
     await period.save();
 
+    // Send success response with the created booking
     responseHelper(
       201,
       'Tour successfully created',
@@ -66,7 +73,7 @@ exports.createTour = async (req, res, next) => {
   }
 };
 
-// ** This Middleware is in charge of creating tours document automatic
+// Middleware to create tour documents automatically
 exports.createYearDocument = async (req, res, next) => {
   try {
     const tourDocs = await Tour.find();
@@ -81,7 +88,7 @@ exports.createYearDocument = async (req, res, next) => {
         : false;
     };
 
-    // Tour
+    // Create tour documents for future years if not already present
     let index = 1;
     if (yearFound(tourDocsYearArray) === false) {
       while (yearFound(tourDocsYearArray) === false) {
@@ -94,7 +101,7 @@ exports.createYearDocument = async (req, res, next) => {
       }
     }
 
-    // Guide
+    // Create guide booking documents for future years
     for (const guide of guideDocs) {
       if (!guide.guide_bookings.length > 0) {
         guide.guide_bookings.push(
@@ -127,12 +134,13 @@ exports.createYearDocument = async (req, res, next) => {
   }
 };
 
-// ? Find and send booking-year automatic Middleware
+// Middleware to find and send booking-year automatically
 exports.findYearAndPassOn = async (req, res, next) => {
   try {
     const { bookingID } = req.query;
     if (!bookingID) throw new Error('No bookingID provided.');
 
+    // Find tour documents and extract the year for the provided bookingID
     const tourDocs = await Tour.find();
 
     let bookingFound = false;
@@ -150,6 +158,7 @@ exports.findYearAndPassOn = async (req, res, next) => {
     if (!bookingFound)
       throw new Error('No booking found with the provided id.');
 
+    // Pass on the found year in the request query
     req.query = { ...req.query, year };
 
     next();
@@ -158,14 +167,16 @@ exports.findYearAndPassOn = async (req, res, next) => {
   }
 };
 
-// ** This Middleware is for assigning a booking to a guide
+// Middleware to assign a guide to a booking
 exports.assignGuideToBooking = async (req, res, next) => {
   try {
     const { bookingID, guide, year } = req.query;
 
+    // Check if all required parameters are provided
     if (!bookingID || !guide || !year)
       throw new Error('Please selected a booking,guide & year.');
 
+    // Find tour and guide documents
     const doc = await Tour.findOne({ year: Number(year) });
     if (!doc) throw new Error('No collection found with the provided year.');
 
@@ -173,10 +184,12 @@ exports.assignGuideToBooking = async (req, res, next) => {
     if (!guideDoc)
       throw new Error('No guide found with the provided guide-email.');
 
+    // Find the booking in the tour document
     const booking = doc.bookings.find((el) => el.id === bookingID);
     if (!booking)
       throw new Error('No booking found with the provided bookingID.');
 
+    // Remove the booking from the previous guide's bookings
     if (booking.guide) {
       const oldGuide = await Guide.findById(booking.guide._id);
 
@@ -192,6 +205,7 @@ exports.assignGuideToBooking = async (req, res, next) => {
       }
     }
 
+    // Create guide booking document for the year if not already present
     const guideBookingsYearDoc = guideDoc.guide_bookings.find(
       (el) => el.year === Number(year)
     );
@@ -202,11 +216,13 @@ exports.assignGuideToBooking = async (req, res, next) => {
       });
     }
 
+    // Assign guide to the booking
     booking.guide = guideDoc._id;
     await Bookings.findByIdAndUpdate(bookingID, {
       guide: guideDoc._id,
     });
 
+    // Update guide's bookings
     const BOOKINGS_BOOKING = await Bookings.findOneAndUpdate(
       {
         uuid: booking.uuid,
@@ -239,27 +255,33 @@ exports.assignGuideToBooking = async (req, res, next) => {
   }
 };
 
-// ** This Middleware is for removing a guide from an existing booking
+// Middleware to remove a guide from a booking
 exports.removeGuideFromBooking = async (req, res, next) => {
   try {
     const { bookingID, year } = req.query;
 
+    // Check if bookingID and year are provided
     if (!bookingID || !year)
       throw new Error('Please selected a booking and year.');
 
+    // Find tour document
     const doc = await Tour.findOne({ year: Number(year) });
     if (!doc) throw new Error('No collection found with the provided year.');
 
+    // Find the booking in the tour document
     const booking = doc.bookings.find((el) => el.id === bookingID);
     if (!booking)
       throw new Error('No booking found with the provided bookingID.');
 
+    // Check if the booking already has a guide
     if (!booking.guide) {
       throw new Error("The selected booking don't have a guide yet.");
     }
 
+    // Find the guide document
     const guideDoc = await Guide.findById(booking.guide);
 
+    // Find the index of the guide booking for the provided year
     const guideBookingsIndex = guideDoc.guide_bookings.findIndex(
       (el) => el.year === +year
     );
@@ -268,6 +290,7 @@ exports.removeGuideFromBooking = async (req, res, next) => {
         `Year [${year}] was not found in ${guideDoc.fullName} bookings document`
       );
 
+    // Remove the booking from the guide's bookings
     guideDoc.guide_bookings[guideBookingsIndex].bookings =
       guideDoc.guide_bookings[guideBookingsIndex].bookings.filter(
         (el) => el.id !== bookingID
@@ -280,6 +303,7 @@ exports.removeGuideFromBooking = async (req, res, next) => {
       guide: null,
     });
 
+    // Remove the guide from the booking
     const BOOKINGS_BOOKING = await Bookings.findOneAndUpdate(
       {
         title: booking.title,
@@ -305,7 +329,7 @@ exports.removeGuideFromBooking = async (req, res, next) => {
   }
 };
 
-// ** Update booking status Middleware
+// Middleware to update booking status
 exports.updateBooking = async (req, res, next) => {
   try {
     if (req.body.guide || req.body.id || req.body._id)
@@ -316,9 +340,11 @@ exports.updateBooking = async (req, res, next) => {
     if (!bookingID || !year)
       throw new Error('Please provide bookingID and year.');
 
+    // Find tour document
     const tourDoc = await Tour.findOne({ year: Number(year) });
     if (!tourDoc) throw new Error('No tour document found.');
 
+    // Find the index of the booking in the tour document
     const bookingIndex = tourDoc.bookings.findIndex(
       (el) => el.id === bookingID
     );
@@ -327,6 +353,7 @@ exports.updateBooking = async (req, res, next) => {
     }
     const { status } = req.body || tourDoc.bookings[bookingIndex].status;
 
+    // Update booking status and color
     const color =
       status === 'confirmed'
         ? '#2dc653'
@@ -360,6 +387,7 @@ exports.updateBooking = async (req, res, next) => {
       color,
     });
 
+    // Update bookings for each guide
     const guides = await Guide.find();
 
     // Iterate through each guide
@@ -391,12 +419,13 @@ exports.updateBooking = async (req, res, next) => {
   }
 };
 
-// ** Delete booking Middleware
+// Middleware to delete a booking
 exports.deleteBooking = async (req, res, next) => {
   try {
     const { uuid, year } = req.query;
     if (!uuid || !year) throw new Error('No uuid or year provided.');
 
+    // Find tour document
     const tourYearDoc = await Tour.findOne({ year });
     const bookingIndex = tourYearDoc.bookings.findIndex(
       (el) => el.uuid === uuid
@@ -404,6 +433,7 @@ exports.deleteBooking = async (req, res, next) => {
 
     if (bookingIndex < 0) throw new Error('No booking found');
 
+    // If booking has a guide, remove it from the guide's bookings
     if (tourYearDoc.bookings[bookingIndex].guide) {
       const guideID = tourYearDoc.bookings[bookingIndex].guide;
       const guideDoc = await Guide.findById(guideID);
@@ -423,6 +453,7 @@ exports.deleteBooking = async (req, res, next) => {
       await guideDoc.save();
     }
 
+    // Delete booking from tour document and Bookings collection
     await Bookings.findOneAndDelete({
       uuid,
     });
@@ -438,12 +469,13 @@ exports.deleteBooking = async (req, res, next) => {
   }
 };
 
-// ** Get all tours by year and filter options Middleware
+// Middleware to get all bookings by year and filter options
 exports.getAllBookingsByYearAndFilter = async (req, res, next) => {
   try {
     const { year, ...filterObj } = req.query;
     if (!year) throw new Error('No year provided.');
 
+    // Find tour document
     const tourDoc = await Tour.findOne({ year });
     if (!tourDoc) throw new Error('No document with the provided year found.');
     const bookings = tourDoc.bookings;
@@ -455,6 +487,7 @@ exports.getAllBookingsByYearAndFilter = async (req, res, next) => {
       });
     }
 
+    // Filter bookings based on provided filters
     const filteredBookings = bookings.filter((booking) => {
       for (const [key, value] of Object.entries(filterObj)) {
         if (key === 'month') {
@@ -488,23 +521,26 @@ exports.getAllBookingsByYearAndFilter = async (req, res, next) => {
   }
 };
 
-// ** Get a specific booking by filter-options Middleware
+// Middleware to get a specific booking by filter options
 exports.getOneBookingByYearAndId = async (req, res, next) => {
   try {
     const { year, bookingID } = req.query;
     if (!year) throw new Error('No year provided.');
 
+    // Find tour document
     const tourDoc = await Tour.findOne({ year });
     if (!tourDoc) throw new Error('No document with the provided year found.');
     const bookings = tourDoc.bookings;
     if (!bookings.length > 0)
       throw new Error('No bookings found with the provided credentials.');
 
+    // Find the booking by bookingID
     const booking = bookings.find((el) => el.id === bookingID);
 
     if (!booking)
       throw new Error('No booking found with the provided bookingID');
 
+    // Find the booking in Bookings collection
     const foundBooking = await Bookings.findOne({
       uuid: booking.uuid,
     });
@@ -520,9 +556,10 @@ exports.getOneBookingByYearAndId = async (req, res, next) => {
   }
 };
 
-// ** Get all tour docs Middleware
+// Middleware to get all tour documents
 exports.getAllYearsBookingDocs = async (req, res, next) => {
   try {
+    // Find all tour documents
     const tourDocs = await Tour.find().select('-__v');
 
     res.json({

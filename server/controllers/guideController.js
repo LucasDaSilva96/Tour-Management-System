@@ -2,7 +2,7 @@ const { Guide } = require('../models/guideModel');
 const { Tour, Bookings } = require('../models/tourModel');
 const { responseHelper } = require('../utils/httpResponse');
 
-// ** Create guide Middleware
+// Middleware to create a guide
 exports.createGuide = async (req, res, next) => {
   try {
     const newGuide = await Guide.create({ ...req.body });
@@ -12,7 +12,7 @@ exports.createGuide = async (req, res, next) => {
   }
 };
 
-// ** Get all guides Middleware
+// Middleware to get all guides
 exports.getAllGuides = async (req, res, next) => {
   try {
     const { ...filterObj } = req.query;
@@ -45,7 +45,7 @@ exports.getAllGuides = async (req, res, next) => {
   }
 };
 
-// ** UpdateOneGuide Middleware
+// Middleware to update one guide
 exports.updateGuide = async (req, res, next) => {
   try {
     const { guideID } = req.params;
@@ -63,7 +63,7 @@ exports.updateGuide = async (req, res, next) => {
   }
 };
 
-// ** Delete one guide Middleware
+// Middleware to delete one guide
 exports.deleteOneGuide = async (req, res, next) => {
   try {
     const { guideID } = req.params;
