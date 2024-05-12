@@ -21,6 +21,7 @@ export default function Calendar() {
   const dispatch = useDispatch(); // Dispatch function from Redux
   const navigate = useNavigate(); // Navigate function from React Router
   const calendarRef = useRef(null); // Ref for accessing FullCalendar instance
+  const defaultView = "dayGridMonth"; // Default initialView
 
   useEffect(() => {
     return () => {
@@ -94,7 +95,7 @@ export default function Calendar() {
         dateClick={handleAddNewEventClick} // Event handler for date click
         ref={calendarRef}
         plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]} // Plugins used in FullCalendar
-        initialView={localStorage.getItem("view")} // Initial view of the calendar
+        initialView={localStorage.getItem("view") || defaultView} // Initial view of the calendar
         slotLabelFormat={{
           hour: "2-digit",
           minute: "2-digit",
