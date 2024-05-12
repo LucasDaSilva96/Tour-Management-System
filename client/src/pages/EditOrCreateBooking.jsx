@@ -505,6 +505,8 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
         SETBOOKING({ ...initialState });
       }
     } else {
+      // Delete guide from BOOKING if no guide has been assigned
+      delete BOOKING.guide;
       // Create new booking on the server without guide
       if (await createNewBooking(user.token, BOOKING)) {
         queryClient.invalidateQueries();
