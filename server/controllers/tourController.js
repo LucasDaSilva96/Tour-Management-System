@@ -52,11 +52,13 @@ exports.createTour = async (req, res, next) => {
           ? '#f21b3f'
           : '#ffc300';
 
-      period.bookings.push({ ...req.body, color });
+      const guide = req.body.guide || null; // Set guide to null if not provided
+      period.bookings.push({ ...req.body, color, guide });
       newBooking = await Bookings.create({ ...req.body, color });
     } else {
-      period.bookings.push({ ...req.body });
-      newBooking = await Bookings.create({ ...req.body });
+      const guide = req.body.guide || null; // Set guide to null if not provided
+      period.bookings.push({ ...req.body, guide });
+      newBooking = await Bookings.create({ ...req.body, guide });
     }
 
     await period.save();
