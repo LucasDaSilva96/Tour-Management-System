@@ -2,7 +2,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid"; // a plugin!
 import interactionPlugin from "@fullcalendar/interaction"; // needed for dayClick
 import timeGridPlugin from "@fullcalendar/timegrid";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import {
   setCurrentSelectedBooking,
@@ -21,6 +21,15 @@ export default function Calendar() {
   const dispatch = useDispatch(); // Dispatch function from Redux
   const navigate = useNavigate(); // Navigate function from React Router
   const calendarRef = useRef(null); // Ref for accessing FullCalendar instance
+
+  useEffect(() => {
+    return () => {
+      // Ensure calendarRef.current exists before calling destroy
+      if (calendarRef.current) {
+        calendarRef.current.getApi().destroy();
+      }
+    };
+  }, []); // Run this effect only once on component unmount
 
   // Function to navigate to the previous year in the calendar
   const goToPrevYear = () => {
