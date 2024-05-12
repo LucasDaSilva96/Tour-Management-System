@@ -4,21 +4,39 @@ import Login from "./Login";
 import Loading from "./Loading";
 import { useSelector } from "react-redux";
 import { isLoggedIn } from "../redux/userSlice";
+import { useEffect, useState } from "react";
 
 function Layout() {
-  // Get the current year
-  const year = new Date().getFullYear();
+  // Components
+  const [MountComponent, setMountComponent] = useState(null);
 
   // Check if user is logged in
   const userLoggedIn = useSelector(isLoggedIn);
 
-  // Get the navigation state
-  const { state } = useNavigation();
-
   // If user is not logged in, render the login page
-  if (!userLoggedIn) return <Login />;
+  // if (!userLoggedIn) return <Login />;
+
+  useEffect(() => {
+    if (userLoggedIn) {
+      setMountComponent(<MainComponent />);
+    } else {
+      setMountComponent(<Login />);
+    }
+  }, [userLoggedIn]);
 
   // Render the layout
+  return (
+    <>
+      <MountComponent />
+    </>
+  );
+}
+
+function MainComponent() {
+  // Get the current year
+  const year = new Date().getFullYear();
+  // Get the navigation state
+  const { state } = useNavigation();
   return (
     <main className=" w-[100dvw] h-[100dvh] flex flex-col relative gap-2 overflow-x-hidden overflow-y-auto">
       <Header />
