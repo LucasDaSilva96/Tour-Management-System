@@ -333,6 +333,17 @@ function SearchBooking() {
 
 // Component to display booking details
 function BookingBox({ booking }) {
+  // Extracting start hour and minute from selected booking start time
+  const [startHour, startMinute] = booking.start
+    .split("T")[1]
+    .split(".")[0]
+    .split(":");
+
+  // Extracting end hour and minute from selected booking end time
+  const [endHour, endMinute] = booking.end
+    .split("T")[1]
+    .split(".")[0]
+    .split(":");
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
@@ -401,8 +412,8 @@ function BookingBox({ booking }) {
             <span>Time</span>
           </div>
           <strong>
-            {dayjs(booking.start).format("HH:mm")} -{" "}
-            {dayjs(booking.end).format("HH:mm")}{" "}
+            {[startHour, startMinute].join(":")} -
+            {[endHour, endMinute].join(":")}
           </strong>
         </div>
       </div>
