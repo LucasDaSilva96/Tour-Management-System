@@ -4,32 +4,16 @@ import Login from "./Login";
 import Loading from "./Loading";
 import { useSelector } from "react-redux";
 import { isLoggedIn } from "../redux/userSlice";
-import { useEffect, useState } from "react";
 
 function Layout() {
-  // Components
-  const [MountComponent, setMountComponent] = useState(null);
-
   // Check if user is logged in
   const userLoggedIn = useSelector(isLoggedIn);
 
   // If user is not logged in, render the login page
   // if (!userLoggedIn) return <Login />;
 
-  useEffect(() => {
-    if (userLoggedIn) {
-      setMountComponent(<MainComponent />);
-    } else {
-      setMountComponent(<Login />);
-    }
-  }, [userLoggedIn]);
-
   // Render the layout
-  return (
-    <>
-      <MountComponent />
-    </>
-  );
+  return <>{userLoggedIn ? <MainComponent /> : <Login />}</>;
 }
 
 function MainComponent() {
