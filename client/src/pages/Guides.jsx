@@ -225,7 +225,7 @@ function GuideOverviewEdit({
             src={typeof file == "object" ? URL.createObjectURL(file) : file}
             sx={{ width: 86, height: 86 }}
           />
-          <div className="">
+          <div>
             <input
               id="guide_photo__uploader"
               type="file"
