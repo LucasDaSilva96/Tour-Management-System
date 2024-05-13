@@ -1,5 +1,15 @@
 import axios from "axios";
+import dayjs from "dayjs";
 import toast from "react-hot-toast";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault("UTC");
+dayjs.extend(isSameOrBefore);
+
 export const fetchAllBookingsByYear = async (
   year = new Date().getFullYear()
 ) => {
@@ -59,8 +69,6 @@ export const getFilteredBookings = (
     }
   }
 
-  console.log(OBJ);
-
   const filteredBookings = bookingDoc.bookings.filter((booking) => {
     let shouldInclude = true; // Assume booking should be included by default
 
@@ -77,18 +85,21 @@ export const getFilteredBookings = (
           }
           break;
         case "status":
-          if (booking.status !== value) {
+          if (booking.status !== value && value !== "All") {
             shouldInclude = false;
           }
           break;
         case "start":
-          const start = new Date(booking.start).toISOString().split("T")[0];
-          const Value = new Date(value).toISOString().split("T")[0];
+          const startInput = dayjs(value).toDate();
+          const startInputDate = new Date(startInput);
+          const startBooking = dayjs(booking.start).toDate();
+          const startBookingDate = new Date(startBooking);
 
-          if (start !== Value) {
+          startInputDate.setHours(0, 0, 0, 0);
+          startBookingDate.setHours(0, 0, 0, 0);
+
+          if (startBookingDate.getTime() < startInputDate.getTime()) {
             shouldInclude = false;
-          } else {
-            shouldInclude = true;
           }
           break;
         case "contactPerson":

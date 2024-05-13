@@ -10,18 +10,6 @@ import {
   setCurrentSelectedBookingModified,
 } from "../redux/bookingSlice";
 
-// Constants for menu height
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
-
 // Array of possible status values
 const STATUS = ["preliminary", "confirmed", "cancelled"];
 

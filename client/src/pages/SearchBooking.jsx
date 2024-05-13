@@ -39,9 +39,9 @@ dayjs.tz.setDefault("UTC");
 // Initial state for booking
 const initialState = {
   title: "",
-  start: "",
+  start: dayjs(),
   guide: "",
-  status: "preliminary",
+  status: "All",
   contactPerson: "",
   contactPhone: "",
   contactEmail: "",
@@ -62,7 +62,7 @@ function SearchBooking() {
   const [searchResult, setSearchResult] = useState([]);
 
   // Constants for status and selected date
-  const statusArray = ["preliminary", "confirmed", "cancelled"];
+  const statusArray = ["All", "preliminary", "confirmed", "cancelled"];
   const [selectedDate, setSelectedDate] = useState(dayjs());
 
   // Initialize necessary hooks
