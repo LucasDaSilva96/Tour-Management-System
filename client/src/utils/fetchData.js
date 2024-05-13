@@ -59,18 +59,18 @@ export const getFilteredBookings = (
     }
   }
 
+  console.log(OBJ);
+
   const filteredBookings = bookingDoc.bookings.filter((booking) => {
     let shouldInclude = true; // Assume booking should be included by default
 
     for (const [key, value] of Object.entries(OBJ)) {
       switch (key) {
         case "guide":
-          if (booking.guide === value) {
-            return (shouldInclude = true);
-          } else {
-            return (shouldInclude = false);
+          if (booking.guide !== value) {
+            shouldInclude = false;
           }
-
+          break;
         case "title":
           if (!booking.title.includes(value)) {
             shouldInclude = false;
@@ -107,7 +107,7 @@ export const getFilteredBookings = (
           }
           break;
         case "snacks":
-          if (booking.snacks !== value) {
+          if (booking.snacks !== value && value !== "All") {
             shouldInclude = false;
           }
           break;

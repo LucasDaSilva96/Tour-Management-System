@@ -45,7 +45,7 @@ const initialState = {
   contactPerson: "",
   contactPhone: "",
   contactEmail: "",
-  snacks: false,
+  snacks: "All",
   year: dayjs().get("year"),
 };
 
@@ -270,6 +270,7 @@ function SearchBooking() {
               label="Status"
               onChange={handleChangeSnacks}
             >
+              <MenuItem value={"All"}>All</MenuItem>
               <MenuItem value={false}>No</MenuItem>
               <MenuItem value={true}>Yes</MenuItem>
             </Select>

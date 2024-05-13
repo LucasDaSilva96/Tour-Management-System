@@ -1,5 +1,4 @@
 import * as React from "react";
-import OutlinedInput from "@mui/material/OutlinedInput";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -48,32 +47,17 @@ function ChangeReservationStatusSelect() {
 
   return (
     <div>
-      <FormControl sx={{ width: 200 }}>
-        <InputLabel
-          variant="filled"
-          sx={{ fontSize: "18px", marginLeft: "2px" }}
-          id="status"
-        >
-          Status
-        </InputLabel>
+      <FormControl variant="standard" sx={{ m: 1, width: 200 }}>
+        <InputLabel id="status">Status</InputLabel>
         <Select
-          sx={{
-            backgroundColor:
-              status === "confirmed"
-                ? "#2dc653"
-                : status === "cancelled"
-                ? "#f21b3f"
-                : "#ffc300",
-          }}
           labelId="status"
-          id="select-status"
-          value={status}
+          id="status-select"
+          value={selectedBooking.status}
           onChange={handleChange}
-          input={<OutlinedInput label="Status" />}
-          MenuProps={MenuProps}
+          label="Status"
         >
           {STATUS.map((stat) => (
-            <MenuItem key={stat} value={stat}>
+            <MenuItem value={stat} key={stat}>
               {stat}
             </MenuItem>
           ))}
