@@ -1,5 +1,4 @@
 import * as React from "react";
-import OutlinedInput from "@mui/material/OutlinedInput";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -82,21 +81,15 @@ function AssignGuideOrChangeGuideSelect() {
 
   return (
     <div className="flex items-center gap-2">
-      <FormControl sx={{ width: 200 }}>
-        <InputLabel
-          variant="filled"
-          sx={{ fontSize: "18px", marginLeft: "2px" }}
-          id="Guide"
-        >
-          Guide
-        </InputLabel>
+      <FormControl variant="standard" sx={{ m: 1, width: 200 }}>
+        <InputLabel id="Guide">Guide</InputLabel>
         <Select
           labelId="Guide"
           id="select-guide"
           value={guide}
-          onChange={handleChange}
-          input={<OutlinedInput label="Guide" />}
           MenuProps={MenuProps}
+          onChange={handleChange}
+          label="Status"
         >
           {allGuides.map((guide) => (
             <MenuItem key={guide._id} value={guide.fullName}>

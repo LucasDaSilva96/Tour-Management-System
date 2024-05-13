@@ -8,7 +8,7 @@ import {
 import * as React from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-import { Button, Container, OutlinedInput, Typography } from "@mui/material";
+import { Button, Container, Typography } from "@mui/material";
 import { DemoItem } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -327,20 +327,14 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
 
               {/* Select guide */}
               <Box sx={{ marginTop: "18px" }}>
-                <FormControl sx={{ width: 200 }}>
-                  <InputLabel
-                    variant="filled"
-                    sx={{ fontSize: "18px", marginLeft: "2px" }}
-                    id="guide"
-                  >
-                    Guide
-                  </InputLabel>
+                <FormControl variant="standard" sx={{ width: 200 }}>
+                  <InputLabel id="Guide">Guide</InputLabel>
                   <Select
+                    variant="standard"
                     labelId="select-guide__label"
                     id="select-guide"
                     value={BOOKING.guide}
                     onChange={handleChangeGuide}
-                    input={<OutlinedInput label="Guide" />}
                     MenuProps={MenuProps}
                   >
                     <MenuItem key={"none"} value={""}>
@@ -357,13 +351,13 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
 
               {/* Select snacks or mingel */}
               <Box sx={{ marginTop: "18px" }}>
-                <FormControl sx={{ minWidth: "150px" }}>
-                  <InputLabel id="edit__or__create__booking__mingel__label">
-                    Snacks or Mingel
+                <FormControl variant="standard" sx={{ m: 1, minWidth: 150 }}>
+                  <InputLabel id="edit__or__create__booking__snacks__label">
+                    Snacks || Mingel
                   </InputLabel>
                   <Select
-                    labelId="edit__or__create__booking__mingel__label"
-                    id="edit__or__create__booking__mingel"
+                    labelId="edit__or__create__booking__snacks__label"
+                    id="edit__or__create__booking__snacks"
                     value={BOOKING.snacks}
                     label="Snacks"
                     onChange={(e) =>
@@ -378,39 +372,23 @@ function EditBooking({ user, allGuides, navigate, queryClient }) {
             </div>
 
             {/* Select booking status */}
-            <div className="min-w-[100%] pl-2 py-2">
-              <FormControl sx={{ width: 200 }}>
-                <InputLabel
-                  variant="filled"
-                  sx={{ fontSize: "18px", marginLeft: "2px" }}
-                  id="status"
-                >
-                  Status
-                </InputLabel>
-                <Select
-                  sx={{
-                    backgroundColor:
-                      BOOKING.status === "confirmed"
-                        ? "#2dc653"
-                        : BOOKING.status === "cancelled"
-                        ? "#f21b3f"
-                        : "#ffc300",
-                  }}
-                  labelId="status"
-                  id="select-status"
-                  value={BOOKING.status}
-                  onChange={handleChangeStatus}
-                  input={<OutlinedInput label="Status" />}
-                  MenuProps={MenuProps}
-                >
-                  {STATUS.map((stat) => (
-                    <MenuItem key={stat} value={stat}>
-                      {stat}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div>
+
+            <FormControl variant="standard" sx={{ m: 1, width: 200 }}>
+              <InputLabel id="status">Status</InputLabel>
+              <Select
+                labelId="status"
+                id="status-select"
+                value={BOOKING.status}
+                onChange={handleChangeStatus}
+                label="Status"
+              >
+                {STATUS.map((stat) => (
+                  <MenuItem value={stat} key={stat}>
+                    {stat}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
             {/* Description */}
             <TextField
@@ -671,21 +649,15 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
 
             {/* Select guide */}
             <Box sx={{ marginTop: "18px" }}>
-              <FormControl sx={{ width: 200 }}>
-                <InputLabel
-                  variant="filled"
-                  sx={{ fontSize: "18px", marginLeft: "2px" }}
-                  id="Guide"
-                >
-                  Guide
-                </InputLabel>
+              <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                <InputLabel id="Guide">Guide</InputLabel>
                 <Select
                   labelId="Guide"
                   id="select-guide"
                   value={guide}
-                  onChange={handleChangeGuide}
-                  input={<OutlinedInput label="Guide" />}
                   MenuProps={MenuProps}
+                  onChange={handleChangeGuide}
+                  label="Guide"
                 >
                   {allGuides.map((guide) => (
                     <MenuItem key={guide._id} value={guide.fullName}>
@@ -711,9 +683,9 @@ function CreateNewBooking({ queryClient, user, allGuides, navigate, dateStr }) {
 
             {/* Select snacks or mingel */}
             <Box sx={{ marginTop: "18px" }}>
-              <FormControl sx={{ minWidth: "150px" }}>
+              <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
                 <InputLabel id="edit__or__create__booking__snacks__label">
-                  Snacks or Mingel
+                  Snacks || Mingel
                 </InputLabel>
                 <Select
                   labelId="edit__or__create__booking__snacks__label"
