@@ -208,8 +208,9 @@ function GuideOverviewEdit({
         border: "1px solid #2196f3",
         padding: "10px 30px",
         borderRadius: "10px",
-        maxWidth: "650px",
         maxHeight: "250px",
+        overflowY: "auto",
+        maxWidth: "800px",
         display: "flex",
         flexDirection: "column",
         boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
@@ -218,13 +219,13 @@ function GuideOverviewEdit({
       autoComplete="off"
     >
       <div className="flex gap-2">
-        <div className="relative min-h-full flex flex-col items-end">
+        <div className="relative flex flex-col justify-around">
           <Avatar
             alt={selectedGuide.fullName}
             src={typeof file == "object" ? URL.createObjectURL(file) : file}
             sx={{ width: 86, height: 86 }}
           />
-          <div className="z-50 mt-[-10px]">
+          <div className="">
             <input
               id="guide_photo__uploader"
               type="file"
@@ -232,16 +233,10 @@ function GuideOverviewEdit({
               onChange={handleChangeGuidePhoto}
               name="image"
             />
-            <label htmlFor="guide_photo__uploader">
-              <CloudUploadOutlinedIcon
-                color={disabled ? "action" : "success"}
-                sx={{ width: "32px", height: "32px" }}
-              />
-            </label>
           </div>
         </div>
         {/*  */}
-        <div className="grid grid-cols-2">
+        <div className="flex items-center justify-evenly flex-wrap">
           <TextField
             onChange={handleEditName}
             disabled={disabled}

@@ -148,7 +148,7 @@ function UserDashboard() {
           borderRadius: "10px",
         }}
       >
-        <div className="relative flex flex-col items-end">
+        <div className="relative flex flex-col items-center gap-4">
           <Avatar
             alt={DATA.name}
             src={typeof file == "object" ? URL.createObjectURL(file) : file}
@@ -161,9 +161,6 @@ function UserDashboard() {
               onChange={handleChangeUserPhoto}
               name="image"
             />
-            <label htmlFor="user__photo__uploader">
-              <CloudUploadOutlinedIcon sx={{ width: "32px", height: "32px" }} />
-            </label>
           </div>
         </div>
         <div className="flex items-center flex-wrap gap-4">
