@@ -35,8 +35,13 @@ app.use(cookieParser());
 
 // Enable CORS for all routes
 // !CORS Middleware
-app.use(cors());
-app.options('*', cors());
+app.use(
+  cors({
+    origin: 'https://tour-management-system-frontend.onrender.com',
+    optionsSuccessStatus: 200,
+  })
+);
+// app.options('*', cors());
 
 // Parse URL-encoded data into req.body
 // !Middleware to parse URL-encoded data
