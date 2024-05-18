@@ -230,8 +230,6 @@ function UserDashboard() {
           {!openChangePassword ? "Open" : "Close"} change password
         </Button>
 
-        <Button variant="outlined">Reset password</Button>
-
         <Button
           variant="contained"
           color="success"
