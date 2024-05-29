@@ -1,3 +1,4 @@
+require('dotenv').config();
 // Import required modules
 const multer = require('multer');
 const { responseHelper } = require('./httpResponse');
@@ -5,6 +6,15 @@ const { Guide } = require('../models/guideModel');
 const User = require('../models/userModel');
 const path = require('path');
 const fs = require('fs');
+
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+  secure: true,
+});
 
 // Define storage configuration for multer
 const storage = multer.diskStorage({
@@ -50,6 +60,14 @@ exports.upload = upload;
 // Middleware function to upload image to database
 exports.uploadImageToDB = async (req, res, next) => {
   try {
+    const options = {
+      use_filename: true,
+      unique_filename: false,
+      overwrite: true,
+      folder: 'Booking-System',
+      resource_type: 'image',
+    };
+    let imageURL = null;
     // Check if a file is provided
     if (!req.file) throw new Error('No file provided.');
     // Check for any previous error message
@@ -57,45 +75,57 @@ exports.uploadImageToDB = async (req, res, next) => {
 
     // Update user's photo if user ID is provided in request parameters
     if (req.params.id) {
-      const USER = await User.findById(req.params.id);
+      // const USER = await User.findById(req.params.id);
 
-      // Delete the old image file if it's not the default image
-      if (!USER.photo.includes('default.jpg')) {
-        // Delete the old image file
-        fs.unlink(`public/img/users/${USER.photo.split('users')[1]}`, (err) => {
-          console.log(err);
-        });
+      // // Delete the old image file if it's not the default image
+      // if (!USER.photo.includes('default.jpg')) {
+      //   // Delete the old image file
+      //   fs.unlink(`public/img/users/${USER.photo.split('users')[1]}`, (err) => {
+      //     console.log(err);
+      //   });
+      // }
+
+      try {
+        // Upload the image
+        const result = await cloudinary.uploader.upload(imagePath, options);
+        imageURL = result.secure_url;
+      } catch (error) {
+        throw new Error(error.error.toString());
       }
 
       // Update user's photo path in the database
       await User.findByIdAndUpdate(req.params.id, {
-        photo: `${req.protocol}://${req.get('host')}/public/img/users/${
-          req.file.filename
-        }`,
+        photo: imageURL,
       });
       // Update guide's photo if guide ID is provided in request parameters
     } else if (req.params.guideID) {
       const { guideID } = req.params;
       if (!guideID) throw new Error('No guide id defined');
 
-      const GUIDE = await Guide.findById(guideID);
+      // const GUIDE = await Guide.findById(guideID);
 
-      // Delete the old image file if it's not the default image
-      if (!GUIDE.photo.includes('default.jpg')) {
-        // Delete the old image file
-        fs.unlink(
-          `public/img/guides/${GUIDE.photo.split('guides')[1]}`,
-          (err) => {
-            if (err) throw new Error(err);
-          }
-        );
+      // // Delete the old image file if it's not the default image
+      // if (!GUIDE.photo.includes('default.jpg')) {
+      //   // Delete the old image file
+      //   fs.unlink(
+      //     `public/img/guides/${GUIDE.photo.split('guides')[1]}`,
+      //     (err) => {
+      //       if (err) throw new Error(err);
+      //     }
+      //   );
+      // }
+
+      try {
+        // Upload the image
+        const result = await cloudinary.uploader.upload(imagePath, options);
+        imageURL = result.secure_url;
+      } catch (error) {
+        throw new Error(error.error.toString());
       }
 
       // Update guide's photo path in the database
       await Guide.findByIdAndUpdate(guideID, {
-        photo: `${req.protocol}://${req.get('host')}/public/img/guides/${
-          req.file.filename
-        }`,
+        photo: imageURL,
       });
     } else {
       throw new Error('Invalid upload settings/options.');
