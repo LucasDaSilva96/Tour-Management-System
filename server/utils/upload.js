@@ -4,13 +4,9 @@ const multer = require('multer');
 const { responseHelper } = require('./httpResponse');
 const { Guide } = require('../models/guideModel');
 const User = require('../models/userModel');
-
 const cloudinary = require('cloudinary').v2;
 
 cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET,
   secure: true,
 });
 
@@ -92,6 +88,7 @@ exports.uploadImageToDB = async (req, res, next) => {
         imageURL = result.secure_url;
         console.log(imageURL);
       } catch (error) {
+        console.log(error);
         throw new Error('Failed to upload User-image');
       }
 
@@ -126,6 +123,7 @@ exports.uploadImageToDB = async (req, res, next) => {
         imageURL = result.secure_url;
         console.log(imageURL);
       } catch (error) {
+        console.log(error);
         throw new Error('Failed to upload Guide-image');
       }
 
