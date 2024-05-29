@@ -6,6 +6,7 @@ const guideRoutes = require('./routes/guideRoutes');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const compression = require('compression');
+const path = require('path');
 
 // Create Express application
 const app = express();
@@ -15,7 +16,8 @@ app.enable('trust proxy');
 
 // Serve static files from the 'public' directory
 // ! Serve static files Middleware
-app.use('/public', express.static('public'));
+
+app.use('/public', express.static(path.join(__dirname, '/public')));
 
 // Parse incoming JSON data into req.body
 // ! Express Middleware - Body parse - reading data from the body into req.body

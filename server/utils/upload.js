@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     // Determine destination folder based on request parameters
     if (req.params.id) {
-      cb(null, 'public/img/users');
+      cb(null, '/public/img/users');
     } else {
       cb(null, 'public/img/guides');
     }
