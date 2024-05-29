@@ -4,7 +4,6 @@ const multer = require('multer');
 const { responseHelper } = require('./httpResponse');
 const { Guide } = require('../models/guideModel');
 const User = require('../models/userModel');
-const path = require('path');
 
 const cloudinary = require('cloudinary').v2;
 
@@ -20,9 +19,9 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     // Determine destination folder based on request parameters
     if (req.params.id) {
-      cb(null, './public/img/users/');
+      cb(null, '../public/img/users');
     } else {
-      cb(null, './public/img/guides/');
+      cb(null, '../public/img/guides');
     }
   },
   filename: (req, file, cb) => {
@@ -58,14 +57,14 @@ exports.upload = upload;
 
 // Middleware function to upload image to database
 exports.uploadImageToDB = async (req, res, next) => {
+  const options = {
+    use_filename: true,
+    unique_filename: false,
+    overwrite: true,
+    folder: 'Booking-System',
+    resource_type: 'image',
+  };
   try {
-    const options = {
-      use_filename: true,
-      unique_filename: false,
-      overwrite: true,
-      folder: 'Booking-System',
-      resource_type: 'image',
-    };
     let imageURL = null;
     // Check if a file is provided
     if (!req.file) throw new Error('No file provided.');
