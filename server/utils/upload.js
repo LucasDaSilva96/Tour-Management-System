@@ -7,7 +7,9 @@ const User = require('../models/userModel');
 const cloudinary = require('cloudinary').v2;
 
 cloudinary.config({
-  secure: true,
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
 });
 
 // Define storage configuration for multer
@@ -53,13 +55,6 @@ exports.upload = upload;
 
 // Middleware function to upload image to database
 exports.uploadImageToDB = async (req, res, next) => {
-  const options = {
-    use_filename: true,
-    unique_filename: false,
-    overwrite: true,
-    folder: 'Booking-System',
-    resource_type: 'image',
-  };
   try {
     let imageURL = null;
     // Check if a file is provided
@@ -82,9 +77,13 @@ exports.uploadImageToDB = async (req, res, next) => {
       try {
         // Upload the image
         const result = await cloudinary.uploader.upload(
-          req.file.filename,
-          options
+          './public/img/users/' + req.file.filename,
+          {
+            folder: 'Booking-System',
+            resource_type: 'image',
+          }
         );
+
         imageURL = result.secure_url;
         console.log(imageURL);
       } catch (error) {
@@ -117,8 +116,11 @@ exports.uploadImageToDB = async (req, res, next) => {
       try {
         // Upload the image
         const result = await cloudinary.uploader.upload(
-          req.file.filename,
-          options
+          './public/img/guides/' + req.file.filename,
+          {
+            folder: 'Booking-System',
+            resource_type: 'image',
+          }
         );
         imageURL = result.secure_url;
         console.log(imageURL);
