@@ -17,7 +17,8 @@ app.enable('trust proxy');
 // Serve static files from the 'public' directory
 // ! Serve static files Middleware
 
-app.use('/public', express.static(path.join(__dirname, '/public')));
+// Serve static files from the 'public' directory
+app.use('/public', express.static('public'));
 
 // Parse incoming JSON data into req.body
 // ! Express Middleware - Body parse - reading data from the body into req.body
