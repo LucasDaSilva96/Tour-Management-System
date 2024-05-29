@@ -183,10 +183,7 @@ exports.forgotPassword = async (req, res, next) => {
     await user.save();
     // 3) Send it back as email
     // TODO change reset url ↓
-    const resetURL = `http://localhost:8000/api/v1/users/resetPassword/${resetToken}`;
-
-    // TODO If the company wants to receive emails in order to reset password, change this ↓
-    // await sendResetPasswordMail(user, resetURL);
+    const resetURL = `https://tour-management-system-8edf.onrender.com/api/v1/users/resetPassword/${resetToken}`;
 
     res.status(200).json({
       status: 'success',

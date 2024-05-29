@@ -40,8 +40,8 @@ const guideSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    // TODO Update the url
-    default: 'http://localhost:8000/public/img/default.jpg',
+    default:
+      'https://tour-management-system-8edf.onrender.com/public/img/default.jpg',
   },
   updatedAt: Date,
   updatedBy: String,

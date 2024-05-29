@@ -24,7 +24,7 @@ exports.sendWelcomeMail = async (user) => {
       text: `Welcome ${user.name}. You are now allowed to log in to Sandgrund's booking system.`,
       html: `<h1>Welcome ${user.name}</h1> <br/>
       <p>You have now access to Sandgrund's booking system</p> <br/>
-      <a href="http://localhost:8000/api/v1/users">Go to the booking system</a>`,
+      <a href="https://tour-management-system-frontend.onrender.com/">Go to the booking system</a>`,
     });
     console.log('Welcome email sent✅'); // Log success message
   } catch (err) {

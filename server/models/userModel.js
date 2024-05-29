@@ -19,8 +19,8 @@ const userSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    // TODO Update the url
-    default: 'http://localhost:8000/public/img/default.jpg',
+    default:
+      'https://tour-management-system-8edf.onrender.com/public/img/default.jpg',
   },
   role: {
     type: String,
