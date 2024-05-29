@@ -33,12 +33,9 @@ exports.getAllGuides = async (req, res, next) => {
       return true;
     });
 
-    if (!filteredGuides.length > 0)
-      throw new Error('No guide found with the provided filter options.');
-
     responseHelper(200, 'Guides successfully fetched', res, {
       count: filteredGuides.length,
-      guides: filteredGuides,
+      guides: filteredGuides || [],
     });
   } catch (err) {
     responseHelper(404, err.message, res);
