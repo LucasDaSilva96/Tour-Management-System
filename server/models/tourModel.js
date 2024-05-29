@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { dateCheckFunc } = require('../utils/dateValidation');
+const { uuid } = require('uuidv4');
 
 const bookingSchema = new mongoose.Schema({
   title: {
@@ -57,6 +58,7 @@ const bookingSchema = new mongoose.Schema({
   },
   uuid: {
     type: String,
+    default: uuid(),
     unique: [true, 'Please provide a unique uuid-string.'],
   },
 });
