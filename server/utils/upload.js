@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     // Determine destination folder based on request parameters
     if (req.params.id) {
-      cb(null, '/public/img/users');
+      cb(null, 'public/img/users');
     } else {
       cb(null, 'public/img/guides');
     }
@@ -89,6 +89,7 @@ exports.uploadImageToDB = async (req, res, next) => {
         // Upload the image
         const result = await cloudinary.uploader.upload(imagePath, options);
         imageURL = result.secure_url;
+        console.log(imageURL);
       } catch (error) {
         throw new Error(error.error.toString());
       }
@@ -119,6 +120,7 @@ exports.uploadImageToDB = async (req, res, next) => {
         // Upload the image
         const result = await cloudinary.uploader.upload(imagePath, options);
         imageURL = result.secure_url;
+        console.log(imageURL);
       } catch (error) {
         throw new Error(error.error.toString());
       }
