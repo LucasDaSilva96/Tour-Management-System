@@ -17,26 +17,31 @@ exports.getAllGuides = async (req, res, next) => {
   try {
     const { ...filterObj } = req.query;
     const guides = await Guide.find();
-    if (!guides.length > 0) throw new Error('No guides in the database.');
+    if (guides.length > 0) {
+      const filteredGuides = guides.filter((guide) => {
+        guide = guide.toObject();
 
-    const filteredGuides = guides.filter((guide) => {
-      guide = guide.toObject();
+        for (const [key, value] of Object.entries(filterObj)) {
+          if (
+            JSON.stringify(guide[key]).toLowerCase() &&
+            JSON.stringify(guide[key]).toLowerCase() !==
+              JSON.stringify(value).toLowerCase()
+          )
+            return false;
+        }
+        return true;
+      });
 
-      for (const [key, value] of Object.entries(filterObj)) {
-        if (
-          JSON.stringify(guide[key]).toLowerCase() &&
-          JSON.stringify(guide[key]).toLowerCase() !==
-            JSON.stringify(value).toLowerCase()
-        )
-          return false;
-      }
-      return true;
-    });
-
-    responseHelper(200, 'Guides successfully fetched', res, {
-      count: filteredGuides.length,
-      guides: filteredGuides || [],
-    });
+      responseHelper(200, 'Guides successfully fetched', res, {
+        count: filteredGuides.length,
+        guides: filteredGuides || [],
+      });
+    } else {
+      responseHelper(200, 'Guides successfully fetched', res, {
+        count: 0,
+        guides: [],
+      });
+    }
   } catch (err) {
     responseHelper(404, err.message, res);
   }
