@@ -85,11 +85,14 @@ exports.uploadImageToDB = async (req, res, next) => {
 
       try {
         // Upload the image
-        const result = await cloudinary.uploader.upload(imagePath, options);
+        const result = await cloudinary.uploader.upload(
+          req.file.filename,
+          options
+        );
         imageURL = result.secure_url;
         console.log(imageURL);
       } catch (error) {
-        throw new Error(error.error);
+        throw new Error('Failed to upload User-image');
       }
 
       // Update user's photo path in the database
@@ -116,11 +119,14 @@ exports.uploadImageToDB = async (req, res, next) => {
 
       try {
         // Upload the image
-        const result = await cloudinary.uploader.upload(imagePath, options);
+        const result = await cloudinary.uploader.upload(
+          req.file.filename,
+          options
+        );
         imageURL = result.secure_url;
         console.log(imageURL);
       } catch (error) {
-        throw new Error(error.error);
+        throw new Error('Failed to upload Guide-image');
       }
 
       // Update guide's photo path in the database
