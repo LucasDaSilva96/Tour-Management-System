@@ -16,9 +16,10 @@ import { saveMe, saveSessionMe } from '../utils/rememberMe';
 import { loginUser } from '../utils/postData';
 import Loading from './Loading';
 import ResetPasswordModal from '../components/ResetPasswordModal';
-import toast from 'react-hot-toast';
+import { changeTabText } from '../App';
 
 export default function Login() {
+  changeTabText('Login');
   const dispatch = useDispatch();
   const ID = process.env.REACT_APP_ACCESS_KEY;
 
@@ -62,6 +63,7 @@ export default function Login() {
     if (res.status === 'success') {
       // Dispatch user login action
       dispatch(login(res.user));
+      saveSessionMe({ ...res.user, isLoggedIn: true });
     } else {
       // Handle login failure
       return null;
