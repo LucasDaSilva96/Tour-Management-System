@@ -63,7 +63,7 @@ exports.uploadImageToDB = async (req, res, next) => {
       if (!USER.photo.includes('default.jpg')) {
         // Delete the old image file
         fs.unlink(`public/img/users/${USER.photo.split('users')[1]}`, (err) => {
-          if (err) throw new Error(err);
+          console.log(err);
         });
       }
 
