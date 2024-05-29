@@ -89,7 +89,7 @@ exports.uploadImageToDB = async (req, res, next) => {
         imageURL = result.secure_url;
         console.log(imageURL);
       } catch (error) {
-        throw new Error(error.error.toString());
+        throw new Error(error.error);
       }
 
       // Update user's photo path in the database
@@ -120,7 +120,7 @@ exports.uploadImageToDB = async (req, res, next) => {
         imageURL = result.secure_url;
         console.log(imageURL);
       } catch (error) {
-        throw new Error(error.error.toString());
+        throw new Error(error.error);
       }
 
       // Update guide's photo path in the database
