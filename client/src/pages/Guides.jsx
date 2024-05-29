@@ -1,26 +1,25 @@
-import { Typography } from "@mui/material";
-import Box from "@mui/material/Box";
-import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import { useQueryClient } from "@tanstack/react-query";
-import TextField from "@mui/material/TextField";
-import { useEffect, useState } from "react";
-import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
-import Modal from "@mui/material/Modal";
-import Stack from "@mui/material/Stack";
-import { getCurrentUser } from "../redux/userSlice";
-import { useSelector } from "react-redux";
-import { createNewGuide, deleteGuide, updateGuide } from "../utils/postData";
-import toast from "react-hot-toast";
-import { fetchAllGuides } from "../utils/fetchData";
+import { Typography } from '@mui/material';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import { useQueryClient } from '@tanstack/react-query';
+import TextField from '@mui/material/TextField';
+import { useEffect, useState } from 'react';
+import Modal from '@mui/material/Modal';
+import Stack from '@mui/material/Stack';
+import { getCurrentUser } from '../redux/userSlice';
+import { useSelector } from 'react-redux';
+import { createNewGuide, deleteGuide, updateGuide } from '../utils/postData';
+import toast from 'react-hot-toast';
+import { fetchAllGuides } from '../utils/fetchData';
 
 function Guides() {
   // React Query client instance
   const queryClient = useQueryClient();
   // State for storing all guides
   const [allGuides, setAllGuides] = useState(
-    queryClient.getQueryData(["AllGuides"])
+    queryClient.getQueryData(['AllGuides'])
   );
   // State for storing the selected guide
   const [selectedGuide, setSelectedGuide] = useState(
@@ -42,7 +41,7 @@ function Guides() {
       setDisabled(true);
       // Refresh all guides data
       setTimeout(() => {
-        setAllGuides(queryClient.getQueryData(["AllGuides"]));
+        setAllGuides(queryClient.getQueryData(['AllGuides']));
       }, 1000);
     }
   };
@@ -55,50 +54,52 @@ function Guides() {
 
   return (
     <Container
-      maxWidth="xl"
+      maxWidth='xl'
       sx={{
-        display: "flex",
-        width: "100%",
-        justifyContent: "space-around",
-        padding: "15px 0",
-        flexWrap: "wrap",
-        gap: "20px",
+        display: 'flex',
+        width: '100%',
+        justifyContent: 'space-around',
+        padding: '15px 0',
+        flexWrap: 'wrap',
+        gap: '20px',
       }}
     >
-      <div className="flex flex-col gap-12 ">
+      <div className='flex flex-col gap-12 '>
         {/* Display all guides */}
-        <Box
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "15px",
-            maxWidth: "650px",
-            maxHeight: "400px",
-            padding: "10px 10px 20px 10px",
-            boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
-            overflowY: "scroll",
-            borderRadius: "10px",
-          }}
-        >
-          {allGuides.map((guide) => (
-            <article
-              className=" border rounded h-[130px] w-[200px] flex items-center justify-center hover:cursor-pointer hover:bg-[#2196f3]"
-              key={guide._id}
-              onClick={() => {
-                setSelectedGuide(guide);
-                setDisabled(true);
-                setOpenNewGuideForm(false);
-              }}
-            >
-              <GuideSideBox guide={guide} />
-            </article>
-          ))}
-        </Box>
+        {allGuides.length > 0 && (
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '15px',
+              maxWidth: '650px',
+              maxHeight: '400px',
+              padding: '10px 10px 20px 10px',
+              boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px',
+              overflowY: 'scroll',
+              borderRadius: '10px',
+            }}
+          >
+            {allGuides.map((guide) => (
+              <article
+                className=' border rounded h-[130px] w-[200px] flex items-center justify-center hover:cursor-pointer hover:bg-[#2196f3]'
+                key={guide._id}
+                onClick={() => {
+                  setSelectedGuide(guide);
+                  setDisabled(true);
+                  setOpenNewGuideForm(false);
+                }}
+              >
+                <GuideSideBox guide={guide} />
+              </article>
+            ))}
+          </Box>
+        )}
         {/* Button to add a new guide */}
         <Button
-          variant="outlined"
+          variant='outlined'
           onClick={handleAddNewGuide}
-          sx={{ maxWidth: "450px", alignSelf: "center", minWidth: "300px" }}
+          sx={{ maxWidth: '450px', alignSelf: 'center', minWidth: '300px' }}
         >
           Add New Guide
         </Button>
@@ -131,14 +132,14 @@ function Guides() {
 function GuideSideBox({ guide }) {
   return (
     <Box
-      bgcolor={"paper"}
+      bgcolor={'paper'}
       sx={{
-        padding: "10px 15px",
-        borderRadius: "10px",
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        border: "1px solid transparent",
+        padding: '10px 15px',
+        borderRadius: '10px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        border: '1px solid transparent',
       }}
     >
       <Avatar
@@ -146,7 +147,7 @@ function GuideSideBox({ guide }) {
         alt={guide.fullName}
         src={guide.photo}
       />
-      <Typography variant="subtitle2">{guide.fullName}</Typography>
+      <Typography variant='subtitle2'>{guide.fullName}</Typography>
     </Box>
   );
 }
@@ -202,68 +203,68 @@ function GuideOverviewEdit({
 
   return (
     <Box
-      component="form"
+      component='form'
       sx={{
-        "& .MuiTextField-root": { m: 1, width: "25ch" },
-        border: "1px solid #2196f3",
-        padding: "10px 30px",
-        borderRadius: "10px",
-        maxHeight: "250px",
-        overflowY: "auto",
-        maxWidth: "800px",
-        display: "flex",
-        flexDirection: "column",
-        boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+        '& .MuiTextField-root': { m: 1, width: '25ch' },
+        border: '1px solid #2196f3',
+        padding: '10px 30px',
+        borderRadius: '10px',
+        maxHeight: '250px',
+        overflowY: 'auto',
+        maxWidth: '800px',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px',
       }}
       noValidate
-      autoComplete="off"
+      autoComplete='off'
     >
-      <div className="flex gap-2">
-        <div className="relative flex flex-col justify-around">
+      <div className='flex gap-2'>
+        <div className='relative flex flex-col justify-around'>
           <Avatar
             alt={selectedGuide.fullName}
-            src={typeof file == "object" ? URL.createObjectURL(file) : file}
+            src={typeof file == 'object' ? URL.createObjectURL(file) : file}
             sx={{ width: 86, height: 86 }}
           />
 
           <input
-            id="guide_photo__uploader"
-            type="file"
+            id='guide_photo__uploader'
+            type='file'
             disabled={disabled}
             onChange={handleChangeGuidePhoto}
-            name="image"
+            name='image'
           />
         </div>
         {/*  */}
-        <div className="flex items-center justify-evenly flex-wrap">
+        <div className='flex items-center justify-evenly flex-wrap'>
           <TextField
             onChange={handleEditName}
             disabled={disabled}
-            id="edit__or__create__booking__name"
-            label="Name"
-            variant="outlined"
+            id='edit__or__create__booking__name'
+            label='Name'
+            variant='outlined'
             value={selectedGuide.fullName}
-            name="name"
+            name='name'
           />
 
           <TextField
             onChange={handleEditEmail}
             disabled={disabled}
-            id="edit__or__create__booking__email"
-            label="Email"
-            variant="outlined"
+            id='edit__or__create__booking__email'
+            label='Email'
+            variant='outlined'
             value={selectedGuide.email}
-            name="email"
+            name='email'
           />
 
           <TextField
             onChange={handleEditPhone}
             disabled={disabled}
-            id="edit__or__create__booking__phone"
-            label="Phone"
-            variant="outlined"
+            id='edit__or__create__booking__phone'
+            label='Phone'
+            variant='outlined'
             value={selectedGuide.phone}
-            name="phone"
+            name='phone'
           />
         </div>
         {/*  */}
@@ -271,16 +272,16 @@ function GuideOverviewEdit({
 
       {/* Buttons for toggling edit mode, deleting guide, and saving changes */}
       <Stack
-        sx={{ alignSelf: "center", padding: "15px 0" }}
+        sx={{ alignSelf: 'center', padding: '15px 0' }}
         spacing={2}
-        direction={"row"}
+        direction={'row'}
       >
-        <Button variant="contained" onClick={toggleEditMode}>
+        <Button variant='contained' onClick={toggleEditMode}>
           Edit
         </Button>
         <Button
-          variant="outlined"
-          color="error"
+          variant='outlined'
+          color='error'
           disabled={disabled}
           onClick={handleOpeDeleteModal}
         >
@@ -289,8 +290,8 @@ function GuideOverviewEdit({
 
         <Button
           disabled={disabled}
-          variant="outlined"
-          color="success"
+          variant='outlined'
+          color='success'
           onClick={async () => await handleSaveGuide()}
         >
           Save
@@ -311,24 +312,24 @@ function GuideOverviewEdit({
 
 // Styles for the modal
 const style = {
-  position: "fixed",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
+  position: 'fixed',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
   width: 400,
   minHeight: 200,
-  overflow: "auto",
-  bgcolor: "background.paper",
-  border: "1px solid #000",
+  overflow: 'auto',
+  bgcolor: 'background.paper',
+  border: '1px solid #000',
   boxShadow: 24,
   p: 4,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "space-around",
-  borderRadius: "10px",
-  textAlign: "center",
-  gap: "15px",
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'space-around',
+  borderRadius: '10px',
+  textAlign: 'center',
+  gap: '15px',
 };
 
 // Modal component for confirming guide deletion
@@ -345,7 +346,7 @@ function GuideModal({
   // Function to handle guide deletion
   const handleDeleteGuide = async () => {
     if (await deleteGuide(user.token, selectedGuide._id)) {
-      queryClient.invalidateQueries(["AllGuides"]);
+      queryClient.invalidateQueries(['AllGuides']);
 
       setTimeout(async () => {
         const newAllGuides = await fetchAllGuides(user.token);
@@ -359,11 +360,11 @@ function GuideModal({
     <Modal
       open={openDeleteModal}
       onClose={() => setOpenDeleteModal(false)}
-      aria-labelledby="modal-modal-title"
-      aria-describedby="modal-modal-description"
+      aria-labelledby='modal-modal-title'
+      aria-describedby='modal-modal-description'
     >
       <Box sx={style}>
-        <Typography id="modal-modal-title" variant="h6" component="h2">
+        <Typography id='modal-modal-title' variant='h6' component='h2'>
           Delete {selectedGuide.fullName} ?
         </Typography>
         <Avatar
@@ -371,15 +372,15 @@ function GuideModal({
           src={selectedGuide.photo}
           sx={{ width: 86, height: 86 }}
         />
-        <Stack direction={"row"} spacing={4}>
+        <Stack direction={'row'} spacing={4}>
           <Button
-            variant="outlined"
-            color="error"
+            variant='outlined'
+            color='error'
             onClick={async () => await handleDeleteGuide()}
           >
             Yes
           </Button>
-          <Button variant="outlined" onClick={() => setOpenDeleteModal(false)}>
+          <Button variant='outlined' onClick={() => setOpenDeleteModal(false)}>
             No
           </Button>
         </Stack>
@@ -393,22 +394,22 @@ function NewGuideForm({ setAllGuides, queryClient, setOpenNewGuideForm }) {
   const user = useSelector(getCurrentUser);
   // State for storing the new guide information
   const [newGuide, setNewGuide] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
+    fullName: '',
+    email: '',
+    phone: '',
   });
 
   // Function to handle creating a new guide
   const handleCreateGuide = async () => {
     if (!newGuide.fullName || !newGuide.email || !newGuide.phone) {
       toast.error(
-        "Please enter the name, email and phone number of the guide."
+        'Please enter the name, email and phone number of the guide.'
       );
       return;
     }
 
     if (await createNewGuide(user.token, newGuide)) {
-      queryClient.invalidateQueries(["AllGuides"]);
+      queryClient.invalidateQueries(['AllGuides']);
 
       const newAllGuides = await fetchAllGuides(user.token);
 
@@ -420,78 +421,78 @@ function NewGuideForm({ setAllGuides, queryClient, setOpenNewGuideForm }) {
 
   return (
     <Box
-      component="form"
+      component='form'
       sx={{
-        "& .MuiTextField-root": { m: 1, width: "25ch" },
-        border: "1px solid #2196f3",
-        padding: "10px 30px",
-        borderRadius: "10px",
-        maxWidth: "650px",
-        maxHeight: "250px",
-        display: "flex",
-        flexDirection: "column",
-        boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+        '& .MuiTextField-root': { m: 1, width: '25ch' },
+        border: '1px solid #2196f3',
+        padding: '10px 30px',
+        borderRadius: '10px',
+        maxWidth: '650px',
+        maxHeight: '250px',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px',
       }}
       noValidate
-      autoComplete="off"
+      autoComplete='off'
     >
-      <div className="flex gap-2">
-        <div className="relative min-h-full flex flex-col items-end">
+      <div className='flex gap-2'>
+        <div className='relative min-h-full flex flex-col items-end'>
           <Avatar
-            alt="New guide default image"
-            src="/img/default.jpg"
+            alt='New guide default image'
+            src='/img/default.jpg'
             sx={{ width: 86, height: 86 }}
           />
         </div>
         {/*  */}
-        <div className="grid grid-cols-2">
+        <div className='grid grid-cols-2'>
           <TextField
-            id="new__guide__name"
-            label="Name"
-            variant="outlined"
+            id='new__guide__name'
+            label='Name'
+            variant='outlined'
             onChange={(e) =>
               setNewGuide({ ...newGuide, fullName: e.target.value })
             }
             value={newGuide.fullName}
           />
           <TextField
-            id="new__guide__email"
-            label="Email"
-            variant="outlined"
+            id='new__guide__email'
+            label='Email'
+            variant='outlined'
             onChange={(e) =>
               setNewGuide({ ...newGuide, email: e.target.value })
             }
             value={newGuide.email}
-            name="email"
+            name='email'
           />
           <TextField
-            id="new__guide__phone"
-            label="Phone"
-            variant="outlined"
+            id='new__guide__phone'
+            label='Phone'
+            variant='outlined'
             onChange={(e) =>
               setNewGuide({ ...newGuide, phone: e.target.value })
             }
             value={newGuide.phone}
-            name="phone"
+            name='phone'
           />
         </div>
         {/*  */}
       </div>
 
       <Stack
-        sx={{ alignSelf: "center", padding: "15px 0" }}
+        sx={{ alignSelf: 'center', padding: '15px 0' }}
         spacing={2}
-        direction={"row"}
+        direction={'row'}
       >
         <Button
-          variant="outlined"
-          color="success"
+          variant='outlined'
+          color='success'
           onClick={async () => await handleCreateGuide()}
         >
           Save
         </Button>
 
-        <Button variant="outlined" onClick={() => setOpenNewGuideForm(false)}>
+        <Button variant='outlined' onClick={() => setOpenNewGuideForm(false)}>
           Cancel
         </Button>
       </Stack>

@@ -1,13 +1,13 @@
-import axios from "axios";
-import dayjs from "dayjs";
-import toast from "react-hot-toast";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
-import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import axios from 'axios';
+import dayjs from 'dayjs';
+import toast from 'react-hot-toast';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
-dayjs.tz.setDefault("UTC");
+dayjs.tz.setDefault('UTC');
 dayjs.extend(isSameOrBefore);
 
 export const fetchAllBookingsByYear = async (
@@ -20,7 +20,7 @@ export const fetchAllBookingsByYear = async (
 
     return res.data.result;
   } catch (e) {
-    toast.error("ERROR: ", +e.response.data.message);
+    toast.error('ERROR: ', +e.response.data.message);
   }
 };
 
@@ -32,7 +32,7 @@ export const fetchAllGuides = async () => {
 
     return res.data.guides;
   } catch (e) {
-    toast.error("ERROR: ", +e.response.data.message);
+    toast.error('ERROR: ', +e.response.data.message);
   }
 };
 
@@ -44,7 +44,7 @@ export const fetchAllYearsDoc = async () => {
 
     return res.data.data;
   } catch (e) {
-    toast.error("ERROR: ", +e.response.data.message);
+    toast.error('ERROR: ', +e.response.data.message);
   }
 };
 
@@ -53,7 +53,7 @@ export const getFilteredBookings = (
   year,
   filterObjOptions
 ) => {
-  const toastId = toast.loading("Loading...");
+  const toastId = toast.loading('Loading...');
   const bookingDoc = allTourYearDocs.find((booking) => booking.year === year);
 
   if (!bookingDoc) {
@@ -64,7 +64,7 @@ export const getFilteredBookings = (
   const OBJ = { ...filterObjOptions };
 
   for (const [KEY, VALUE] of Object.entries(filterObjOptions)) {
-    if (VALUE === "" || VALUE === undefined || VALUE === null) {
+    if (VALUE === '' || VALUE === undefined || VALUE === null) {
       delete OBJ[KEY];
     }
   }
@@ -74,22 +74,22 @@ export const getFilteredBookings = (
 
     for (const [key, value] of Object.entries(OBJ)) {
       switch (key) {
-        case "guide":
+        case 'guide':
           if (booking.guide !== value) {
             shouldInclude = false;
           }
           break;
-        case "title":
+        case 'title':
           if (!booking.title.includes(value)) {
             shouldInclude = false;
           }
           break;
-        case "status":
-          if (booking.status !== value && value !== "All") {
+        case 'status':
+          if (booking.status !== value && value !== 'All') {
             shouldInclude = false;
           }
           break;
-        case "start":
+        case 'start':
           const startInput = dayjs(value).toDate();
           const startInputDate = new Date(startInput);
           const startBooking = dayjs(booking.start).toDate();
@@ -102,23 +102,23 @@ export const getFilteredBookings = (
             shouldInclude = false;
           }
           break;
-        case "contactPerson":
+        case 'contactPerson':
           if (!String(booking.contactPerson).includes(value)) {
             shouldInclude = false;
           }
           break;
-        case "contactPhone":
+        case 'contactPhone':
           if (String(booking.contactPhone) !== String(value)) {
             shouldInclude = false;
           }
           break;
-        case "contactEmail":
+        case 'contactEmail':
           if (String(booking.contactEmail) !== String(value)) {
             shouldInclude = false;
           }
           break;
-        case "snacks":
-          if (booking.snacks !== value && value !== "All") {
+        case 'snacks':
+          if (booking.snacks !== value && value !== 'All') {
             shouldInclude = false;
           }
           break;
@@ -140,12 +140,12 @@ export const getFilteredBookings = (
 };
 
 export const getResetPasswordToken = async (email) => {
-  const toastId = toast.loading("Loading...");
+  const toastId = toast.loading('Loading...');
   if (!email) {
     toast.dismiss(toastId);
-    toast.error("No email provided");
+    toast.error('No email provided');
     return {
-      status: "fail",
+      status: 'fail',
       resetToken: null,
     };
   }
@@ -157,15 +157,15 @@ export const getResetPasswordToken = async (email) => {
       }
     );
 
-    toast.success("Token successfully retrieved.");
+    toast.success('Token successfully retrieved.');
     return {
-      status: "success",
+      status: 'success',
       resetToken: req.data.resetToken,
     };
   } catch (e) {
-    toast.error("ERROR: " + e.response.data.message);
+    toast.error('ERROR: ' + e.response.data.message);
     return {
-      status: "fail",
+      status: 'fail',
       resetToken: null,
     };
   } finally {
