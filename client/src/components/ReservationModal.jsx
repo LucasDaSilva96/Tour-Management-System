@@ -96,10 +96,11 @@ export default function ReservationModal() {
   const DrawerList = (
     <List
       sx={{
-        width: '100%',
+        width: '110%',
         bgcolor: 'background.paper',
         display: 'grid',
         gridTemplateColumns: 'repeat( auto-fit, minmax(250px, 1fr) )',
+        padding: '10px',
       }}
     >
       <ListItem>
