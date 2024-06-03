@@ -1,39 +1,39 @@
-import * as React from "react";
-import Drawer from "@mui/material/Drawer";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import Avatar from "@mui/material/Avatar";
-import { useDispatch, useSelector } from "react-redux";
+import * as React from 'react';
+import Drawer from '@mui/material/Drawer';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import Avatar from '@mui/material/Avatar';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   getCurrentSelectedBooking,
   getCurrentSelectedBookingModified,
   getReservationModalStatus,
   toggleReservationModal,
-} from "../redux/bookingSlice";
-import { Divider, Typography } from "@mui/material";
-import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
-import AccessTimeFilledOutlinedIcon from "@mui/icons-material/AccessTimeFilledOutlined";
-import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
-import EventBusyOutlinedIcon from "@mui/icons-material/EventBusyOutlined";
-import dayjs from "dayjs";
-import Stack from "@mui/material/Stack";
-import DescriptionTextBox from "./DescriptionTextBox";
-import Button from "@mui/material/Button";
-import ChangeReservationStatusSelect from "./ChangeReservationStatusSelect";
-import LocalActivityIcon from "@mui/icons-material/LocalActivity";
-import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
-import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
-import EmailIcon from "@mui/icons-material/Email";
-import GroupsIcon from "@mui/icons-material/Groups";
-import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
-import AssignGuideOrChangeGuideSelect from "./AssignGuideOrChangeGuideSelect";
-import { getCurrentUser } from "../redux/userSlice";
-import { updateOneBooking } from "../utils/postData.js";
-import { getAllGuides } from "../redux/guideSlice.js";
-import { useNavigate } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
+} from '../redux/bookingSlice';
+import { Divider, Typography } from '@mui/material';
+import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
+import AccessTimeFilledOutlinedIcon from '@mui/icons-material/AccessTimeFilledOutlined';
+import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
+import EventBusyOutlinedIcon from '@mui/icons-material/EventBusyOutlined';
+import dayjs from 'dayjs';
+import Stack from '@mui/material/Stack';
+import DescriptionTextBox from './DescriptionTextBox';
+import Button from '@mui/material/Button';
+import ChangeReservationStatusSelect from './ChangeReservationStatusSelect';
+import LocalActivityIcon from '@mui/icons-material/LocalActivity';
+import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew';
+import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
+import EmailIcon from '@mui/icons-material/Email';
+import GroupsIcon from '@mui/icons-material/Groups';
+import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
+import AssignGuideOrChangeGuideSelect from './AssignGuideOrChangeGuideSelect';
+import { getCurrentUser } from '../redux/userSlice';
+import { updateOneBooking } from '../utils/postData.js';
+import { getAllGuides } from '../redux/guideSlice.js';
+import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function ReservationModal() {
   const queryClient = useQueryClient(); // Initializing useQueryClient hook
@@ -82,24 +82,24 @@ export default function ReservationModal() {
   };
   // Extracting start hour and minute from selected booking start time
   const [startHour, startMinute] = selectedBooking.start
-    .split("T")[1]
-    .split(".")[0]
-    .split(":");
+    .split('T')[1]
+    .split('.')[0]
+    .split(':');
 
   // Extracting end hour and minute from selected booking end time
   const [endHour, endMinute] = selectedBooking.end
-    .split("T")[1]
-    .split(".")[0]
-    .split(":");
+    .split('T')[1]
+    .split('.')[0]
+    .split(':');
 
   // List of items to display in the drawer
   const DrawerList = (
     <List
       sx={{
-        width: "100%",
-        bgcolor: "background.paper",
-        display: "grid",
-        gridTemplateColumns: "repeat( auto-fit, minmax(250px, 1fr) )",
+        width: '100%',
+        bgcolor: 'background.paper',
+        display: 'grid',
+        gridTemplateColumns: 'repeat( auto-fit, minmax(250px, 1fr) )',
       }}
     >
       <ListItem>
@@ -109,8 +109,8 @@ export default function ReservationModal() {
           </Avatar>
         </ListItemAvatar>
         <ListItemText
-          primary="Start Date"
-          secondary={dayjs(selectedBooking.start).format("DD/MM/YYYY")}
+          primary='Start Date'
+          secondary={dayjs(selectedBooking.start).format('DD/MM/YYYY')}
         />
       </ListItem>
 
@@ -122,8 +122,8 @@ export default function ReservationModal() {
         </ListItemAvatar>
 
         <ListItemText
-          primary="Start Time"
-          secondary={[startHour, startMinute].join(":")}
+          primary='Start Time'
+          secondary={[startHour, startMinute].join(':')}
         />
       </ListItem>
 
@@ -134,8 +134,8 @@ export default function ReservationModal() {
           </Avatar>
         </ListItemAvatar>
         <ListItemText
-          primary="End Date"
-          secondary={dayjs(selectedBooking.end).format("DD/MM/YYYY")}
+          primary='End Date'
+          secondary={dayjs(selectedBooking.end).format('DD/MM/YYYY')}
         />
       </ListItem>
       <ListItem>
@@ -145,8 +145,8 @@ export default function ReservationModal() {
           </Avatar>
         </ListItemAvatar>
         <ListItemText
-          primary="End Time"
-          secondary={[endHour, endMinute].join(":")}
+          primary='End Time'
+          secondary={[endHour, endMinute].join(':')}
         />
       </ListItem>
 
@@ -157,8 +157,8 @@ export default function ReservationModal() {
           </Avatar>
         </ListItemAvatar>
         <ListItemText
-          className={"status-text-" + selectedBooking.status}
-          primary="Status"
+          className={'status-text-' + selectedBooking.status}
+          primary='Status'
           secondary={selectedBooking.status}
         />
       </ListItem>
@@ -170,7 +170,7 @@ export default function ReservationModal() {
           </Avatar>
         </ListItemAvatar>
         <ListItemText
-          primary="Group Leader"
+          primary='Group Leader'
           secondary={selectedBooking.contactPerson}
         />
       </ListItem>
@@ -183,7 +183,7 @@ export default function ReservationModal() {
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Phone Number"
+            primary='Phone Number'
             secondary={selectedBooking.contactPhone}
           />
         </ListItem>
@@ -197,7 +197,7 @@ export default function ReservationModal() {
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="Email"
+            primary='Email'
             secondary={selectedBooking.contactEmail}
           />
         </ListItem>
@@ -210,7 +210,7 @@ export default function ReservationModal() {
           </Avatar>
         </ListItemAvatar>
         <ListItemText
-          primary="Participants"
+          primary='Participants'
           secondary={selectedBooking.participants}
         />
       </ListItem>
@@ -220,7 +220,7 @@ export default function ReservationModal() {
           <ListItemAvatar>
             <Avatar alt={guide.fullName} src={guide.photo} />
           </ListItemAvatar>
-          <ListItemText primary="Guide" secondary={guide.fullName} />
+          <ListItemText primary='Guide' secondary={guide.fullName} />
         </ListItem>
       ) : null}
 
@@ -231,8 +231,8 @@ export default function ReservationModal() {
           </Avatar>
         </ListItemAvatar>
         <ListItemText
-          primary="Coffee/Mingle"
-          secondary={selectedBooking.snacks === true ? "Yes" : "No"}
+          primary='Coffee/Mingle'
+          secondary={selectedBooking.snacks === true ? 'Yes' : 'No'}
         />
       </ListItem>
     </List>
@@ -242,17 +242,18 @@ export default function ReservationModal() {
     <aside>
       <Drawer
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          overflow: "auto",
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'auto',
+          padding: '10px',
         }}
-        anchor="right"
+        anchor='right'
         open={modalOpen}
         onClose={toggleDrawer()}
       >
-        <Typography variant="h5" align="center" sx={{ py: 1 }}>
+        <Typography variant='h5' align='center' sx={{ py: 1 }}>
           {selectedBooking.title}
         </Typography>
         {DrawerList}
@@ -262,11 +263,11 @@ export default function ReservationModal() {
         ) : null}
         <Stack
           spacing={2}
-          direction="row"
-          sx={{ alignSelf: "center", marginTop: "10px" }}
+          direction='row'
+          sx={{ alignSelf: 'center', marginTop: '10px' }}
         >
           <Button
-            variant="contained"
+            variant='contained'
             onClick={() => {
               return navigate(`booking/${selectedBooking._id}`);
             }}
@@ -279,13 +280,13 @@ export default function ReservationModal() {
         {selectedBookingWasModified ? (
           <Button
             onClick={async () => await handleUpdateBookingClick()}
-            variant="contained"
-            color="success"
+            variant='contained'
+            color='success'
             sx={{
-              width: "300px",
-              alignSelf: "center",
-              marginTop: "auto",
-              marginBottom: "10px",
+              width: '300px',
+              alignSelf: 'center',
+              marginTop: 'auto',
+              marginBottom: '10px',
             }}
           >
             Save
