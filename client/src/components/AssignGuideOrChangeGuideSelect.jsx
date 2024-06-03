@@ -103,7 +103,7 @@ function AssignGuideOrChangeGuideSelect() {
         <Button
           variant='outlined'
           color='error'
-          size='medium'
+          size='small'
           sx={{ padding: '15px 10px' }}
           onClick={async () => await handleRemoveGuide()}
         >
