@@ -274,7 +274,8 @@ export default function ReservationModal() {
         >
           <Button
             variant='contained'
-            size='small'
+            size='medium'
+            sx={{ minWidth: '150px' }}
             onClick={() => {
               return navigate(`booking/${selectedBooking._id}`);
             }}
