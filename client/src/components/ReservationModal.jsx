@@ -265,10 +265,16 @@ export default function ReservationModal() {
         <Stack
           spacing={2}
           direction='row'
-          sx={{ alignSelf: 'center', marginTop: '10px' }}
+          sx={{
+            alignSelf: 'center',
+            marginTop: '10px',
+            flexWrap: 'wrap',
+            padding: '0 5px',
+          }}
         >
           <Button
             variant='contained'
+            size='medium'
             onClick={() => {
               return navigate(`booking/${selectedBooking._id}`);
             }}
